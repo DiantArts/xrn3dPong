@@ -130,6 +130,9 @@ using ::std::chrono_literals::operator""ms;
 #define PRINT_DEBUG
 // #define FORCE_PRINT // print even silent asserts
 #include <xrn/Log/Logger.hpp>
+#include <xrn/Util.hpp>
+#include <xrn/Meta.hpp>
+#include <xrn/Ecs.hpp>
 
 
 inline auto operator<<(
@@ -149,7 +152,6 @@ inline auto operator<<(
     os << '[' << vec.x << ", " << vec.y << ", " << vec.z << ']';
     return os;
 }
-
 
 
 #endif // ___INCLUDE_GUARD_INCLUDES_PCH_HPP___
