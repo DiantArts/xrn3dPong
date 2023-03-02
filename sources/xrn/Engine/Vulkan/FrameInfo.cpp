@@ -21,7 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::vulkan::FrameInfo::FrameInfo(
     ::std::vector<::VkDescriptorSet>& parentDescriptorSets,
-    ::xrn::engine::vulkan::AScene& parentScene
+    ::xrn::engine::AScene& parentScene
 )
     : descriptorSets{ parentDescriptorSets }
     , scene{ parentScene }

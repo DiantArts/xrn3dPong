@@ -129,26 +129,26 @@
 
     // Vertex file
     filepath.reserve(
-        ::xrn::engine::vulkan::configuration.filepath.shadersDirectory.size() +
-        ::xrn::engine::vulkan::configuration.filepath.vertexDirectory.size() +
-        shaderFilenames.size() + ::xrn::engine::vulkan::configuration.filepath.vertexExtension.size()
+        ::xrn::engine::configuration.filepath.shadersDirectory.size() +
+        ::xrn::engine::configuration.filepath.vertexDirectory.size() +
+        shaderFilenames.size() + ::xrn::engine::configuration.filepath.vertexExtension.size()
     );
-    filepath = ::xrn::engine::vulkan::configuration.filepath.shadersDirectory;
-    filepath += ::xrn::engine::vulkan::configuration.filepath.vertexDirectory;
+    filepath = ::xrn::engine::configuration.filepath.shadersDirectory;
+    filepath += ::xrn::engine::configuration.filepath.vertexDirectory;
     filepath += shaderFilenames;
-    filepath += ::xrn::engine::vulkan::configuration.filepath.vertexExtension;
+    filepath += ::xrn::engine::configuration.filepath.vertexExtension;
     this->createShaderModule(filepath, m_vertexShaderModule);
 
     // Fragment file
     filepath.reserve(
-        ::xrn::engine::vulkan::configuration.filepath.shadersDirectory.size() +
-        ::xrn::engine::vulkan::configuration.filepath.fragmentDirectory.size() +
-        shaderFilenames.size() + ::xrn::engine::vulkan::configuration.filepath.fragmentExtension.size()
+        ::xrn::engine::configuration.filepath.shadersDirectory.size() +
+        ::xrn::engine::configuration.filepath.fragmentDirectory.size() +
+        shaderFilenames.size() + ::xrn::engine::configuration.filepath.fragmentExtension.size()
     );
-    filepath = ::xrn::engine::vulkan::configuration.filepath.shadersDirectory;
-    filepath += ::xrn::engine::vulkan::configuration.filepath.fragmentDirectory;
+    filepath = ::xrn::engine::configuration.filepath.shadersDirectory;
+    filepath += ::xrn::engine::configuration.filepath.fragmentDirectory;
     filepath += shaderFilenames;
-    filepath += ::xrn::engine::vulkan::configuration.filepath.fragmentExtension;
+    filepath += ::xrn::engine::configuration.filepath.fragmentExtension;
     this->createShaderModule(filepath, m_fragmentShaderModule);
 
     ::VkPipelineShaderStageCreateInfo shaderStages[2];

@@ -3,7 +3,7 @@
 #include <xrn/Util.hpp>
 #include <xrn/Engine/Vulkan/Ubo.hpp>
 
-namespace xrn::engine::vulkan { class AScene; }
+namespace xrn::engine { class AScene; }
 
 namespace xrn::engine::vulkan {
 
@@ -18,7 +18,7 @@ struct FrameInfo {
 
     explicit FrameInfo (
         ::std::vector<::VkDescriptorSet>& parentDescriptorSets,
-        ::xrn::engine::vulkan::AScene& parentScene
+        ::xrn::engine::AScene& parentScene
     );
 
     ::std::size_t frameIndex;
@@ -30,7 +30,7 @@ struct FrameInfo {
 
     ::std::vector<::VkDescriptorSet>& descriptorSets;
 
-    ::xrn::engine::vulkan::AScene& scene;
+    ::xrn::engine::AScene& scene;
 };
 
 } // namespace xrn::engine::vulkan

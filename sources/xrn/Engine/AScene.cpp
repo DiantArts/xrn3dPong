@@ -54,7 +54,7 @@
     for (auto& pUbo : m_uboBuffers) {
         pUbo = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
             m_device,
-            sizeof(::xrn::engine::Ubo),
+            sizeof(::xrn::engine::vulkan::Ubo),
             1,
             ::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT

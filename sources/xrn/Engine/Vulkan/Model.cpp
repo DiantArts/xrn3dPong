@@ -13,7 +13,7 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <xrn/Engine/Vulkan/Model.hpp>
-#include <xrn/Engine/Vulkan/Configuration.hpp>
+#include <xrn/Engine/Configuration.hpp>
 
 
 
@@ -110,12 +110,12 @@ void ::xrn::engine::vulkan::Model::Builder::loadFromFile(
 
     ::std::string filepath;
     filepath.reserve(
-        ::xrn::engine::vulkan::configuration.filepath.modelDirectory.size() + filename.size() +
-        ::xrn::engine::vulkan::configuration.filepath.modelExtension.size()
+        ::xrn::engine::configuration.filepath.modelDirectory.size() + filename.size() +
+        ::xrn::engine::configuration.filepath.modelExtension.size()
     );
-    filepath = ::xrn::engine::vulkan::configuration.filepath.modelDirectory;
+    filepath = ::xrn::engine::configuration.filepath.modelDirectory;
     filepath += filename;
-    filepath += ::xrn::engine::vulkan::configuration.filepath.modelExtension;
+    filepath += ::xrn::engine::configuration.filepath.modelExtension;
 
     XRN_SASSERT(tinyobj::LoadObj(&attrib, &shapes, &materials, &warning, &error, filepath.c_str()), "{} {}", warning, error);
 
