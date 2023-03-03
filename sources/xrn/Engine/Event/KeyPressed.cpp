@@ -86,5 +86,5 @@ void ::xrn::engine::event::KeyPressed::resolve(
 
     }
 
-    XRN_ERROR("this key is not bound");
+    XRN_INFO("Key ({}) is not bound to press", m_keyCode);
 }

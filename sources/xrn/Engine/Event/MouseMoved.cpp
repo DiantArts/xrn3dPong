@@ -62,8 +62,10 @@ void ::xrn::engine::event::MouseMoved::resolve(
     ::xrn::engine::AScene& scene
 )
 {
-    auto& playerController{ scene.getPlayerComponent<::xrn::engine::component::Control>() };
+    auto* playerController{ scene.tryGetPlayerComponent<::xrn::engine::component::Control>() };
 
-    playerController.rotateX(-m_offset.x);
-    playerController.rotateY(m_offset.y);
+    if (playerController) {
+        playerController->rotateX(-m_offset.x);
+        playerController->rotateY(m_offset.y);
+    }
 }

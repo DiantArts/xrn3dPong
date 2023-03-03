@@ -21,7 +21,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::AScene::AScene()
+::xrn::engine::AScene::AScene(
+    bool isCameraDetached
+)
     // create the vulkan things (I dont remember what it does)
     : m_pDescriptorSetLayout{ ::xrn::engine::vulkan::descriptor::SetLayout::Builder{ m_device }
         .addBinding(0, ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, ::VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -43,7 +45,7 @@
     }
     // entity that the player controls
     , m_player{ m_registry.create() }
-    , m_camera{ m_registry.create() }
+    , m_camera{ isCameraDetached ? m_player : m_registry.create() }
 {
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
@@ -68,13 +70,6 @@
             .writeBuffer(0, &bufferInfo)
             .build(m_descriptorSets[i]);
     }
-
-    // hardcode cube as player
-    m_registry.emplace<::xrn::engine::component::Control>(m_player); // player always is controllable
-
-    m_registry.emplace<::xrn::engine::component::Control>(m_camera.getId());
-    m_registry.emplace<::xrn::engine::component::Position>(m_camera.getId(), ::glm::vec3{ 0.0f, 0.0f, -2.5f });
-    m_registry.emplace<::xrn::engine::component::Rotation>(m_camera.getId(), ::glm::vec3{ 90.0f, 0.0f, 0.0f });
 }
 
 

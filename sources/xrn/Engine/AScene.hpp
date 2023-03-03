@@ -33,7 +33,9 @@ public:
     /// \brief Default constructor
     ///
     ///////////////////////////////////////////////////////////////////////////
-    explicit AScene();
+    explicit AScene(
+        bool isCameraDetached
+    );
 
 
 
