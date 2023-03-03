@@ -40,5 +40,5 @@ void ::xrn::engine::event::KeyPressed::resolve(
     ::xrn::engine::AScene& scene
 )
 {
-    scene.onKeyPressed(m_keyCode);
+    scene.onSystemKeyPressed(m_keyCode);
 }

@@ -40,5 +40,5 @@ void ::xrn::engine::event::KeyReleased::resolve(
     ::xrn::engine::AScene& scene
 )
 {
-    scene.onKeyReleased(m_keyCode);
+    scene.onSystemKeyReleased(m_keyCode);
 }

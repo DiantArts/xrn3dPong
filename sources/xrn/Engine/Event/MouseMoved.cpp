@@ -62,5 +62,5 @@ void ::xrn::engine::event::MouseMoved::resolve(
     ::xrn::engine::AScene& scene
 )
 {
-    scene.onMouseMoved(m_offset);
+    scene.onSystemMouseMoved(m_offset);
 }

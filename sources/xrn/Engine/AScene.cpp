@@ -165,7 +165,6 @@ void ::xrn::engine::AScene::onSystemKeyReleased(
             auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
             playerController
         ) {
-
             // move
             if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
                 return playerController->stopMovingForward();
