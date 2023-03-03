@@ -194,7 +194,7 @@ void ::xrn::engine::component::Rotation::setRotationZ(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::engine::component::Rotation::getRotation() const
+[[ nodiscard ]] auto ::xrn::engine::component::Rotation::get() const
     -> const ::glm::vec3&
 {
     return m_rotation;

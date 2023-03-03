@@ -21,7 +21,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::client::Scene::Scene()
-    : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
+    : ::xrn::engine::AScene::AScene{ true /* isCameraDetached */}
 {
     this->loadObjects();
     this->loadMap();
@@ -44,7 +44,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-// Overrides
+// events
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +63,24 @@ auto ::client::Scene::postUpdate()
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////
+void ::client::Scene::onKeyPressed(
+    ::std::int16_t keyCode
+)
+{}
+
+///////////////////////////////////////////////////////////////////////////
+void ::client::Scene::onKeyReleased(
+    ::std::int16_t keyCode
+)
+{}
+
+///////////////////////////////////////////////////////////////////////////
+void ::client::Scene::onMouseMoved(
+    ::glm::vec2 position
+)
+{}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,19 +92,20 @@ auto ::client::Scene::postUpdate()
 ///////////////////////////////////////////////////////////////////////////
 void ::client::Scene::loadObjects()
 {
-    { // player as cube
-        auto entity{ m_player };
-        // m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.4f, -1.0f);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, 0.1f);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
-    }
-
     { // camera
         auto entity{ m_camera.getId() };
         m_registry.emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
-        m_registry.emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -6.5f });
+        m_registry.emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -7.5f });
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+    }
+
+    { // player as cube
+        // auto entity{ m_player };
+        auto entity{ m_registry.create() };
+        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -5.0f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 0.2, 0.2f, 0.01);
+        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
     }
 
     { // vase 1
@@ -106,41 +125,36 @@ void ::client::Scene::loadObjects()
 void ::client::Scene::loadMap()
 {
     // bot
-    for (auto x{ -1.0f }; x <= 1.0f; x += 2.0f) {
-        for (auto z{ -3.0f }; z <= 3.0f; z += 2.0f) {
-            auto entity{ m_registry.create() };
-            m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-            m_registry.emplace<::xrn::engine::component::Position>(entity, x, 1.0f, z);
-        }
+    {
+        auto entity{ m_registry.create() };
+        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 1.0f, 0.0f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 2.0f, 5.0f);
     }
-
     // top
-    for (auto x{ -1.0f }; x <= 1.0f; x += 2.0f) {
-        for (auto z{ -3.0f }; z <= 3.0f; z += 2.0f) {
-            auto entity{ m_registry.create() };
-            m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-            m_registry.emplace<::xrn::engine::component::Position>(entity, x, -1.0f, z);
-        }
+    {
+        auto entity{ m_registry.create() };
+        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, -1.f, 0.0f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 2.0f, 5.0f);
+        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -180.0f, 0.0f, 0.0f });
     }
-
     // left
-    for (auto y{ 0.0f }; y <= 0.0f; y += 2.0f) {
-        for (auto z{ -3.0f }; z <= 3.0f; z += 2.0f) {
-            auto entity{ m_registry.create() };
-            m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-            m_registry.emplace<::xrn::engine::component::Position>(entity, -2.0f, y, z);
-            m_registry.emplace<::xrn::engine::component::Rotation>(entity, 0.0f, 0.0f, 90.0f);
-        }
+    {
+        auto entity{ m_registry.create() };
+        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
+        m_registry.emplace<::xrn::engine::component::Position>(entity, -2.0f, 0.f, 0.0f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 1.0f, 2.0f, 5.0f);
+        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 90.0f });
     }
-
     // right
-    for (auto y{ 0.0f }; y <= 0.0f; y += 2.0f) {
-        for (auto z{ -3.0f }; z <= 3.0f; z += 2.0f) {
-            auto entity{ m_registry.create() };
-            m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-            m_registry.emplace<::xrn::engine::component::Position>(entity, 2.0f, y, z);
-            m_registry.emplace<::xrn::engine::component::Rotation>(entity, 0.0f, 0.0f, 90.0f);
-        }
+    {
+        auto entity{ m_registry.create() };
+        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 2.0f, 0.f, 0.0f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 1.0f, 2.0f, 5.0f);
+        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, -90.0f });
+        m_debugEntity = entity;
     }
 }
 

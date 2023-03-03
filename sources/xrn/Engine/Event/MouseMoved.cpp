@@ -21,29 +21,29 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::event::MouseMoved::MouseMoved(
-    ::glm::vec2 position
+    ::glm::vec2 offset
 )
-    : m_offset{ position.x, position.y }
+    : m_offset{ offset.x, offset.y }
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::event::MouseMoved::MouseMoved(
-    float positionX,
-    float positionY
+    float offsetX,
+    float offsetY
 )
-    : m_offset{ positionX, positionY }
+    : m_offset{ offsetX, offsetY }
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::event::MouseMoved::MouseMoved(
-    double positionX,
-    double positionY
+    double offsetX,
+    double offsetY
 )
     : m_offset{
-        static_cast<float>(positionX),
-        static_cast<float>(positionY)
+        static_cast<float>(offsetX),
+        static_cast<float>(offsetY)
     }
 {
 }
@@ -62,10 +62,5 @@ void ::xrn::engine::event::MouseMoved::resolve(
     ::xrn::engine::AScene& scene
 )
 {
-    auto* playerController{ scene.tryGetPlayerComponent<::xrn::engine::component::Control>() };
-
-    if (playerController) {
-        playerController->rotateX(-m_offset.x);
-        playerController->rotateY(m_offset.y);
-    }
+    scene.onMouseMoved(m_offset);
 }

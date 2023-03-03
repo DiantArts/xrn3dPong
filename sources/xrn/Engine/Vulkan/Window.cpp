@@ -127,11 +127,11 @@ void ::xrn::engine::vulkan::Window::display() const
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::handleEvents(
-    ::xrn::engine::AScene& app
+    ::xrn::engine::AScene& scene
 )
 {
     ::glfwPollEvents();
-    m_events.resolve(app);
+    m_events.resolve(scene);
 }
 
 ///////////////////////////////////////////////////////////////////////////

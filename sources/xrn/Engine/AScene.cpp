@@ -44,8 +44,9 @@
         m_pDescriptorSetLayout->getDescriptorSetLayout()
     }
     // entity that the player controls
+    , m_isCameraDetached{ isCameraDetached }
     , m_player{ m_registry.create() }
-    , m_camera{ isCameraDetached ? m_player : m_registry.create() }
+    , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
 {
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
@@ -83,6 +84,147 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::AScene::~AScene() = default;
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Events
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::AScene::onSystemKeyPressed(
+    ::std::int16_t keyCode
+)
+{
+
+    // default
+    if (keyCode == ::xrn::engine::configuration.keyBinding.closeWindow) {
+        return this->getWindow().close();
+    }
+
+    // if player is controllable
+    if (m_isCameraDetached) {
+        if (
+            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            playerController
+        ) {
+            // move
+            if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
+                return playerController->startMovingForward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
+                return playerController->startMovingBackward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
+                return playerController->startMovingLeft();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
+                return playerController->startMovingRight();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveUp) {
+                return playerController->startMovingUp();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveDown) {
+                return playerController->startMovingDown();
+
+            // move arrows
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
+                return playerController->startMovingForward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
+                return playerController->startMovingBackward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
+                return playerController->startMovingLeft();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
+                return playerController->startMovingRight();
+
+            // look
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
+                return playerController->rotateZ(-45 / 2);
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookDown) {
+                return playerController->rotateZ(45 / 2);
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookLeft) {
+                return playerController->rotateX(45 / 2);
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookRight) {
+                return playerController->rotateX(-45 / 2);
+            }
+        }
+    } else {
+        this->onKeyPressed(keyCode);
+    }
+
+    XRN_INFO("Key ({}) is not bound to press", keyCode);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::AScene::onSystemKeyReleased(
+    ::std::int16_t keyCode
+)
+{
+    // if player is controllable
+    if (m_isCameraDetached) {
+        if (
+            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            playerController
+        ) {
+
+            // move
+            if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
+                return playerController->stopMovingForward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
+                return playerController->stopMovingBackward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
+                return playerController->stopMovingLeft();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
+                return playerController->stopMovingRight();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveUp) {
+                return playerController->stopMovingUp();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveDown) {
+                return playerController->stopMovingDown();
+
+            // move arrows
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
+                return playerController->stopMovingForward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
+                return playerController->stopMovingBackward();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
+                return playerController->stopMovingLeft();
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
+                return playerController->stopMovingRight();
+
+            // look
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
+                return;
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookDown) {
+                return;
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookLeft) {
+                return;
+            } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookRight) {
+                return;
+            }
+        }
+    } else {
+        this->onKeyReleased(keyCode);
+    }
+
+    XRN_INFO("Key ({}) is not bound to press", keyCode);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::AScene::onSystemMouseMoved(
+    ::glm::vec2 offset
+)
+{
+    if (m_isCameraDetached) {
+        if (
+            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            playerController
+        ) {
+            playerController->rotateX(-offset.x);
+            playerController->rotateY(offset.y);
+        }
+    } else {
+        this->onMouseMoved(offset);
+    }
+}
 
 
 
@@ -131,27 +273,32 @@ void ::xrn::engine::AScene::run()
     ::vkDeviceWaitIdle(m_device.device());
 }
 
+float deltaT;
+
 ///////////////////////////////////////////////////////////////////////////
 auto ::xrn::engine::AScene::update()
     -> bool
 {
+    // m_registry.get<::xrn::engine::component::Rotation>(m_debugEntity).rotateZ(m_frameInfo.deltaTime / 1000);
+    // ::fmt::print("{}\n", m_registry.get<::xrn::engine::component::Rotation>(m_debugEntity).get().z);
+
     this->updateCamera();
 
     // control
     for (auto [entity, control]: m_registry.view<::xrn::engine::component::Control>().each()) {
-        auto* pPosition{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
-        auto* pRotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
+        auto* position{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
+        auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
 
-        if (pRotation) {
+        if (rotation) {
             if (control.isRotated()) {
-                pRotation->updateDirection(control.getRotation());
+                rotation->updateDirection(control.getRotation());
                 control.resetRotatedFlag();
             }
-            if (pPosition) {
-                pPosition->update(m_frameInfo.deltaTime, control, pRotation->getDirection());
+            if (position) {
+                position->update(m_frameInfo.deltaTime, control, rotation->getDirection());
             }
         } else {
-            if (pPosition) {
+            if (position) {
                 auto direction{
                     ::glm::normalize(::glm::vec3(
                         cos(::glm::radians(0.0f)) * cos(::glm::radians(0.0f)),
@@ -159,45 +306,45 @@ auto ::xrn::engine::AScene::update()
                         sin(::glm::radians(0.0f)) * cos(::glm::radians(0.0f))
                     ))
                 };
-                pPosition->update(m_frameInfo.deltaTime, control, direction);
+                position->update(m_frameInfo.deltaTime, control, direction);
             }
         }
     }
 
     // transform (apply position rotation scale)
     for (auto [entity, transform]: m_registry.view<::xrn::engine::component::Transform3d>().each()) {
-        auto* pPosition{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
-        auto* pRotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
-        auto* pScale{ m_registry.try_get<::xrn::engine::component::Scale>(entity) };
+        auto* position{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
+        auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
+        auto* scale{ m_registry.try_get<::xrn::engine::component::Scale>(entity) };
 
         // matrix and normalMatrix
-        if (pPosition) {
-            if (pRotation) {
-                if (pScale) {
-                    if (pPosition->isChanged() || pRotation->isChanged() || pScale->isChanged()) {
-                        transform.updateMatrix(*pPosition, *pRotation, *pScale);
-                        transform.updateNormalMatrix(*pRotation, *pScale);
+        if (position) {
+            if (rotation) {
+                if (scale) {
+                    if (position->isChanged() || rotation->isChanged() || scale->isChanged()) {
+                        transform.updateMatrix(*position, *rotation, *scale);
+                        transform.updateNormalMatrix(*rotation, *scale);
                     }
-                    pScale->resetChangedFlag();
-                    pRotation->resetChangedFlag();
-                } else if (pPosition->isChanged() || pRotation->isChanged()) {
-                    transform.updateMatrix(*pPosition, *pRotation);
-                    transform.updateNormalMatrix(*pRotation);
-                    pRotation->resetChangedFlag();
+                    scale->resetChangedFlag();
+                    rotation->resetChangedFlag();
+                } else if (position->isChanged() || rotation->isChanged()) {
+                    transform.updateMatrix(*position, *rotation);
+                    transform.updateNormalMatrix(*rotation);
+                    rotation->resetChangedFlag();
                 }
             } else {
-                if (pScale) {
-                    if (pPosition->isChanged() || pScale->isChanged()) {
-                        transform.updateMatrix(*pPosition);
-                        transform.updateMatrix(*pPosition, { 0.0f, 0.0f, 0.0f }, *pScale);
-                        transform.updateNormalMatrix(*pScale);
-                        pScale->resetChangedFlag();
+                if (scale) {
+                    if (position->isChanged() || scale->isChanged()) {
+                        transform.updateMatrix(*position);
+                        transform.updateMatrix(*position, { 0.0f, 0.0f, 0.0f }, *scale);
+                        transform.updateNormalMatrix(*scale);
+                        scale->resetChangedFlag();
                     }
-                } else if (pPosition->isChanged()) {
-                    transform.updateMatrix(*pPosition);
+                } else if (position->isChanged()) {
+                    transform.updateMatrix(*position);
                 }
             }
-            pPosition->resetChangedFlag();
+            position->resetChangedFlag();
         }
     }
 
@@ -234,7 +381,7 @@ void ::xrn::engine::AScene::updateCamera()
 
     m_frameInfo.projectionView = m_camera.getProjection() * m_camera.getView();
     m_frameInfo.ubo.projection = m_camera.getProjection();
-    m_frameInfo.ubo.view= m_camera.getView();
+    m_frameInfo.ubo.view = m_camera.getView();
 }
 
 
