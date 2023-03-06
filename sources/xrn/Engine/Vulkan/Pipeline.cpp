@@ -39,6 +39,7 @@
     this->rasterizationInfo.depthClampEnable = VK_FALSE;
     this->rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
     this->rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
+    // this->rasterizationInfo.polygonMode = VK_POLYGON_MODE_LINE; // draw only lines
     this->rasterizationInfo.lineWidth = 1.0f;
     this->rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
     this->rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;

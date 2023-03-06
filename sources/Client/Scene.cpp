@@ -22,7 +22,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::client::Scene::Scene()
-    : ::xrn::engine::AScene::AScene{ true /* isCameraDetached */}
+    : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
     , m_enemy{ m_registry.create() }
 {
     this->loadObjects();
@@ -62,6 +62,23 @@ auto ::client::Scene::onUpdate()
 auto ::client::Scene::postUpdate()
     -> bool
 {
+    // TODO: tmp max position check
+    if (!m_isCameraDetached) {
+        auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
+        if (position.get().x >= maxMapPosition.x) {
+            position.setX(maxMapPosition.x);
+        }
+        if (position.get().x <= -maxMapPosition.x) {
+            position.setX(-maxMapPosition.x);
+        }
+        if (position.get().y >= maxMapPosition.y) {
+            position.setY(maxMapPosition.y);
+        }
+        if (position.get().y <= -maxMapPosition.y) {
+            position.setY(-maxMapPosition.y);
+        }
+    }
+
     return true;
 }
 
@@ -169,8 +186,8 @@ void ::client::Scene::loadObjects()
     { // camera
         auto entity{ m_camera.getId() };
         m_registry.emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
-        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(300);
-        m_registry.emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 2.5f) });
+        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(3000);
+        m_registry.emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 25.0f) });
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
@@ -178,10 +195,10 @@ void ::client::Scene::loadObjects()
         // if camera detached, create a random object to replace player
         auto entity{ m_isCameraDetached ? m_registry.create() : m_player };
         m_registry.emplace<::xrn::engine::component::Control>(entity);
-        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(250);
+        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(2500);
         m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, 0.2, 0.01f, 0.2f);
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -mapSize.z);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
@@ -190,7 +207,7 @@ void ::client::Scene::loadObjects()
         m_registry.emplace<::xrn::engine::component::Control>(entity);
         m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(250);
         m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -mapSize.z);
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
         m_registry.emplace<::xrn::engine::component::Scale>(entity, 0.2, 0.01f, 0.2f);
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
@@ -255,7 +272,7 @@ void ::client::Scene::loadLights()
             ) };
             auto entity{ m_registry.create() };
             m_registry.emplace<::xrn::engine::component::Position>(
-                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, -0.0f, -1.5f, 1.0f } }
+                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, -0.0f, -15.0f, 1.0f } }
             );
             m_registry.emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
 

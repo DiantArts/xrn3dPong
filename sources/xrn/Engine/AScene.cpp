@@ -148,7 +148,7 @@ void ::xrn::engine::AScene::onSystemKeyPressed(
             }
         }
     } else {
-        this->onKeyPressed(keyCode);
+        return this->onKeyPressed(keyCode);
     }
 
     XRN_INFO("Key ({}) is not bound to press", keyCode);
@@ -201,7 +201,7 @@ void ::xrn::engine::AScene::onSystemKeyReleased(
             }
         }
     } else {
-        this->onKeyReleased(keyCode);
+        return this->onKeyReleased(keyCode);
     }
 
     XRN_INFO("Key ({}) is not bound to press", keyCode);
