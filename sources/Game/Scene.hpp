@@ -2,18 +2,20 @@
 
 #include <xrn/Engine/AScene.hpp>
 #include <xrn/Engine/System/Render.hpp>
+#include <Game/MessageType.hpp>
 
-namespace client {
+namespace game {
 
 ///////////////////////////////////////////////////////////////////////////
-/// \brief No clue what it does xD
-/// \ingroup vulkan
+/// \brief Scene of the came
+/// \ingroup game
 ///
-/// \include Scene.hpp <Scene.hpp>
+/// \include Scene.hpp <Game/Scene.hpp>
 ///
 ///////////////////////////////////////////////////////////////////////////
 class Scene
     : public ::xrn::engine::AScene
+    , public ::xrn::network::client::Client<::game::MessageType>
 {
 
 public:
@@ -29,6 +31,8 @@ public:
 
     static constexpr const ::glm::vec3 maxMapPosition{ 17.9f, 8.0f, 0.0f };
 
+
+
 public:
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +44,10 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Default constructor
+    ///
+    /// \warning Call to connectToServer() is required to run the scene
+    ///
+    /// \see connectToServer()
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Scene();
@@ -138,6 +146,15 @@ public:
         ::glm::vec2 position
     ) override;
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief On message received from the server
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    virtual void onReceive(
+        ::xrn::network::Message<::game::MessageType>& message,
+        ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+    ) override;
+
 
 
 private:
@@ -179,4 +196,4 @@ private:
 
 };
 
-} // namespace client
+} // namespace game

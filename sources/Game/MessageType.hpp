@@ -1,0 +1,16 @@
+#pragma once
+
+namespace game {
+
+///////////////////////////////////////////////////////////////////////////
+/// \brief Message to describe the communication between client and server
+///
+///////////////////////////////////////////////////////////////////////////
+enum class MessageType
+    : ::std::uint16_t
+{
+    playerPosition
+    , last // required member
+};
+
+} // namespace game

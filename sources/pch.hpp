@@ -133,6 +133,7 @@ using ::std::chrono_literals::operator""ms;
 #include <xrn/Util.hpp>
 #include <xrn/Meta.hpp>
 #include <xrn/Ecs.hpp>
+#include <xrn/Network.hpp>
 
 
 inline auto operator<<(

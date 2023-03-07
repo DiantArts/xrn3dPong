@@ -6,8 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // Headers
 ///////////////////////////////////////////////////////////////////////////
-#include <xrn/Util.hpp>
-#include <Client/Scene.hpp>
+#include <Game/Scene.hpp>
 #include <xrn/Engine/Components.hpp>
 #include <xrn/Engine/Configuration.hpp>
 
@@ -21,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::client::Scene::Scene()
+::game::Scene::Scene()
     : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
     , m_enemy{ m_registry.create() }
 {
@@ -40,7 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::client::Scene::~Scene() = default;
+::game::Scene::~Scene() = default;
 
 
 
@@ -52,17 +51,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::client::Scene::onUpdate()
+auto ::game::Scene::onUpdate()
     -> bool
 {
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::client::Scene::postUpdate()
+auto ::game::Scene::postUpdate()
     -> bool
 {
-    // TODO: tmp max position check
+    // TODO: tmp max position check (use a MaxPosition component or inivisble wall)
     if (!m_isCameraDetached) {
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
         if (position.get().x >= maxMapPosition.x) {
@@ -77,13 +76,21 @@ auto ::client::Scene::postUpdate()
         if (position.get().y <= -maxMapPosition.y) {
             position.setY(-maxMapPosition.y);
         }
+
+        // send corrected position to server
+        this->udpSendToServer(
+            ::game::MessageType::playerPosition
+            , position.get().x
+            , position.get().y
+            , position.get().z // ignored but send eitherway
+        );
     }
 
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::onKeyPressed(
+void ::game::Scene::onKeyPressed(
     ::std::int16_t keyCode
 )
 {
@@ -124,8 +131,10 @@ void ::client::Scene::onKeyPressed(
     }
 }
 
+
+
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::onKeyReleased(
+void ::game::Scene::onKeyReleased(
     ::std::int16_t keyCode
 )
 {
@@ -167,10 +176,32 @@ void ::client::Scene::onKeyReleased(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::onMouseMoved(
+void ::game::Scene::onMouseMoved(
     ::glm::vec2 position
 )
 {}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::Scene::onReceive(
+    ::xrn::network::Message<::game::MessageType>& message,
+    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+)
+{
+    switch (message.getType()) {
+    case ::game::MessageType::playerPosition: {
+        ::glm::vec3 pos{
+            message.pull<float>()
+            , message.pull<float>()
+            , message.pull<float>()
+        };
+        ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
+        // send to room
+        break;
+    } default: {
+    break;
+    }}
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +212,7 @@ void ::client::Scene::onMouseMoved(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::loadObjects()
+void ::game::Scene::loadObjects()
 {
     { // camera
         auto entity{ m_camera.getId() };
@@ -208,13 +239,13 @@ void ::client::Scene::loadObjects()
         m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(250);
         m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
         m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, 0.2, 0.01f, 0.2f);
+        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::loadMap()
+void ::game::Scene::loadMap()
 {
     // bot
     {
@@ -251,7 +282,7 @@ void ::client::Scene::loadMap()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::client::Scene::loadLights()
+void ::game::Scene::loadLights()
 {
     { // lights
         std::vector<glm::vec3> lightColors{

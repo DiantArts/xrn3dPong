@@ -10,8 +10,8 @@ foreach(library IN LISTS XRN_LIBRARIES_REQUIREMENTS)
     find_dependency(${library} REQUIRED)
 endforeach()
 
-get_filename_component(XRN_CLIENT_MAIN ${XRN_SOURCES_DIR}/Client/main.cpp REALPATH)
-get_filename_component(XRN_SERVER_MAIN ${XRN_SOURCES_DIR}/Server/main.cpp REALPATH)
+get_filename_component(XRN_CLIENT_MAIN ${XRN_SOURCES_DIR}/Game/Client/main.cpp REALPATH)
+get_filename_component(XRN_SERVER_MAIN ${XRN_SOURCES_DIR}/Game/Server/main.cpp REALPATH)
 list(REMOVE_ITEM XRN_SOURCES "${XRN_CLIENT_MAIN}")
 list(REMOVE_ITEM XRN_SOURCES "${XRN_SERVER_MAIN}")
 

@@ -11,7 +11,7 @@ set(XRN_CXX_VERSION 23)
 set(XRN_ERROR_LIMIT 1)
 
 # dependencies
-set(XRN_PERSONAL_DEPENDENCIES xrnLog xrnMeta xrnUtil xrnEcs) # include other xrn projects
+set(XRN_PERSONAL_DEPENDENCIES xrnLog xrnMeta xrnUtil xrnEcs xrnNetwork) # include other xrn projects
 set(XRN_LIBRARIES_REQUIRED glfw/3.3.7 entt/3.10.1 spdlog/1.10.0 asio/1.24.0)
 set(XRN_LIBRARIES_REQUIREMENTS Vulkan glfw3 EnTT fmt Threads spdlog fmt asio) # find_package
 set(XRN_LIBRARIES_DEPENDENCIES Vulkan::Vulkan glfw::glfw EnTT::EnTT fmt::fmt Threads::Threads CONAN_PKG::spdlog CONAN_PKG::fmt CONAN_PKG::asio) # target_link_libraries
@@ -87,13 +87,18 @@ option(ENABLE_SHARED_LIBRARY "Compile the main program as a shared library" OFF)
 # xrnCMake
 # =========================================================================
 
-include(FetchContent)
-FetchContent_Declare(
-    _project_options
-    GIT_REPOSITORY https://github.com/DiantArts/xrnCMake
-    GIT_TAG        main
-)
-FetchContent_MakeAvailable(_project_options)
+get_filename_component(${library_name}_LOCAL_FULLPATH "../xrnCMake" REALPATH)
+if (EXISTS "${${library_name}_LOCAL_FULLPATH}") # if directory is present locally
+    include("../xrnCMake/Index.cmake")
+else ()
+    include(FetchContent)
+    FetchContent_Declare(
+        _project_options
+        GIT_REPOSITORY https://github.com/DiantArts/xrnCMake
+        GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(_project_options)
+endif ()
 
 default_setup_filepaths()
 default_find_files()
