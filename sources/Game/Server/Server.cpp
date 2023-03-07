@@ -45,15 +45,10 @@ void ::game::Server::onReceive(
 {
     switch (message.getType()) {
     case ::game::MessageType::playerPosition: {
-        ::glm::vec3 pos{
-            message.pull<float>()
-            , message.pull<float>()
-            , message.pull<float>()
-        };
         for (auto& room : m_rooms) {
             if (room.contains(connection)) {
                 if (auto opponent{ room.getOpponent(connection) }; opponent) {
-                    this->tcpSendToClient(message, opponent);
+                    this->udpSendToClient(message, opponent);
                 }
             }
         }

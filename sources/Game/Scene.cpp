@@ -206,14 +206,14 @@ void ::game::Scene::onReceive(
 
         // move to the other side because player is player2
         // camera
-        m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z - 25.0f);
-        m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()).rotateX(180);
+        // m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z - 25.0f);
+        // m_registry.get<::xrn::engine::component::Control>(m_camera.getId()).rotateX(180);
         // player
         m_registry.get<::xrn::engine::component::Position>(m_player).setZ(mapSize.z);
-        m_registry.get<::xrn::engine::component::Rotation>(m_player).rotateX(180);
+        m_registry.get<::xrn::engine::component::Control>(m_player).rotateX(180);
         // enemy
-        m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
-        m_registry.get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
+        // m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
+        // m_registry.get<::xrn::engine::component::Control>(m_enemy).rotateX(180);
 
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
