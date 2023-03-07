@@ -2,6 +2,7 @@
 
 #include <xrn/Network/Server/Server.hpp>
 #include <Game/MessageType.hpp>
+#include <Game/Server/GameRoom.hpp>
 
 namespace game {
 
@@ -50,6 +51,14 @@ public:
         ::xrn::network::Message<::game::MessageType>& message,
         ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
     ) override;
+
+
+
+private:
+
+    ::std::vector<::game::server::GameRoom> m_rooms;
+
+    ::std::mutex m_mutex;
 
 };
 

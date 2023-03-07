@@ -254,6 +254,7 @@ void ::xrn::engine::component::Position::set(
 )
 {
     m_position = ::std::move(position);
+    m_isChanged = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -50,16 +50,36 @@ void ::game::Server::onReceive(
             , message.pull<float>()
             , message.pull<float>()
         };
-        ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
-        // send to room
+        for (auto& room : m_rooms) {
+            if (room.contains(connection)) {
+                if (auto opponent{ room.getOpponent(connection) }; opponent) {
+                    this->tcpSendToClient(message, opponent);
+                }
+            }
+        }
+        break;
+    } case ::game::MessageType::queuing: {
+        ::std::scoped_lock lock{ m_mutex };
+
+        // TODO: insert matchmaking
+        if (m_rooms.empty() || m_rooms.back().isFull()) {
+            m_rooms.emplace_back(connection);
+        } else {
+            m_rooms.back().joinGame(connection);
+            this->tcpSendToClient(
+                ::xrn::network::Message<::game::MessageType>{ ::game::MessageType::playerAttributionOne }
+                , m_rooms.back().getPlayer1()
+            );
+            this->tcpSendToClient(
+                ::xrn::network::Message<::game::MessageType>{ ::game::MessageType::playerAttributionTwo }
+                , m_rooms.back().getPlayer2()
+            );
+        }
+
         break;
     } default: {
-        ::fmt::print(
-            "<- C{} '{}'\n"
-            , message.pull<::xrn::Id>()
-            , message.pull<::std::string>()
-        );
         this->tcpSendToAllClients(message, connection);
         break;
-    }}
+    }
+    }
 }

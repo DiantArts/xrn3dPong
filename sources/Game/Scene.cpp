@@ -24,6 +24,12 @@
     : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
     , m_enemy{ m_registry.create() }
 {
+    this->loadScene();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::Scene::loadScene()
+{
     this->loadObjects();
     this->loadMap();
     this->loadLights();
@@ -189,17 +195,46 @@ void ::game::Scene::onReceive(
 {
     switch (message.getType()) {
     case ::game::MessageType::playerPosition: {
-        ::glm::vec3 pos{
-            message.pull<float>()
-            , message.pull<float>()
-            , message.pull<float>()
-        };
+        ::glm::vec3 pos{ message.pull<float>(), message.pull<float>(), message.pull<float>() };
         ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
-        // send to room
+        m_registry.get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
+        break;
+    } case ::game::MessageType::playerAttributionOne: {
+        // this->tcpSendToServer(::game::MessageType::readyToPlay);
+        break;
+    } case ::game::MessageType::playerAttributionTwo: {
+
+        // move to the other side because player is player2
+        // camera
+        m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z - 25.0f);
+        m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()).rotateX(180);
+        // player
+        m_registry.get<::xrn::engine::component::Position>(m_player).setZ(mapSize.z);
+        m_registry.get<::xrn::engine::component::Rotation>(m_player).rotateX(180);
+        // enemy
+        m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
+        m_registry.get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
+
+        // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
     } default: {
     break;
     }}
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Queue
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::Scene::queueForGame()
+{
+    this->tcpSendToServer(::game::MessageType::queuing);
 }
 
 
@@ -235,8 +270,6 @@ void ::game::Scene::loadObjects()
 
     { // enemy
         auto entity{ m_enemy };
-        m_registry.emplace<::xrn::engine::component::Control>(entity);
-        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(250);
         m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
         m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
         m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
