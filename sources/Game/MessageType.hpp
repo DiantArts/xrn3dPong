@@ -16,6 +16,8 @@ enum class MessageType
     , playerAttributionTwo // notify the client that an opponent has been found and the player is now player2
     , readyToPlay // notify the server that the client is ready to start the match
 
+    , message // just to debug
+
     , last // required member (system)
 };
 

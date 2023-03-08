@@ -289,9 +289,8 @@ auto ::xrn::engine::AScene::update()
         auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
 
         if (rotation) {
-            if (control.isRotated()) {
-                rotation->updateDirection(control.getRotation());
-                control.resetRotatedFlag();
+            if (control.isRotated() || rotation->isChanged()) {
+                rotation->updateDirection(control);
             }
             if (position) {
                 position->update(m_frameInfo.deltaTime, control, rotation->getDirection());

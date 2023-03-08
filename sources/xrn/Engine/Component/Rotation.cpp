@@ -1,6 +1,7 @@
 #include <pch.hpp>
 #include <xrn/Engine/Component/Rotation.hpp>
 #include <xrn/Engine/Component/Control.hpp>
+#include <xrn/Engine/Configuration.hpp>
 
 
 
@@ -217,14 +218,24 @@ void ::xrn::engine::component::Rotation::setRotationZ(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Rotation::updateDirection(
-    const ::glm::vec3& offset
+    ::xrn::engine::component::Control& control
 )
 {
+    auto newRotation{ m_rotation + control.getRotation() };
+
+    if (newRotation.y > ::xrn::engine::configuration.maxPitch) {
+        newRotation.y = ::xrn::engine::configuration.maxPitch;
+    } else if (newRotation.y < ::xrn::engine::configuration.minPitch) {
+        newRotation.y = ::xrn::engine::configuration.minPitch;
+    }
+
+    this->setRotation(::std::move(newRotation));
     m_direction = ::glm::normalize(::glm::vec3(
-        cos(::glm::radians(m_rotation.x + offset.x)) * cos(::glm::radians(m_rotation.y + offset.y)),
-        sin(::glm::radians(m_rotation.y + offset.y)),
-        sin(::glm::radians(m_rotation.x + offset.x)) * cos(::glm::radians(m_rotation.y + offset.y))
+        cos(::glm::radians(m_rotation.x)) * cos(::glm::radians(m_rotation.y)),
+        sin(::glm::radians(m_rotation.y)),
+        sin(::glm::radians(m_rotation.x)) * cos(::glm::radians(m_rotation.y))
     ));
+    control.resetRotatedFlag();
 }
 
 ///////////////////////////////////////////////////////////////////////////

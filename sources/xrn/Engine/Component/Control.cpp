@@ -225,7 +225,6 @@ void ::xrn::engine::component::Control::rotateX(
 )
 {
     m_rotation.x += offset * ::xrn::engine::configuration.sensitivity.x;
-    m_isRotated = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -234,12 +233,6 @@ void ::xrn::engine::component::Control::rotateY(
 )
 {
     m_rotation.y += offset * ::xrn::engine::configuration.sensitivity.y;
-    if (m_rotation.y > ::xrn::engine::configuration.maxPitch) {
-        m_rotation.y = ::xrn::engine::configuration.maxPitch;
-    } else if (m_rotation.y < ::xrn::engine::configuration.minPitch) {
-        m_rotation.y = ::xrn::engine::configuration.minPitch;
-    }
-    m_isRotated = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -248,20 +241,64 @@ void ::xrn::engine::component::Control::rotateZ(
 )
 {
     m_rotation.y += offset * ::xrn::engine::configuration.sensitivity.z;
-    m_isRotated = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Control::rotateAbsolute(
+    ::glm::vec3 rotation
+)
+{
+    m_rotation = ::std::move(rotation);
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Control::rotateAbsolute(
+    const float rotationX,
+    const float rotationY,
+    const float rotationZ
+)
+{
+    m_rotation = ::glm::vec3{ rotationX, rotationY, rotationZ };
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Control::rotateAbsoluteX(
+    const float rotationX
+)
+{
+    m_rotation.x = rotationX;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Control::rotateAbsoluteY(
+    const float rotationY
+)
+{
+    m_rotation.y = rotationY;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Control::rotateAbsoluteZ(
+    const float rotationZ
+)
+{
+    m_rotation.y = rotationZ;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 [[ nodiscard ]] auto ::xrn::engine::component::Control::isRotated() const
     -> bool
 {
-    return m_isRotated;
+    return m_rotation.x || m_rotation.y || m_rotation.z;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Control::resetRotatedFlag()
 {
-    m_isRotated = false;
+    m_rotation.x = 0;
+    m_rotation.y = 0;
+    m_rotation.z = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////

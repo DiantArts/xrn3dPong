@@ -90,6 +90,9 @@ auto ::game::Scene::postUpdate()
             , position.get().y
             , position.get().z // ignored but send eitherway
         );
+
+        // slow down the execution because networking has problems when messages are sent too fast
+        ::std::this_thread::sleep_for(10ms);
     }
 
     return true;
@@ -199,21 +202,21 @@ void ::game::Scene::onReceive(
         ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
         m_registry.get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
         break;
-    } case ::game::MessageType::playerAttributionOne: {
+    } case ::game::MessageType::playerAttributionOne: { // starts the game
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
-    } case ::game::MessageType::playerAttributionTwo: {
+    } case ::game::MessageType::playerAttributionTwo: { // starts the game
 
         // move to the other side because player is player2
         // camera
-        // m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z - 25.0f);
-        // m_registry.get<::xrn::engine::component::Control>(m_camera.getId()).rotateX(180);
+        m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z + 25.0f);
+        m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()).rotateX(180); // TODO: bug here
         // player
         m_registry.get<::xrn::engine::component::Position>(m_player).setZ(mapSize.z);
-        m_registry.get<::xrn::engine::component::Control>(m_player).rotateX(180);
+        m_registry.get<::xrn::engine::component::Rotation>(m_player).rotateX(180);
         // enemy
-        // m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
-        // m_registry.get<::xrn::engine::component::Control>(m_enemy).rotateX(180);
+        m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
+        m_registry.get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
 
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
