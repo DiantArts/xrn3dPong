@@ -70,6 +70,7 @@ auto ::game::server::GameRoom::getOpponent(
     }
 
     XRN_FATAL("Get opponent of a room that is not the player's one");
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -92,4 +93,18 @@ void ::game::server::GameRoom::joinGame(
 )
 {
     m_player2 = ::std::move(connection);
+    m_tickThread = ::std::thread{ [this]() {
+        do {
+            m_ballPosition.moveX(1);
+            ::xrn::network::Message<::game::MessageType> message{
+                ::game::MessageType::ballPosition
+                , m_ballPosition.get().x
+                , m_ballPosition.get().y
+                , m_ballPosition.get().z
+            };
+            m_player1->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
+            m_player2->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
+            ::std::this_thread::sleep_for(m_tickFrequencTimey.getAsChronoMilliseconds());
+        } while (this->isRunning());
+    } };
 }

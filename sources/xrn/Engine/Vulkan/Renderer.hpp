@@ -29,8 +29,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Renderer(
-        ::xrn::engine::vulkan::Window& window,
-        ::xrn::engine::vulkan::Device& device
+        ::xrn::engine::vulkan::Window& window
+        , ::xrn::engine::vulkan::Device& device
     );
 
 

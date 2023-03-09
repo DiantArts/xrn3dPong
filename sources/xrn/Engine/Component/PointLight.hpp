@@ -9,8 +9,8 @@ struct PointLight {
     struct PushConstant {
         PushConstant() = default;
         PushConstant(
-            const ::xrn::engine::component::PointLight& pointLight,
-            const ::xrn::engine::component::Position& position
+            const ::xrn::engine::component::PointLight& pointLight
+            , const ::xrn::engine::component::Position& position
         )
             : color{ pointLight.color }
             , position{ position.get(), pointLight.radius }
@@ -20,9 +20,9 @@ struct PointLight {
     };
 
     PointLight(
-        ::glm::vec3 thatColor = ::glm::vec3{ 1.0f },
-        float intensity = 10.0f,
-        float thatRadius = 1.0f
+        ::glm::vec3 thatColor = ::glm::vec3{ 1.0f }
+        , float intensity = 10.0f
+        , float thatRadius = 1.0f
     )
         : color{ thatColor, intensity }
         , radius{ thatRadius }

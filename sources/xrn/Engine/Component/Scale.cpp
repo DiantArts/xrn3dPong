@@ -39,9 +39,9 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::component::Scale::Scale(
-    float scaleX,
-    float scaleY,
-    float scaleZ
+    float scaleX
+    , float scaleY
+    , float scaleZ
 )
     : m_scale{ ::glm::vec3{ scaleX, scaleY, scaleZ } }
     , m_isChanged{ true }
@@ -76,9 +76,9 @@ void ::xrn::engine::component::Scale::scale(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Scale::scale(
-    const float scaleX,
-    const float scaleY,
-    const float scaleZ
+    const float scaleX
+    , const float scaleY
+    , const float scaleZ
 )
 {
     m_scale += ::glm::vec3{ scaleX, scaleY, scaleZ };
@@ -132,9 +132,9 @@ void ::xrn::engine::component::Scale::set(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Scale::set(
-    const float scaleX,
-    const float scaleY,
-    const float scaleZ
+    const float scaleX
+    , const float scaleY
+    , const float scaleZ
 )
 {
     m_scale = ::glm::vec3{ scaleX, scaleY, scaleZ };

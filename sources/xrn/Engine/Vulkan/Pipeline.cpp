@@ -15,6 +15,7 @@
 
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // static elements
@@ -111,19 +112,19 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::vulkan::Pipeline::Pipeline(
-    ::xrn::engine::vulkan::Device& device,
-    const Pipeline::Configuration& configuration,
-    const ::std::string_view shaderFilenames
+    ::xrn::engine::vulkan::Device& device
+    , const Pipeline::Configuration& pipelineconfiguration
+    , const ::std::string_view shaderFilenames
 )
     : m_device{ device }
 {
     XRN_SASSERT(
-        configuration.pipelineLayout != VK_NULL_HANDLE,
-        "Cannot create graphics pipeline: no pipelineLayout provided in the configuration"
+        pipelineconfiguration.pipelineLayout != VK_NULL_HANDLE
+        , "Cannot create graphics pipeline: no pipelineLayout provided in the configuration"
     );
     XRN_SASSERT(
-        configuration.renderPass != VK_NULL_HANDLE,
-        "Cannot create graphics pipeline: no renderPass provided in the configuration");
+        pipelineconfiguration.renderPass != VK_NULL_HANDLE
+        , "Cannot create graphics pipeline: no renderPass provided in the configuration");
 
 
     ::std::string filepath;
@@ -168,8 +169,8 @@
     shaderStages[1].pNext = nullptr;
     shaderStages[1].pSpecializationInfo = nullptr;
 
-    auto& bindingDescriptions{ configuration.bindingDescriptions };
-    auto& attributeDescriptions{ configuration.attributeDescriptions };
+    auto& bindingDescriptions{ pipelineconfiguration.bindingDescriptions };
+    auto& attributeDescriptions{ pipelineconfiguration.attributeDescriptions };
     ::VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<::std::uint32_t>(attributeDescriptions.size());
@@ -182,29 +183,29 @@
     pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &configuration.inputAssemblyInfo;
-    pipelineInfo.pViewportState = &configuration.viewportInfo;
-    pipelineInfo.pRasterizationState = &configuration.rasterizationInfo;
-    pipelineInfo.pMultisampleState = &configuration.multisampleInfo;
-    pipelineInfo.pColorBlendState = &configuration.colorBlendInfo;
-    pipelineInfo.pDepthStencilState = &configuration.depthStencilInfo;
-    pipelineInfo.pDynamicState = &configuration.dynamicStateInfo;
+    pipelineInfo.pInputAssemblyState = &pipelineconfiguration.inputAssemblyInfo;
+    pipelineInfo.pViewportState = &pipelineconfiguration.viewportInfo;
+    pipelineInfo.pRasterizationState = &pipelineconfiguration.rasterizationInfo;
+    pipelineInfo.pMultisampleState = &pipelineconfiguration.multisampleInfo;
+    pipelineInfo.pColorBlendState = &pipelineconfiguration.colorBlendInfo;
+    pipelineInfo.pDepthStencilState = &pipelineconfiguration.depthStencilInfo;
+    pipelineInfo.pDynamicState = &pipelineconfiguration.dynamicStateInfo;
 
-    pipelineInfo.layout = configuration.pipelineLayout;
-    pipelineInfo.renderPass = configuration.renderPass;
-    pipelineInfo.subpass = configuration.subpass;
+    pipelineInfo.layout = pipelineconfiguration.pipelineLayout;
+    pipelineInfo.renderPass = pipelineconfiguration.renderPass;
+    pipelineInfo.subpass = pipelineconfiguration.subpass;
 
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
     if (
         auto result{ ::vkCreateGraphicsPipelines(
-            m_device.device(),
-            VK_NULL_HANDLE,
-            1,
-            &pipelineInfo,
-            nullptr,
-            &m_graphicsPipeline
+            m_device.device()
+            , VK_NULL_HANDLE
+            , 1
+            , &pipelineInfo
+            , nullptr
+            , &m_graphicsPipeline
         ) };
         result != VK_SUCCESS
     ) {
@@ -276,8 +277,8 @@ void ::xrn::engine::vulkan::Pipeline::bind(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Pipeline::createShaderModule(
-    const ::std::string& filepath,
-    ::VkShaderModule& shaderModule
+    const ::std::string& filepath
+    , ::VkShaderModule& shaderModule
 )
 {
     // open the file

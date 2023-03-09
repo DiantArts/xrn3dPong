@@ -23,8 +23,10 @@
 ::game::Scene::Scene()
     : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
     , m_enemy{ m_registry.create() }
+    , m_ball{ m_registry.create() }
 {
     this->loadScene();
+    this->setTickFrequency(10);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -82,7 +84,17 @@ auto ::game::Scene::postUpdate()
         if (position.get().y <= -maxMapPosition.y) {
             position.setY(-maxMapPosition.y);
         }
+    }
 
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::game::Scene::onTick()
+    -> bool
+{
+    if (!m_isCameraDetached) {
+        auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
         // send corrected position to server
         this->udpSendToServer(
             ::game::MessageType::playerPosition
@@ -90,11 +102,7 @@ auto ::game::Scene::postUpdate()
             , position.get().y
             , position.get().z // ignored but send eitherway
         );
-
-        // slow down the execution because networking has problems when messages are sent too fast
-        ::std::this_thread::sleep_for(10ms);
     }
-
     return true;
 }
 
@@ -186,14 +194,14 @@ void ::game::Scene::onKeyReleased(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::Scene::onMouseMoved(
-    ::glm::vec2 position
+    ::glm::vec2 position [[ maybe_unused ]]
 )
 {}
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::Scene::onReceive(
-    ::xrn::network::Message<::game::MessageType>& message,
-    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+    ::xrn::network::Message<::game::MessageType>& message
+    , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
 {
     switch (message.getType()) {
@@ -201,6 +209,11 @@ void ::game::Scene::onReceive(
         ::glm::vec3 pos{ message.pull<float>(), message.pull<float>(), message.pull<float>() };
         ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
         m_registry.get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
+        break;
+    } case ::game::MessageType::ballPosition: {
+        ::glm::vec3 pos{ message.pull<float>(), message.pull<float>(), message.pull<float>() };
+        ::fmt::print("<- C{} '[{};{};{}]'\n", connection->getId(), pos.x, pos.y, pos.z);
+        m_registry.get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
@@ -278,6 +291,15 @@ void ::game::Scene::loadObjects()
         m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
+
+    {
+        auto entity{ m_ball };
+        m_registry.emplace<::xrn::engine::component::Control>(entity);
+        m_registry.emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ .1f, .1f, .1f });
+        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
+        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
+
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -322,20 +344,19 @@ void ::game::Scene::loadLights()
 {
     { // lights
         std::vector<glm::vec3> lightColors{
-            { 1.f, .1f, .1f },
-            { .1f, .1f, 1.f },
-            { .1f, 1.f, .1f },
-            { 1.f, 1.f, .1f },
-            { .1f, 1.f, 1.f },
-            { 1.f, 1.f, 1.f }
+            { 1.f, .1f, .1f }
+            , { .1f, .1f, 1.f }
+            , { .1f, 1.f, .1f }
+            , { 1.f, 1.f, .1f }
+            , { .1f, 1.f, 1.f }
         };
 
         // create the lights at equal distances from each other in circle
         for (auto i{ 0uz }; const auto& color : lightColors) {
             auto rotation{ ::glm::rotate(
-                ::glm::mat4(1.0f),
-                i * ::glm::two_pi<float>() / lightColors.size(),
-                { 0.0f, -1.0f, 0.0f }
+                ::glm::mat4(1.0f)
+                , i * ::glm::two_pi<float>() / lightColors.size()
+                , { 0.0f, -1.0f, 0.0f }
             ) };
             auto entity{ m_registry.create() };
             m_registry.emplace<::xrn::engine::component::Position>(

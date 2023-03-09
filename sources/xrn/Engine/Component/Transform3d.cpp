@@ -123,19 +123,19 @@ void ::xrn::engine::component::Transform3d::updateNormalMatrix(
 
     m_normalMatrix = ::glm::mat3{
         {
-            inversedScale.x * (c1 * c3 + s1 * s2 * s3),
-            inversedScale.x * (c2 * s3),
-            inversedScale.x * (c1 * s2 * s3 - c3 * s1),
-        },
-        {
-            inversedScale.y * (c3 * s1 * s2 - c1 * s3),
-            inversedScale.y * (c2 * c3),
-            inversedScale.y * (c1 * c3 * s2 + s1 * s3),
-        },
-        {
-            inversedScale.z * (c2 * s1),
-            inversedScale.z * (-s2),
-            inversedScale.z * (c1 * c2),
+            inversedScale.x * (c1 * c3 + s1 * s2 * s3)
+            , inversedScale.x * (c2 * s3)
+            , inversedScale.x * (c1 * s2 * s3 - c3 * s1)
+        }
+        , {
+            inversedScale.y * (c3 * s1 * s2 - c1 * s3)
+            , inversedScale.y * (c2 * c3)
+            , inversedScale.y * (c1 * c3 * s2 + s1 * s3)
+        }
+        , {
+            inversedScale.z * (c2 * s1)
+            , inversedScale.z * (-s2)
+            , inversedScale.z * (c1 * c2)
         }
     };
 }

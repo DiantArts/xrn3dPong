@@ -33,15 +33,15 @@
     , m_frameInfo{ m_descriptorSets, *this }
     , m_uboBuffers{ ::xrn::engine::vulkan::SwapChain::MAX_FRAMES_IN_FLIGHT }
     , m_renderSystem{
-        m_device,
-        m_renderer.getSwapChainRenderPass(),
-        m_pDescriptorSetLayout->getDescriptorSetLayout()
+        m_device
+        , m_renderer.getSwapChainRenderPass()
+        , m_pDescriptorSetLayout->getDescriptorSetLayout()
     }
     // draw lights and update their position
     , m_pointLightSystem{
-        m_device,
-        m_renderer.getSwapChainRenderPass(),
-        m_pDescriptorSetLayout->getDescriptorSetLayout()
+        m_device
+        , m_renderer.getSwapChainRenderPass()
+        , m_pDescriptorSetLayout->getDescriptorSetLayout()
     }
     // entity that the player controls
     , m_isCameraDetached{ isCameraDetached }
@@ -56,11 +56,11 @@
 
     for (auto& pUbo : m_uboBuffers) {
         pUbo = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
-            m_device,
-            sizeof(::xrn::engine::vulkan::Ubo),
-            1,
-            ::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+            m_device
+            , sizeof(::xrn::engine::vulkan::Ubo)
+            , 1
+            , ::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+            , ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
         );
         pUbo->map();
     }
@@ -235,6 +235,14 @@ void ::xrn::engine::AScene::onSystemMouseMoved(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::AScene::setTickFrequency(
+    ::std::size_t frequency
+)
+{
+    m_tickFrequencyTime = ::xrn::Time::createAsSeconds(frequency) / 30;
+}
+
+///////////////////////////////////////////////////////////////////////////
 [[ nodiscard ]] auto ::xrn::engine::AScene::getWindow()
     -> ::xrn::engine::vulkan::Window&
 {
@@ -263,6 +271,14 @@ void ::xrn::engine::AScene::run()
         if (!this->onUpdate() || !this->update() || !this->postUpdate()) {
             m_window.close();
             break;
+        }
+
+        if (m_tickClock.getElapsed() >= m_tickFrequencyTime) {
+            m_clock.reset();
+            if (!this->onTick()) {
+                m_window.close();
+                break;
+            }
         }
 
         this->draw();
@@ -299,9 +315,9 @@ auto ::xrn::engine::AScene::update()
             if (position) {
                 auto direction{
                     ::glm::normalize(::glm::vec3(
-                        cos(::glm::radians(0.0f)) * cos(::glm::radians(0.0f)),
-                        sin(::glm::radians(0.0f)),
-                        sin(::glm::radians(0.0f)) * cos(::glm::radians(0.0f))
+                        ::glm::cos(::glm::radians(0.0f)) * ::glm::cos(::glm::radians(0.0f))
+                        , ::glm::sin(::glm::radians(0.0f))
+                        , ::glm::sin(::glm::radians(0.0f)) * ::glm::cos(::glm::radians(0.0f))
                     ))
                 };
                 position->update(m_frameInfo.deltaTime, control, direction);
@@ -373,8 +389,8 @@ void ::xrn::engine::AScene::updateCamera()
     // m_camera.setOrthographicProjection(-aspect, aspect, -1.0, 1.0, -1.0, 1.0);
     m_camera.setPerspectiveProjection(::glm::radians(50.0f), aspect, 0.1f, 1000.0f);
     // m_camera.setViewTarget(
-        // { 0.0f, 0.0f, 0.0f },
-        // this->getPlayerComponent<::xrn::engine::component::Transform3d>().getPosition()
+        // { 0.0f, 0.0f, 0.0f }
+        // , this->getPlayerComponent<::xrn::engine::component::Transform3d>().getPosition()
     // );
 
     m_frameInfo.projectionView = m_camera.getProjection() * m_camera.getView();

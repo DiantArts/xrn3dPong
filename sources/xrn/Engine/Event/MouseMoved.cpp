@@ -29,8 +29,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::event::MouseMoved::MouseMoved(
-    float offsetX,
-    float offsetY
+    float offsetX
+    , float offsetY
 )
     : m_offset{ offsetX, offsetY }
 {
@@ -38,12 +38,12 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::event::MouseMoved::MouseMoved(
-    double offsetX,
-    double offsetY
+    double offsetX
+    , double offsetY
 )
     : m_offset{
-        static_cast<float>(offsetX),
-        static_cast<float>(offsetY)
+        static_cast<float>(offsetX)
+        , static_cast<float>(offsetY)
     }
 {
 }

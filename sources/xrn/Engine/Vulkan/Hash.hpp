@@ -6,9 +6,9 @@ namespace xrn::engine::vulkan {
 template <
     typename T
 > void hashCombine(
-    ::std::size_t& seed,
-    const T& v,
-    const auto&... rest
+    ::std::size_t& seed
+    , const T& v
+    , const auto&... rest
 )
 {
     seed ^= ::std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

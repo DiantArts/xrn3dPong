@@ -54,8 +54,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Window(
-        bool isFullscreen = true,
-        const ::std::string& windowName = Window::defaultName
+        bool isFullscreen = true
+        , const ::std::string& windowName = Window::defaultName
     );
 
 
@@ -209,8 +209,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void createWindowSurface(
-        ::VkInstance instance,
-        ::VkSurfaceKHR* surface
+        ::VkInstance instance
+        , ::VkSurfaceKHR* surface
     );
 
 
@@ -228,38 +228,38 @@ private:
     ///
     ///////////////////////////////////////////////////////////////////////////
     static void framebufferResizeCallback(
-        GLFWwindow* pWindowPtr,
-        int width,
-        int height
+        GLFWwindow* pWindowPtr
+        , int width
+        , int height
     );
 
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
     static void keyCallback(
-        GLFWwindow* window,
-        int keyCode,
-        int scancode,
-        int action,
-        int mods
+        GLFWwindow* window
+        , int keyCode
+        , int scancode
+        , int action
+        , int mods
     );
 
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
     static void mouseMovedCallback(
-        GLFWwindow* window,
-        double xPos,
-        double yPos
+        GLFWwindow* window
+        , double xPos
+        , double yPos
     );
 
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
     static void mouseScrollcallback(
-        GLFWwindow* window,
-        double xOffset,
-        double yOffset
+        GLFWwindow* window
+        , double xOffset
+        , double yOffset
     );
 
 
@@ -307,7 +307,7 @@ private:
 
     Window::Size m_size;
     bool m_framebufferResized{ false };
-    ::std::unique_ptr<::GLFWwindow, Window::Deleter> m_pWindow;
+    ::std::unique_ptr<::GLFWwindow, Window::Deleter> m_window;
 
     bool m_shouldClose{ false };
 

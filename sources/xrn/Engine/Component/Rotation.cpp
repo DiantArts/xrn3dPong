@@ -31,9 +31,9 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::component::Rotation::Rotation(
-    float rotationXOffset,
-    float rotationYOffset,
-    float rotationZOffset
+    float rotationXOffset
+    , float rotationYOffset
+    , float rotationZOffset
 )
 {
     this->rotate(rotationXOffset, rotationYOffset, rotationZOffset);
@@ -54,31 +54,31 @@ void ::xrn::engine::component::Rotation::rotate(
     const ::glm::vec3& offset
 )
 {
-    if (offset.x) {
+    if (offset.x != 0) {
         this->rotateX(offset.x);
     }
-    if (offset.y) {
+    if (offset.y != 0) {
         this->rotateY(offset.y);
     }
-    if (offset.z) {
+    if (offset.z != 0) {
         this->rotateZ(offset.z);
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Rotation::rotate(
-    const float rotationXOffset,
-    const float rotationYOffset,
-    const float rotationZOffset
+    const float rotationXOffset
+    , const float rotationYOffset
+    , const float rotationZOffset
 )
 {
-    if (rotationXOffset) {
+    if (rotationXOffset != 0) {
         this->rotateX(rotationXOffset);
     }
-    if (rotationYOffset) {
+    if (rotationYOffset != 0) {
         this->rotateY(rotationYOffset);
     }
-    if (rotationZOffset) {
+    if (rotationZOffset != 0) {
         this->rotateZ(rotationZOffset);
     }
 }
@@ -140,9 +140,9 @@ void ::xrn::engine::component::Rotation::setRotation(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Rotation::setRotation(
-    const float rotationX,
-    const float rotationY,
-    const float rotationZ
+    const float rotationX
+    , const float rotationY
+    , const float rotationZ
 )
 {
     m_rotation = ::glm::vec3{ rotationX, rotationY, rotationZ };
@@ -231,9 +231,9 @@ void ::xrn::engine::component::Rotation::updateDirection(
 
     this->setRotation(::std::move(newRotation));
     m_direction = ::glm::normalize(::glm::vec3(
-        cos(::glm::radians(m_rotation.x)) * cos(::glm::radians(m_rotation.y)),
-        sin(::glm::radians(m_rotation.y)),
-        sin(::glm::radians(m_rotation.x)) * cos(::glm::radians(m_rotation.y))
+        ::glm::cos(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
+        , ::glm::sin(::glm::radians(m_rotation.y))
+        , ::glm::sin(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
     ));
     control.resetRotatedFlag();
 }

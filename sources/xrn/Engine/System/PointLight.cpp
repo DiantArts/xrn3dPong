@@ -19,9 +19,9 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::system::PointLight::PointLight(
-    ::xrn::engine::vulkan::Device& device,
-    ::VkRenderPass renderPass,
-    ::VkDescriptorSetLayout descriptorSetLayout
+    ::xrn::engine::vulkan::Device& device
+    , ::VkRenderPass renderPass
+    , ::VkDescriptorSetLayout descriptorSetLayout
 )
     : m_device{ device }
 {
@@ -67,7 +67,7 @@ void ::xrn::engine::system::PointLight::createPipelineLayout(
 
     ::VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = ::VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+    pipelineLayoutInfo.setLayoutCount = static_cast<::std::uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
@@ -75,8 +75,8 @@ void ::xrn::engine::system::PointLight::createPipelineLayout(
     XRN_ASSERT(
         ::vkCreatePipelineLayout(
             m_device.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout
-        ) == ::VK_SUCCESS,
-        "Create pipeline layout"
+        ) == ::VK_SUCCESS
+        , "Create pipeline layout"
     );
 }
 
@@ -97,19 +97,19 @@ void ::xrn::engine::system::PointLight::createPipeline(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::system::PointLight::operator()(
-    ::xrn::engine::vulkan::FrameInfo& frameInfo,
-    const ::xrn::engine::component::PointLight& pointLight,
-    const ::xrn::engine::component::Position& position
+    ::xrn::engine::vulkan::FrameInfo& frameInfo
+    , const ::xrn::engine::component::PointLight& pointLight
+    , const ::xrn::engine::component::Position& position
 ) const
 {
     ::xrn::engine::component::PointLight::PushConstant pushConstant{ pointLight, position };
     ::vkCmdPushConstants(
-        frameInfo.commandBuffer,
-        m_pipelineLayout,
-        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-        0,
-        sizeof(pushConstant),
-        &pushConstant
+        frameInfo.commandBuffer
+        , m_pipelineLayout
+        , VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT
+        , 0
+        , sizeof(pushConstant)
+        , &pushConstant
     );
     ::vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
 }
@@ -121,26 +121,26 @@ void ::xrn::engine::system::PointLight::bind(
 {
     m_pPipeline->bind(frameInfo.commandBuffer);
     ::vkCmdBindDescriptorSets(
-        frameInfo.commandBuffer,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        m_pipelineLayout,
-        0,
-        1,
-        &frameInfo.descriptorSets[frameInfo.frameIndex],
-        0,
-        nullptr
+        frameInfo.commandBuffer
+        , VK_PIPELINE_BIND_POINT_GRAPHICS
+        , m_pipelineLayout
+        , 0
+        , 1
+        , &frameInfo.descriptorSets[frameInfo.frameIndex]
+        , 0
+        , nullptr
     );
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::system::PointLight::update(
-    ::xrn::engine::vulkan::FrameInfo& frameInfo,
-    ::xrn::engine::component::PointLight& pointLight,
-    ::xrn::engine::component::Position& position,
-    ::std::size_t lightIndex
+    ::xrn::engine::vulkan::FrameInfo& frameInfo
+    , ::xrn::engine::component::PointLight& pointLight
+    , ::xrn::engine::component::Position& position
+    , ::std::size_t lightIndex
 )
 {
-    auto rotation{ ::glm::rotate(::glm::mat4(1.0f), (float)frameInfo.deltaTime.get() / 1000, { 0.0f, -1.0f, 0.0f }) };
+    auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
     position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
     frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
 }

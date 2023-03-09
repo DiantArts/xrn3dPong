@@ -205,9 +205,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void rotate(
-        const float rotationXOffset,
-        const float rotationYOffset,
-        const float rotationZOffset
+        const float rotationXOffset
+        , const float rotationYOffset
+        , const float rotationZOffset
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -245,9 +245,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void rotateAbsolute(
-        const float rotationX,
-        const float rotationY,
-        const float rotationZ
+        const float rotationX
+        , const float rotationY
+        , const float rotationZ
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -326,13 +326,13 @@ private:
     // Movement
     ///////////////////////////////////////////////////////////////////////////
     enum MovementState {
-        forward,
-        backward,
-        left,
-        right,
-        up,
-        down,
-    };
+        forward
+        , backward
+        , left
+        , right
+        , up
+        , down
+    , };
     ::std::bitset<6> m_movementState;
     bool m_ableToFly{ false };
 

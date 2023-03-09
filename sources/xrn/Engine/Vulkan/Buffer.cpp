@@ -8,6 +8,9 @@
 #include <pch.hpp>
 #include <xrn/Engine/Vulkan/Buffer.hpp>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+
 namespace xrn::engine::vulkan {
 
 /**
@@ -27,17 +30,17 @@ VkDeviceSize Buffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOff
 }
 
 Buffer::Buffer(
-    ::xrn::engine::vulkan::Device &device,
-    VkDeviceSize instanceSize,
-    uint32_t instanceCount,
-    VkBufferUsageFlags usageFlags,
-    VkMemoryPropertyFlags memoryPropertyFlags,
-    VkDeviceSize minOffsetAlignment)
-    : device{device},
-      m_instanceCount{instanceCount},
-      m_instanceSize{instanceSize},
-      m_usageFlags{usageFlags},
-      m_memoryPropertyFlags{memoryPropertyFlags} {
+    ::xrn::engine::vulkan::Device &device
+    , VkDeviceSize instanceSize
+    , uint32_t instanceCount
+    , VkBufferUsageFlags usageFlags
+    , VkMemoryPropertyFlags memoryPropertyFlags
+    , VkDeviceSize minOffsetAlignment)
+    : device{device}
+      , m_instanceCount{instanceCount}
+      , m_instanceSize{instanceSize}
+      , m_usageFlags{usageFlags}
+      , m_memoryPropertyFlags{memoryPropertyFlags} {
   m_alignmentSize = getAlignment(m_instanceSize, minOffsetAlignment);
   m_bufferSize = m_alignmentSize * m_instanceCount;
   device.createBuffer(m_bufferSize, m_usageFlags, m_memoryPropertyFlags, buffer, memory);
@@ -146,9 +149,9 @@ VkResult Buffer::invalidate(VkDeviceSize size, VkDeviceSize offset) {
  */
 VkDescriptorBufferInfo Buffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) {
   return VkDescriptorBufferInfo{
-      buffer,
-      offset,
-      size,
+      buffer
+      , offset
+      , size
   };
 }
 
@@ -196,3 +199,5 @@ VkResult Buffer::invalidateIndex(int index) {
 }
 
 }  // namespace xrn::engine::vulkan
+
+#pragma clang diagnostic pop

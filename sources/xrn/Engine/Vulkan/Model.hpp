@@ -61,8 +61,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] static auto createFromFile(
-        ::xrn::engine::vulkan::Device& device,
-        ::std::string_view filename
+        ::xrn::engine::vulkan::Device& device
+        , ::std::string_view filename
     ) -> ::std::unique_ptr<::xrn::engine::vulkan::Model>;
 
 
@@ -81,8 +81,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Model(
-        ::xrn::engine::vulkan::Device& m_device,
-        const Model::Builder& builder
+        ::xrn::engine::vulkan::Device& m_device
+        , const Model::Builder& builder
     );
 
 

@@ -36,9 +36,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     Scale(
-        float scaleX,
-        float scaleY,
-        float scaleZ
+        float scaleX
+        , float scaleY
+        , float scaleZ
     );
 
 
@@ -68,9 +68,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void scale(
-        float scaleX,
-        float scaleY,
-        float scaleZ
+        float scaleX
+        , float scaleY
+        , float scaleZ
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -112,9 +112,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void set(
-        float scaleX,
-        float scaleY,
-        float scaleZ
+        float scaleX
+        , float scaleY
+        , float scaleZ
     );
 
     ///////////////////////////////////////////////////////////////////////////

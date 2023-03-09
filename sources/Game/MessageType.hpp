@@ -10,6 +10,7 @@ enum class MessageType
     : ::std::uint16_t
 {
     playerPosition // udp sending to the server the position of the player
+    , ballPosition // server sending the position of the ball
 
     , queuing // notify the server that the client is queuing for a game
     , playerAttributionOne // notify the client that an opponent has been found and the player is now player1

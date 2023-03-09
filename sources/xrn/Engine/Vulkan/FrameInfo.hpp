@@ -17,8 +17,8 @@ namespace xrn::engine::vulkan {
 struct FrameInfo {
 
     explicit FrameInfo (
-        ::std::vector<::VkDescriptorSet>& parentDescriptorSets,
-        ::xrn::engine::AScene& parentScene
+        ::std::vector<::VkDescriptorSet>& parentDescriptorSets
+        , ::xrn::engine::AScene& parentScene
     );
 
     ::std::size_t frameIndex;

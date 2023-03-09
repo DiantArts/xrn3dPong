@@ -2,14 +2,17 @@
 #include <xrn/Engine/Vulkan/Device.hpp>
 #include <xrn/Engine/Vulkan/errorToString.hpp>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wold-style-cast"
+
 namespace xrn::engine::vulkan {
 
 // local callback functions
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity [[ maybe_unused ]],
+    VkDebugUtilsMessageTypeFlagsEXT messageType [[ maybe_unused ]],
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-    void *pUserData) {
+    void *pUserData  [[ maybe_unused ]]) {
   std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
   return VK_FALSE;
@@ -382,12 +385,12 @@ VkFormat Device::findSupportedFormat(
   XRN_THROW("Failed to find supported format");
 }
 
-uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags vkproperties) {
   VkPhysicalDeviceMemoryProperties memProperties;
   vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
   for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
     if ((typeFilter & (1 << i)) &&
-        (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+        (memProperties.memoryTypes[i].propertyFlags & vkproperties) == vkproperties) {
       return i;
     }
   }
@@ -398,7 +401,7 @@ uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 void Device::createBuffer(
     VkDeviceSize size,
     VkBufferUsageFlags usage,
-    VkMemoryPropertyFlags properties,
+    VkMemoryPropertyFlags vkproperties,
     VkBuffer &buffer,
     VkDeviceMemory &bufferMemory) {
   VkBufferCreateInfo bufferInfo{};
@@ -417,7 +420,7 @@ void Device::createBuffer(
   VkMemoryAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+  allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, vkproperties);
 
   if (auto result{ vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory) }; result != VK_SUCCESS) {
     XRN_THROW("Failed to allocate vertex buffer memory (err: {})", ::xrn::engine::vulkan::errorToString(result));
@@ -499,7 +502,7 @@ void Device::copyBufferToImage(
 
 void Device::createImageWithInfo(
     const VkImageCreateInfo &imageInfo,
-    VkMemoryPropertyFlags properties,
+    VkMemoryPropertyFlags vkproperties,
     VkImage &image,
     VkDeviceMemory &imageMemory) {
   if (auto result{ vkCreateImage(device_, &imageInfo, nullptr, &image)}; result != VK_SUCCESS) {
@@ -512,7 +515,7 @@ void Device::createImageWithInfo(
   VkMemoryAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocInfo.allocationSize = memRequirements.size;
-  allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+  allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, vkproperties);
 
   if (auto result{ vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory)}; result != VK_SUCCESS) {
     XRN_THROW("Failed to allocate image memory (err: {})", ::xrn::engine::vulkan::errorToString(result));
@@ -524,3 +527,5 @@ void Device::createImageWithInfo(
 }
 
 }  // namespace xrn::engine::vulkan
+
+#pragma clang diagnostic pop

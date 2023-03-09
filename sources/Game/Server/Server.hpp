@@ -48,9 +48,15 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     virtual void onReceive(
-        ::xrn::network::Message<::game::MessageType>& message,
-        ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+        ::xrn::network::Message<::game::MessageType>& message
+        , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
     ) override;
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// called with the m_tickFrequencyTime per seconds
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto onTick()
+        -> bool;
 
 
 

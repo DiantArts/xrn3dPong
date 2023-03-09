@@ -19,8 +19,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::vulkan::Renderer::Renderer(
-    ::xrn::engine::vulkan::Window& window,
-    ::xrn::engine::vulkan::Device& device
+    ::xrn::engine::vulkan::Window& window
+    , ::xrn::engine::vulkan::Device& device
 )
     : m_window{ window }
     , m_device{ device }
@@ -172,8 +172,11 @@ void ::xrn::engine::vulkan::Renderer::beginSwapChainRenderPass(
     renderPassInfo.renderArea.extent = m_pSwapChain->getSwapChainExtent();
 
     std::array<::VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
-    clearValues[1].depthStencil = {1.0f, 0};
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-braces"
+    clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
+#pragma clang diagnostic pop
+    clearValues[1].depthStencil = { 1.0f, 0 };
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
@@ -228,10 +231,10 @@ void ::xrn::engine::vulkan::Renderer::createCommandBuffers()
 void ::xrn::engine::vulkan::Renderer::freeCommandBuffers()
 {
     ::vkFreeCommandBuffers(
-        m_device.device(),
-        m_device.getCommandPool(),
-        static_cast<::std::size_t>(m_commandBuffers.size()),
-        m_commandBuffers.data()
+        m_device.device()
+        , m_device.getCommandPool()
+        , static_cast<::std::uint32_t>(m_commandBuffers.size())
+        , m_commandBuffers.data()
     );
     m_commandBuffers.clear();
 }

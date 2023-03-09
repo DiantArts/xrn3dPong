@@ -263,14 +263,14 @@ void SwapChain::createFramebuffers() {
   for (size_t i = 0; i < imageCount(); i++) {
     std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageViews[i]};
 
-    VkExtent2D swapChainExtent = getSwapChainExtent();
+    VkExtent2D vkSwapChainExtent = getSwapChainExtent();
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = renderPass;
     framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     framebufferInfo.pAttachments = attachments.data();
-    framebufferInfo.width = swapChainExtent.width;
-    framebufferInfo.height = swapChainExtent.height;
+    framebufferInfo.width = vkSwapChainExtent.width;
+    framebufferInfo.height = vkSwapChainExtent.height;
     framebufferInfo.layers = 1;
 
     XRN_SASSERT(vkCreateFramebuffer(
@@ -285,7 +285,7 @@ void SwapChain::createFramebuffers() {
 void SwapChain::createDepthResources() {
   VkFormat depthFormat = findDepthFormat();
   this->swapChainDepthFormat = depthFormat;
-  VkExtent2D swapChainExtent = getSwapChainExtent();
+  VkExtent2D vkSwapChainExtent = getSwapChainExtent();
 
   depthImages.resize(imageCount());
   depthImageMemorys.resize(imageCount());
@@ -295,8 +295,8 @@ void SwapChain::createDepthResources() {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = swapChainExtent.width;
-    imageInfo.extent.height = swapChainExtent.height;
+    imageInfo.extent.width = vkSwapChainExtent.width;
+    imageInfo.extent.height = vkSwapChainExtent.height;
     imageInfo.extent.depth = 1;
     imageInfo.mipLevels = 1;
     imageInfo.arrayLayers = 1;

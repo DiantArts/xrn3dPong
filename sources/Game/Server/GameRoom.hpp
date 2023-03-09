@@ -105,8 +105,12 @@ private:
     bool m_isRunning{ false };
 
     // ball propreties
-    // ::xrn::engine::component::Position m_ballPosition;
+    ::xrn::engine::component::Position m_ballPosition;
     // ::xrn::engine::component::Position m_ballRotation;
+
+    // Tick
+    ::std::thread m_tickThread;
+    ::xrn::Time m_tickFrequencTimey{ ::xrn::Time::createAsSeconds(1) / 30 };
 
 };
 

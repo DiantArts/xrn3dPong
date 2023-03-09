@@ -26,9 +26,9 @@ struct SimplePushConstantData {
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::system::Render::Render(
-    ::xrn::engine::vulkan::Device& device,
-    ::VkRenderPass renderPass,
-    ::VkDescriptorSetLayout descriptorSetLayout
+    ::xrn::engine::vulkan::Device& device
+    , ::VkRenderPass renderPass
+    , ::VkDescriptorSetLayout descriptorSetLayout
 )
     : m_device{ device }
 {
@@ -74,7 +74,7 @@ void ::xrn::engine::system::Render::createPipelineLayout(
 
     ::VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = ::VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
+    pipelineLayoutInfo.setLayoutCount = static_cast<::std::uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
@@ -82,8 +82,8 @@ void ::xrn::engine::system::Render::createPipelineLayout(
     XRN_ASSERT(
         ::vkCreatePipelineLayout(
             m_device.device(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout
-        ) == ::VK_SUCCESS,
-        "Create pipeline layout"
+        ) == ::VK_SUCCESS
+        , "Create pipeline layout"
     );
 }
 
@@ -102,22 +102,22 @@ void ::xrn::engine::system::Render::createPipeline(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::system::Render::operator()(
-    ::xrn::engine::vulkan::FrameInfo& frameInfo,
-    ::xrn::engine::component::Transform3d& transform
+    ::xrn::engine::vulkan::FrameInfo& frameInfo
+    , ::xrn::engine::component::Transform3d& transform
 ) const
 {
     ::SimplePushConstantData push{
-        .modelMatrix = transform.getMatrix(),
-        .normalMatrix = transform.getNormalMatrix()
+        .modelMatrix = transform.getMatrix()
+        , .normalMatrix = transform.getNormalMatrix()
     };
 
     ::vkCmdPushConstants(
-        frameInfo.commandBuffer,
-        m_pipelineLayout,
-        ::VK_SHADER_STAGE_VERTEX_BIT | ::VK_SHADER_STAGE_FRAGMENT_BIT,
-        0,
-        sizeof(::SimplePushConstantData),
-        &push
+        frameInfo.commandBuffer
+        , m_pipelineLayout
+        , ::VK_SHADER_STAGE_VERTEX_BIT | ::VK_SHADER_STAGE_FRAGMENT_BIT
+        , 0
+        , sizeof(::SimplePushConstantData)
+        , &push
     );
     transform.getModel().bind(frameInfo.commandBuffer);
     transform.getModel().draw(frameInfo.commandBuffer);
@@ -130,13 +130,13 @@ void ::xrn::engine::system::Render::bind(
 {
     m_pPipeline->bind(frameInfo.commandBuffer);
     ::vkCmdBindDescriptorSets(
-        frameInfo.commandBuffer,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        m_pipelineLayout,
-        0,
-        1,
-        &frameInfo.descriptorSets[frameInfo.frameIndex],
-        0,
-        nullptr
+        frameInfo.commandBuffer
+        , VK_PIPELINE_BIND_POINT_GRAPHICS
+        , m_pipelineLayout
+        , 0
+        , 1
+        , &frameInfo.descriptorSets[frameInfo.frameIndex]
+        , 0
+        , nullptr
     );
 }

@@ -37,8 +37,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit MouseMoved(
-        float positionX,
-        float positionY
+        float positionX
+        , float positionY
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit MouseMoved(
-        double positionX,
-        double positionY
+        double positionX
+        , double positionY
     );
 
 

@@ -129,6 +129,12 @@ public:
         -> bool override;
 
     ///////////////////////////////////////////////////////////////////////////
+    /// called with the m_tickFrequencyTime per seconds
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto onTick()
+        -> bool override;
+
+    ///////////////////////////////////////////////////////////////////////////
     /// Automatically called when handling events
     /// Called if camera is not detached
     ///////////////////////////////////////////////////////////////////////////
@@ -157,8 +163,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void onReceive(
-        ::xrn::network::Message<::game::MessageType>& message,
-        ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+        ::xrn::network::Message<::game::MessageType>& message
+        , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
     ) override;
 
 
@@ -215,6 +221,8 @@ private:
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     ::entt::entity m_enemy;
+
+    ::entt::entity m_ball;
 
 };
 

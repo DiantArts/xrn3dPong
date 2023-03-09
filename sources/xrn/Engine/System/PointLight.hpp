@@ -31,9 +31,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit PointLight(
-        ::xrn::engine::vulkan::Device& device,
-        ::VkRenderPass renderPass,
-        ::VkDescriptorSetLayout descriptorSetLayout
+        ::xrn::engine::vulkan::Device& device
+        , ::VkRenderPass renderPass
+        , ::VkDescriptorSetLayout descriptorSetLayout
     );
 
 
@@ -98,9 +98,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void operator()(
-        ::xrn::engine::vulkan::FrameInfo& frameInfo,
-        const ::xrn::engine::component::PointLight& pointLight,
-        const ::xrn::engine::component::Position& position
+        ::xrn::engine::vulkan::FrameInfo& frameInfo
+        , const ::xrn::engine::component::PointLight& pointLight
+        , const ::xrn::engine::component::Position& position
     ) const;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -114,10 +114,10 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void update(
-        ::xrn::engine::vulkan::FrameInfo& frameInfo,
-        ::xrn::engine::component::PointLight& pointLight,
-        ::xrn::engine::component::Position& position,
-        ::std::size_t lightIndex
+        ::xrn::engine::vulkan::FrameInfo& frameInfo
+        , ::xrn::engine::component::PointLight& pointLight
+        , ::xrn::engine::component::Position& position
+        , ::std::size_t lightIndex
     );
 
 

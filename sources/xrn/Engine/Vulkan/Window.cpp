@@ -46,26 +46,29 @@ auto ::xrn::engine::vulkan::Window::Size::isValid()
     const ::std::string& windowName /* = Window::defaultName */
 )
     : m_size{ Window::defaultSize }
-    , m_pWindow{ ::glfwCreateWindow(
-        m_size.width,
-        m_size.height,
-        windowName.c_str(),
-        isFullscreen ? ::glfwGetPrimaryMonitor() : nullptr,
-        nullptr
+    , m_window{ ::glfwCreateWindow(
+        static_cast<int>(m_size.width)
+        , static_cast<int>(m_size.height)
+        , windowName.c_str()
+        , isFullscreen ? ::glfwGetPrimaryMonitor() : nullptr
+        , nullptr
     ) }
 {
-    XRN_ASSERT(!!m_pWindow, "Create glfw window");
+    XRN_ASSERT(!!m_window, "Create glfw window");
 
-    ::glfwSetWindowUserPointer(m_pWindow.get(), &m_events);
-    ::glfwSetCursorPos(m_pWindow.get(), m_size.width / 2, m_size.height / 2);
-    ::glfwSetInputMode(m_pWindow.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    ::glfwSetWindowUserPointer(m_window.get(), &m_events);
+    ::glfwSetCursorPos(
+        m_window.get()
+        , static_cast<double>(m_size.width) / 2
+        , static_cast<double>(m_size.height) / 2);
+    ::glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // setup callbacks
-    ::glfwSetFramebufferSizeCallback(m_pWindow.get(), Window::framebufferResizeCallback);
-    ::glfwSetKeyCallback(m_pWindow.get(), Window::keyCallback);
-    ::glfwSetCursorPosCallback(m_pWindow.get(), Window::mouseMovedCallback);
+    ::glfwSetFramebufferSizeCallback(m_window.get(), Window::framebufferResizeCallback);
+    ::glfwSetKeyCallback(m_window.get(), Window::keyCallback);
+    ::glfwSetCursorPosCallback(m_window.get(), Window::mouseMovedCallback);
 
-    // ::glfwSetScrollCallback(m_pWindow.get(), Window::mouseScrollcallback);
+    // ::glfwSetScrollCallback(m_window.get(), Window::mouseScrollcallback);
 }
 
 
@@ -104,7 +107,7 @@ auto ::xrn::engine::vulkan::Window::operator=(
 auto ::xrn::engine::vulkan::Window::shouldClose() const
     -> bool
 {
-    return ::glfwWindowShouldClose(m_pWindow.get()) || m_shouldClose;
+    return ::glfwWindowShouldClose(m_window.get()) || m_shouldClose;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -116,13 +119,13 @@ void ::xrn::engine::vulkan::Window::clear() const
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::close()
 {
-    ::glfwSetWindowShouldClose(m_pWindow.get(), GLFW_TRUE);
+    ::glfwSetWindowShouldClose(m_window.get(), GLFW_TRUE);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::display() const
 {
-    // ::glfwSwapBuffers(m_pWindow.get());
+    // ::glfwSwapBuffers(m_window.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -188,13 +191,13 @@ auto ::xrn::engine::vulkan::Window::getSize() const
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::createWindowSurface(
-    ::VkInstance instance,
-    ::VkSurfaceKHR* surface
+    ::VkInstance instance
+    , ::VkSurfaceKHR* surface
 )
 {
     XRN_ASSERT(
-        ::glfwCreateWindowSurface(instance, m_pWindow.get(), nullptr, surface) == VK_SUCCESS,
-        "Create glfw window surface"
+        ::glfwCreateWindowSurface(instance, m_window.get(), nullptr, surface) == VK_SUCCESS
+        , "Create glfw window surface"
     );
 }
 
@@ -209,27 +212,27 @@ void ::xrn::engine::vulkan::Window::createWindowSurface(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::framebufferResizeCallback(
-    ::GLFWwindow* pWindow,
-    const int width,
-    const int height
+    ::GLFWwindow* window
+    , const int width
+    , const int height
 ) {
-    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(pWindow)) };
+    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(window)) };
     events.emplace<::xrn::engine::event::WindowResize>(Window::Size{
-        .width = static_cast<::std::size_t>(width),
-        .height = static_cast<::std::size_t>(height)
+        .width = static_cast<::std::size_t>(width)
+        , .height = static_cast<::std::size_t>(height)
     });
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::keyCallback(
-    GLFWwindow* pWindow,
-    const int keyCode,
-    const int scancode,
-    const int action,
-    const int mods
+    GLFWwindow* window
+    , const int keyCode
+    , const int scancode [[ maybe_unused ]]
+    , const int action
+    , const int mods [[ maybe_unused ]]
 )
 {
-    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(pWindow)) };
+    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(window)) };
     if (action == GLFW_PRESS) {
         events.emplace<::xrn::engine::event::KeyPressed>(keyCode);
     } else if (action == GLFW_RELEASE) {
@@ -239,23 +242,23 @@ void ::xrn::engine::vulkan::Window::keyCallback(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::mouseMovedCallback(
-    GLFWwindow* pWindow,
-    const double xPos,
-    const double yPos
+    GLFWwindow* window
+    , const double xPos
+    , const double yPos
 )
 {
-    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(pWindow)) };
+    auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(window)) };
     int width, height;
-    ::glfwGetWindowSize(pWindow, &width, &height);
+    ::glfwGetWindowSize(window, &width, &height);
     events.emplace<::xrn::engine::event::MouseMoved>(xPos - width / 2, yPos - height / 2);
-    ::glfwSetCursorPos(pWindow, width / 2, height / 2);
+    ::glfwSetCursorPos(window, width / 2, height / 2);
 
 }
 
 void ::xrn::engine::vulkan::Window::mouseScrollcallback(
-    GLFWwindow*,
-    const double,
-    const double yOffset
+    GLFWwindow* window [[ maybe_unused ]]
+    , const double xOffset [[ maybe_unused ]]
+    , const double yOffset [[ maybe_unused ]]
 )
 {}
 
@@ -272,10 +275,10 @@ void ::xrn::engine::vulkan::Window::mouseScrollcallback(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::vulkan::Window::Deleter::operator()(
-    ::GLFWwindow* pWindow
+    ::GLFWwindow* window
 )
 {
-    ::glfwDestroyWindow(pWindow);
+    ::glfwDestroyWindow(window);
 }
 
 ///////////////////////////////////////////////////////////////////////////

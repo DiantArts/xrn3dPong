@@ -55,9 +55,9 @@ auto ::xrn::engine::vulkan::Model::Vertex::getBindingDescriptions()
     -> ::std::vector<::VkVertexInputBindingDescription>
 {
     return { {
-        .binding = 0,
-        .stride = sizeof(::xrn::engine::vulkan::Model::Vertex),
-        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
+        .binding = 0
+        , .stride = sizeof(::xrn::engine::vulkan::Model::Vertex)
+        , .inputRate = VK_VERTEX_INPUT_RATE_VERTEX
     } };
 }
 
@@ -66,25 +66,25 @@ auto ::xrn::engine::vulkan::Model::Vertex::getAttributeDescriptions()
     -> ::std::vector<::VkVertexInputAttributeDescription>
 {
     return { {
-        .location = 0,
-        .binding = 0,
-        .format = VK_FORMAT_R32G32B32_SFLOAT,
-        .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, position)
+        .location = 0
+        , .binding = 0
+        , .format = VK_FORMAT_R32G32B32_SFLOAT
+        , .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, position)
     }, {
-        .location = 1,
-        .binding = 0,
-        .format = VK_FORMAT_R32G32B32_SFLOAT,
-        .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, color)
+        .location = 1
+        , .binding = 0
+        , .format = VK_FORMAT_R32G32B32_SFLOAT
+        , .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, color)
     }, {
-        .location = 2,
-        .binding = 0,
-        .format = VK_FORMAT_R32G32B32_SFLOAT,
-        .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, normal)
+        .location = 2
+        , .binding = 0
+        , .format = VK_FORMAT_R32G32B32_SFLOAT
+        , .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, normal)
     }, {
-        .location = 3,
-        .binding = 0,
-        .format = VK_FORMAT_R32G32B32_SFLOAT,
-        .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, uv)
+        .location = 3
+        , .binding = 0
+        , .format = VK_FORMAT_R32G32B32_SFLOAT
+        , .offset = offsetof(::xrn::engine::vulkan::Model::Vertex, uv)
     } };
 }
 
@@ -129,30 +129,30 @@ void ::xrn::engine::vulkan::Model::Builder::loadFromFile(
 
             if (index.vertex_index >= 0) {
                 vertex.position = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2]
+                    attrib.vertices[3 * index.vertex_index + 0]
+                    , attrib.vertices[3 * index.vertex_index + 1]
+                    , attrib.vertices[3 * index.vertex_index + 2]
                 };
             }
 
             vertex.color = {
-                attrib.colors[3 * index.vertex_index + 0],
-                attrib.colors[3 * index.vertex_index + 1],
-                attrib.colors[3 * index.vertex_index + 2]
+                attrib.colors[3 * index.vertex_index + 0]
+                , attrib.colors[3 * index.vertex_index + 1]
+                , attrib.colors[3 * index.vertex_index + 2]
             };
 
             if (index.normal_index >= 0) {
                 vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2]
+                    attrib.normals[3 * index.normal_index + 0]
+                    , attrib.normals[3 * index.normal_index + 1]
+                    , attrib.normals[3 * index.normal_index + 2]
                 };
             }
 
             if (index.texcoord_index >= 0) {
                 vertex.uv = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1]
+                    attrib.texcoords[2 * index.texcoord_index + 0]
+                    , attrib.texcoords[2 * index.texcoord_index + 1]
                 };
             }
 
@@ -160,15 +160,15 @@ void ::xrn::engine::vulkan::Model::Builder::loadFromFile(
                 uniqueVertices[vertex] = static_cast<::std::size_t>(vertices.size());
                 vertices.push_back(::std::move(vertex));
             }
-            indices.push_back(uniqueVertices[vertex]);
+            indices.push_back(static_cast<unsigned int>(uniqueVertices[vertex]));
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////
 auto ::xrn::engine::vulkan::Model::createFromFile(
-    ::xrn::engine::vulkan::Device& device,
-    ::std::string_view filename
+    ::xrn::engine::vulkan::Device& device
+    , ::std::string_view filename
 ) -> ::std::unique_ptr<::xrn::engine::vulkan::Model>
 {
     Model::Builder modelBuilder;
@@ -187,8 +187,8 @@ auto ::xrn::engine::vulkan::Model::createFromFile(
 
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::vulkan::Model::Model(
-    ::xrn::engine::vulkan::Device& device,
-    const Model::Builder& builder
+    ::xrn::engine::vulkan::Device& device
+    , const Model::Builder& builder
 )
     : m_device{ device }
 {
@@ -263,21 +263,21 @@ void ::xrn::engine::vulkan::Model::createVertexBuffers(
     ::VkDeviceSize bufferSize{ vertexSize * m_vertexCount };
 
     ::xrn::engine::vulkan::Buffer stagingBuffer{
-        m_device,
-        vertexSize,
-        m_vertexCount,
-        ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | ::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        m_device
+        , vertexSize
+        , m_vertexCount
+        , ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        , ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | ::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
     stagingBuffer.map();
     stagingBuffer.writeToBuffer(::std::bit_cast<void*>(vertices.data()));
 
     m_vertexBuffer = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
-        m_device,
-        vertexSize,
-        m_vertexCount,
-        ::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        m_device
+        , vertexSize
+        , m_vertexCount
+        , ::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        , ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
     m_device.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
 }
@@ -295,21 +295,21 @@ void ::xrn::engine::vulkan::Model::createIndexBuffers(
     ::VkDeviceSize bufferSize{ indexSize * m_indexCount };
 
     ::xrn::engine::vulkan::Buffer stagingBuffer{
-        m_device,
-        indexSize,
-        m_indexCount,
-        ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | ::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        m_device
+        , indexSize
+        , m_indexCount
+        , ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        , ::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | ::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
     stagingBuffer.map();
     stagingBuffer.writeToBuffer(::std::bit_cast<void*>(indices.data()));
 
     m_indexBuffer = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
-        m_device,
-        indexSize,
-        m_indexCount,
-        ::VK_BUFFER_USAGE_INDEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        m_device
+        , indexSize
+        , m_indexCount
+        , ::VK_BUFFER_USAGE_INDEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        , ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
     m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
 }

@@ -68,9 +68,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Pipeline(
-        ::xrn::engine::vulkan::Device& device,
-        const Pipeline::Configuration& configuration,
-        ::std::string_view shaderFilenames
+        ::xrn::engine::vulkan::Device& device
+        , const Pipeline::Configuration& configuration
+        , ::std::string_view shaderFilenames
     );
 
 
@@ -174,8 +174,8 @@ private:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void createShaderModule(
-        const ::std::string& filepath,
-        ::VkShaderModule& shaderModule
+        const ::std::string& filepath
+        , ::VkShaderModule& shaderModule
     );
 
 

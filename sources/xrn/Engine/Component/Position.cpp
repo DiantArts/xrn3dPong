@@ -12,7 +12,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-///
+::xrn::engine::component::Position::Position()
+    : m_position{ 0.0f, 0.0f, 0.0f }
+    , m_isChanged{ true }
+{}
+
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::component::Position::Position(
     ::glm::vec3 position
@@ -22,12 +26,10 @@
 {}
 
 ///////////////////////////////////////////////////////////////////////////
-///
-///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::component::Position::Position(
-    float positionX,
-    float positionY,
-    float positionZ
+    float positionX
+    , float positionY
+    , float positionZ
 )
     : m_position{ positionX, positionY, positionZ }
     , m_isChanged{ true }
@@ -46,9 +48,9 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::update(
-    float deltaTime,
-    ::xrn::engine::component::Control& control,
-    const ::glm::vec3& direction
+    float deltaTime
+    , ::xrn::engine::component::Control& control
+    , const ::glm::vec3& direction
 )
 {
     // search the number of directions moving in and removing speed when multiple direction at once
@@ -134,8 +136,8 @@ void ::xrn::engine::component::Position::update(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveForward(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction
 )
 {
     m_position += velocity * direction;
@@ -144,8 +146,8 @@ void ::xrn::engine::component::Position::moveForward(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveBackward(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction
 )
 {
     m_position -= velocity * direction;
@@ -154,8 +156,8 @@ void ::xrn::engine::component::Position::moveBackward(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveRight(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction
 )
 {
     m_position -= ::glm::normalize(::glm::cross(direction, ::glm::vec3{ 0.0f, 1.0f, 0.0f })) * velocity;
@@ -164,8 +166,8 @@ void ::xrn::engine::component::Position::moveRight(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveLeft(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction
 )
 {
     m_position += ::glm::normalize(::glm::cross(direction, ::glm::vec3{ 0.0f, 1.0f, 0.0f })) * velocity;
@@ -174,8 +176,8 @@ void ::xrn::engine::component::Position::moveLeft(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveUp(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction [[ maybe_unused ]]
 )
 {
     m_position.y -= velocity;
@@ -184,8 +186,8 @@ void ::xrn::engine::component::Position::moveUp(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::moveDown(
-    const float velocity,
-    const ::glm::vec3& direction
+    const float velocity
+    , const ::glm::vec3& direction [[ maybe_unused ]]
 )
 {
     m_position.y += velocity;
@@ -203,9 +205,9 @@ void ::xrn::engine::component::Position::move(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::move(
-    const float offsetX,
-    const float offsetY,
-    const float offsetZ
+    const float offsetX
+    , const float offsetY
+    , const float offsetZ
 )
 {
     m_position += ::glm::vec3{ offsetX, offsetY, offsetZ };
@@ -259,9 +261,9 @@ void ::xrn::engine::component::Position::set(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Position::set(
-    const float positionX,
-    const float positionY,
-    const float positionZ
+    const float positionX
+    , const float positionY
+    , const float positionZ
 )
 {
     m_position = ::glm::vec3{ positionX, positionY, positionZ };

@@ -31,9 +31,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Render(
-        ::xrn::engine::vulkan::Device& device,
-        ::VkRenderPass renderPass,
-        ::VkDescriptorSetLayout descriptorSetLayout
+        ::xrn::engine::vulkan::Device& device
+        , ::VkRenderPass renderPass
+        , ::VkDescriptorSetLayout descriptorSetLayout
     );
 
 
@@ -98,8 +98,8 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void operator()(
-        ::xrn::engine::vulkan::FrameInfo& frameInfo,
-        ::xrn::engine::component::Transform3d& transform
+        ::xrn::engine::vulkan::FrameInfo& frameInfo
+        , ::xrn::engine::component::Transform3d& transform
     ) const;
 
     ///////////////////////////////////////////////////////////////////////////

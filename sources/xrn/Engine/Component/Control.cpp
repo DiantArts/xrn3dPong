@@ -209,9 +209,9 @@ void ::xrn::engine::component::Control::rotate(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Control::rotate(
-    const float rotationOffsetX,
-    const float rotationOffsetY,
-    const float rotationOffsetZ
+    const float rotationOffsetX
+    , const float rotationOffsetY
+    , const float rotationOffsetZ
 )
 {
     this->rotateX(rotationOffsetX);
@@ -254,9 +254,9 @@ void ::xrn::engine::component::Control::rotateAbsolute(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Control::rotateAbsolute(
-    const float rotationX,
-    const float rotationY,
-    const float rotationZ
+    const float rotationX
+    , const float rotationY
+    , const float rotationZ
 )
 {
     m_rotation = ::glm::vec3{ rotationX, rotationY, rotationZ };
@@ -290,7 +290,7 @@ void ::xrn::engine::component::Control::rotateAbsoluteZ(
 [[ nodiscard ]] auto ::xrn::engine::component::Control::isRotated() const
     -> bool
 {
-    return m_rotation.x || m_rotation.y || m_rotation.z;
+    return m_rotation.x == 0 || m_rotation.y == 0 || m_rotation.z == 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////

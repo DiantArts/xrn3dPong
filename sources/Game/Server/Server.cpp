@@ -39,8 +39,8 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 void ::game::Server::onReceive(
-    ::xrn::network::Message<::game::MessageType>& message,
-    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
+    ::xrn::network::Message<::game::MessageType>& message
+    , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
 {
     switch (message.getType()) {
