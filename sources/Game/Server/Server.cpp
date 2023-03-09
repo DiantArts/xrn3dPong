@@ -7,7 +7,7 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <Game/Server/Server.hpp>
-#include "Game/MessageType.hpp"
+#include <Game/MessageType.hpp>
 
 
 

@@ -133,14 +133,12 @@ void ::xrn::engine::system::PointLight::bind(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::PointLight::update(
-    ::xrn::engine::vulkan::FrameInfo& frameInfo
-    , ::xrn::engine::component::PointLight& pointLight
-    , ::xrn::engine::component::Position& position
-    , ::std::size_t lightIndex
+void ::xrn::engine::system::PointLight::draw(
+    ::xrn::engine::vulkan::FrameInfo& frameInfo [[ maybe_unused ]]
+    , ::xrn::engine::component::PointLight& pointLight [[ maybe_unused ]]
+    , ::xrn::engine::component::Position& position [[ maybe_unused ]]
+    , ::std::size_t lightIndex [[ maybe_unused ]]
 )
 {
-    auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
-    position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
     frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
 }

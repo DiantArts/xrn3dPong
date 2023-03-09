@@ -43,6 +43,9 @@
         , m_renderer.getSwapChainRenderPass()
         , m_pDescriptorSetLayout->getDescriptorSetLayout()
     }
+    , m_tickFrequencyTime{
+        ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
+    }
     // entity that the player controls
     , m_isCameraDetached{ isCameraDetached }
     , m_player{ m_registry.create() }
@@ -274,7 +277,7 @@ void ::xrn::engine::AScene::run()
         }
 
         if (m_tickClock.getElapsed() >= m_tickFrequencyTime) {
-            m_clock.reset();
+            m_tickClock.reset();
             if (!this->onTick()) {
                 m_window.close();
                 break;
@@ -366,7 +369,9 @@ auto ::xrn::engine::AScene::update()
         auto lightIndex{ 0uz };
         m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
             [this, &lightIndex](auto& pointLight, auto& position) {
-                m_pointLightSystem.update(m_frameInfo, pointLight, position, lightIndex);
+                // auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
+                // position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
+                m_pointLightSystem.draw(m_frameInfo, pointLight, position, lightIndex);
                 ++lightIndex;
             }
         );

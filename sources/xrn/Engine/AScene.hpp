@@ -261,7 +261,7 @@ protected:
 
     // Tick
     ::xrn::Clock m_tickClock;
-    ::xrn::Time m_tickFrequencyTime{ ::xrn::Time::createAsSeconds(1) / 30 };
+    ::xrn::Time m_tickFrequencyTime;
 
     // ECS
     ::entt::registry m_registry;

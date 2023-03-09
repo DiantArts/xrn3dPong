@@ -7,7 +7,8 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <Game/Server/GameRoom.hpp>
-#include "Game/MessageType.hpp"
+#include <Game/MessageType.hpp>
+#include <xrn/Engine/Configuration.hpp>
 
 
 
@@ -23,6 +24,9 @@
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
     : m_player1{ ::std::move(connection) }
+    , m_tickFrequencTime{
+        ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
+    }
 {}
 
 
@@ -93,18 +97,34 @@ void ::game::server::GameRoom::joinGame(
 )
 {
     m_player2 = ::std::move(connection);
+    m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         do {
-            m_ballPosition.moveX(1);
-            ::xrn::network::Message<::game::MessageType> message{
-                ::game::MessageType::ballPosition
-                , m_ballPosition.get().x
-                , m_ballPosition.get().y
-                , m_ballPosition.get().z
-            };
-            m_player1->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
-            m_player2->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
-            ::std::this_thread::sleep_for(m_tickFrequencTimey.getAsChronoMilliseconds());
+            this->onTick();
+            ::std::this_thread::sleep_for(m_tickFrequencTime.getAsChronoMilliseconds());
         } while (this->isRunning());
     } };
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Events
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::onTick()
+{
+    m_ballPosition.moveX(1);
+    ::xrn::network::Message<::game::MessageType> message{
+        ::game::MessageType::ballPosition
+        , m_ballPosition.get().x
+        , m_ballPosition.get().y
+        , m_ballPosition.get().z
+    };
+    m_player1->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
+    m_player2->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
 }

@@ -113,7 +113,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
-    void update(
+    void draw(
         ::xrn::engine::vulkan::FrameInfo& frameInfo
         , ::xrn::engine::component::PointLight& pointLight
         , ::xrn::engine::component::Position& position
