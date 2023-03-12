@@ -24,10 +24,7 @@
 ::xrn::engine::AScene::AScene(
     bool isCameraDetached
 )
-    // entity that the player controls
     : m_isCameraDetached{ isCameraDetached }
-    , m_player{ m_registry.create() }
-    , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
     // create the vulkan things (I dont remember what it does)
     , m_pDescriptorSetLayout{ ::xrn::engine::vulkan::descriptor::SetLayout::Builder{ m_device }
         .addBinding(0, ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, ::VK_SHADER_STAGE_ALL_GRAPHICS)
@@ -50,7 +47,11 @@
     , m_tickFrequencyTime{
         ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
     }
+    , m_player{ m_registry.create() }
+    , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
 {
+    // entity that the player controls
+
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
         .setMaxSets(::xrn::engine::vulkan::SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -246,10 +247,38 @@ void ::xrn::engine::AScene::setTickFrequency(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::engine::AScene::getWindow()
+auto ::xrn::engine::AScene::getWindow()
     -> ::xrn::engine::vulkan::Window&
 {
     return m_window;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::AScene::getVulkanDevice()
+    -> ::xrn::engine::vulkan::Device&
+{
+    return m_device;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::AScene::getRegistry()
+    -> ::entt::registry&
+{
+    return m_registry;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::AScene::getCameraId()
+    -> ::entt::entity
+{
+    return m_camera.getId();
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::AScene::getPlayerId()
+    -> ::entt::entity
+{
+    return m_player;
 }
 
 

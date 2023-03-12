@@ -32,6 +32,33 @@
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Rule of 5
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+::game::server::GameRoom::~GameRoom()
+{
+    m_isRunning = false;
+    m_tickThread.join();
+}
+
+///////////////////////////////////////////////////////////////////////////
+::game::server::GameRoom::GameRoom(
+    GameRoom&&
+) noexcept = default;
+
+///////////////////////////////////////////////////////////////////////////
+auto ::game::server::GameRoom::operator=(
+    GameRoom&&
+) noexcept
+    -> GameRoom& = default;
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,10 +134,14 @@ void ::game::server::GameRoom::joinGame(
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
+        m_ballControl.setSpeed(1500);
         m_ballControl.startMovingForward();
+        m_ballRotation.updateDirection(m_ballControl);
         do {
-            if (!m_player1->isConnected() || !m_player2->isConnected()) {
-                return;
+            if (!m_player1->isConnected()) {
+                return m_player2->disconnect();
+            } else if (!m_player2->isConnected()) {
+                return m_player1->disconnect();
             }
             auto deltaTime{ m_clock.restart() };
             this->onTick(deltaTime);
@@ -133,40 +164,27 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
-    // tmp
-    if (m_ballControl.isMovingForward()) {
-        m_ballPosition.moveX(1);
-    } else {
-        m_ballPosition.moveX(-1);
-    }
-
     // bind the ball inside the map
     if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
         m_ballControl.rotateX(180);
         m_ballRotation.updateDirection(m_ballControl);
-
-        // tmp solution
-        m_ballControl.stopMoving();
-        m_ballControl.startMovingBackward();
+        m_ballPosition.setX(::game::client::Scene::maxMapPosition.x);
     } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
         m_ballControl.rotateX(180);
         m_ballRotation.updateDirection(m_ballControl);
-
-        // tmp solution
-        m_ballControl.stopMoving();
-        m_ballControl.startMovingForward();
+        m_ballPosition.setX(-::game::client::Scene::maxMapPosition.x);
     }
-    // if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        // m_ballControl.rotateY(180);
-        // m_ballRotation.updateDirection(m_ballControl);
-    // } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        // m_ballControl.rotateY(180);
-        // m_ballRotation.updateDirection(m_ballControl);
-    // }
+    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateY(180);
+        m_ballRotation.updateDirection(m_ballControl);
+        m_ballPosition.setY(::game::client::Scene::maxMapPosition.y);
+    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateY(180);
+        m_ballRotation.updateDirection(m_ballControl);
+        m_ballPosition.setY(-::game::client::Scene::maxMapPosition.y);
+    }
 
-    // m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
-    // ::fmt::print("{}\n", deltaTime.getAsMilliseconds());
-    ::fmt::print("[{};{};{}]\n", m_ballPosition.get().x, m_ballPosition.get().y, m_ballPosition.get().z);
+    m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
 
     {
         // create messages

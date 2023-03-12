@@ -23,8 +23,8 @@
 ///////////////////////////////////////////////////////////////////////////
 ::game::client::Scene::Scene()
     : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
-    , m_enemy{ m_registry.create() }
-    , m_ball{ m_registry.create() }
+    , m_enemy{ this->getRegistry().create() }
+    , m_ball{ this->getRegistry().create() }
 {
     this->loadScene();
 }
@@ -74,7 +74,7 @@ auto ::game::client::Scene::onPostUpdate()
 {
     // TODO: tmp max position check (use a MaxPosition component or inivisble wall)
     if (!m_isCameraDetached) {
-        auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
+        auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
         if (position.get().x >= maxMapPosition.x) {
             position.setX(maxMapPosition.x);
         } else if (position.get().x <= -maxMapPosition.x) {
@@ -96,7 +96,7 @@ auto ::game::client::Scene::onTick(
 ) -> bool
 {
     if (!m_isCameraDetached) {
-        auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
+        auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
 
         // send corrected position to server
         auto message{::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
@@ -112,7 +112,7 @@ void ::game::client::Scene::onKeyPressed(
 )
 {
     if (
-        auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
+        auto* playerController{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
         playerController
     ) {
         // move
@@ -156,7 +156,7 @@ void ::game::client::Scene::onKeyReleased(
 )
 {
     if (
-        auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
+        auto* playerController{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
         playerController
     ) {
         // move
@@ -209,16 +209,14 @@ void ::game::client::Scene::onReceive(
         ::glm::vec3 pos;
         message >> pos;
         ::fmt::print("<- Player '[{};{};{}]'\n", pos.x, pos.y, pos.z);
-        m_registry.get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
+        this->getRegistry().get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
         break;
     } case ::game::MessageType::ballPosition: {
         ::glm::vec3 pos;
         message >> pos;
         ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
-        m_registry.get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
-        m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.x = pos.x;
-        // m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.y = pos.y;
-        // m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.z = pos.z;
+        this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
+        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.x = pos.x;
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
@@ -227,14 +225,14 @@ void ::game::client::Scene::onReceive(
 
         // move to the other side because player is player2
         // camera
-        m_registry.get<::xrn::engine::component::Position>(m_camera.getId()).setZ(mapSize.z + 25.0f);
-        m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()).rotateX(180); // TODO: bug here
+        this->getRegistry().get<::xrn::engine::component::Position>(getCameraId()).setZ(mapSize.z + 25.0f);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(getCameraId()).rotateX(180); // TODO: bug here
         // player
-        m_registry.get<::xrn::engine::component::Position>(m_player).setZ(mapSize.z);
-        m_registry.get<::xrn::engine::component::Rotation>(m_player).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setZ(mapSize.z);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).rotateX(180);
         // enemy
-        m_registry.get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
-        m_registry.get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
 
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
@@ -271,38 +269,38 @@ void ::game::client::Scene::queueForGame()
 void ::game::client::Scene::loadObjects()
 {
     { // camera
-        auto entity{ m_camera.getId() };
-        m_registry.emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
-        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(3000);
-        m_registry.emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 25.0f) });
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+        auto entity{ getCameraId() };
+        this->getRegistry().emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
+        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(3000);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 25.0f) });
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
     { // player
         // if camera detached, create a random object to replace player
-        auto entity{ m_isCameraDetached ? m_registry.create() : m_player };
-        m_registry.emplace<::xrn::engine::component::Control>(entity);
-        m_registry.get<::xrn::engine::component::Control>(entity).setSpeed(2500);
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+        auto entity{ m_isCameraDetached ? this->getRegistry().create() : this->getPlayerId ()};
+        this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
+        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
     { // enemy
         auto entity{ m_enemy };
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Cube"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
 
     {
         auto entity{ m_ball };
-        m_registry.emplace<::xrn::engine::component::Control>(entity);
-        m_registry.emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
+        this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
 
     }
 }
@@ -312,34 +310,34 @@ void ::game::client::Scene::loadMap()
 {
     // bot
     {
-        auto entity{ m_registry.create() };
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, mapSize.x, 0.0f);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
+        auto entity{ this->getRegistry().create() };
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, mapSize.x, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
     }
     // top
     {
-        auto entity{ m_registry.create() };
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, -mapSize.x, 0.0f);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -180.0f, 0.0f, 0.0f });
+        auto entity{ this->getRegistry().create() };
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, -mapSize.x, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -180.0f, 0.0f, 0.0f });
     }
     // left
     {
-        auto entity{ m_registry.create() };
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, -mapSize.y, 0.0f, 0.0f);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 90.0f });
+        auto entity{ this->getRegistry().create() };
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, -mapSize.y, 0.0f, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 90.0f });
     }
     // right
     {
-        auto entity{ m_registry.create() };
-        m_registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(m_device, "Floor"));
-        m_registry.emplace<::xrn::engine::component::Position>(entity, mapSize.y, 0.0f, 0.0f);
-        m_registry.emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
-        m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, -90.0f });
+        auto entity{ this->getRegistry().create() };
+        this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, mapSize.y, 0.0f, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, -90.0f });
     }
 }
 
@@ -362,16 +360,16 @@ void ::game::client::Scene::loadLights()
                 , i * ::glm::two_pi<float>() / lightColors.size()
                 , { 0.0f, -1.0f, 0.0f }
             ) };
-            auto entity{ m_registry.create() };
-            m_registry.emplace<::xrn::engine::component::Position>(
+            auto entity{ this->getRegistry().create() };
+            this->getRegistry().emplace<::xrn::engine::component::Position>(
                 entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, mapSize.y - 0.5f, -15.0f, 1.0f } }
             );
-            m_registry.emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
+            this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
 
             // make them move
-            m_registry.emplace<::xrn::engine::component::Control>(entity);
+            this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
 
-            m_registry.emplace<::xrn::engine::component::PointLight>(entity, color);
+            this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, color);
             ++i;
         }
     }
