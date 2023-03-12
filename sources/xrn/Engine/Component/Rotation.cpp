@@ -221,21 +221,23 @@ void ::xrn::engine::component::Rotation::updateDirection(
     ::xrn::engine::component::Control& control
 )
 {
-    auto newRotation{ m_rotation + control.getRotation() };
+    if (control.isRotated() || this->isChanged()) {
+        auto newRotation{ m_rotation + control.getRotation() };
 
-    if (newRotation.y > ::xrn::engine::configuration.maxPitch) {
-        newRotation.y = ::xrn::engine::configuration.maxPitch;
-    } else if (newRotation.y < ::xrn::engine::configuration.minPitch) {
-        newRotation.y = ::xrn::engine::configuration.minPitch;
+        if (newRotation.y > ::xrn::engine::configuration.maxPitch) {
+            newRotation.y = ::xrn::engine::configuration.maxPitch;
+        } else if (newRotation.y < ::xrn::engine::configuration.minPitch) {
+            newRotation.y = ::xrn::engine::configuration.minPitch;
+        }
+
+        this->setRotation(::std::move(newRotation));
+        m_direction = ::glm::normalize(::glm::vec3(
+            ::glm::cos(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
+            , ::glm::sin(::glm::radians(m_rotation.y))
+            , ::glm::sin(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
+        ));
+        control.resetRotatedFlag();
     }
-
-    this->setRotation(::std::move(newRotation));
-    m_direction = ::glm::normalize(::glm::vec3(
-        ::glm::cos(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
-        , ::glm::sin(::glm::radians(m_rotation.y))
-        , ::glm::sin(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
-    ));
-    control.resetRotatedFlag();
 }
 
 ///////////////////////////////////////////////////////////////////////////

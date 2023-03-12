@@ -216,7 +216,11 @@ void ::game::client::Scene::onReceive(
         message >> pos;
         ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
-        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.x = pos.x;
+        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / 50);
+        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / 50);
+        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / 50);
+        // this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 0.1;
+        // this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1;
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
@@ -226,7 +230,7 @@ void ::game::client::Scene::onReceive(
         // move to the other side because player is player2
         // camera
         this->getRegistry().get<::xrn::engine::component::Position>(getCameraId()).setZ(mapSize.z + 25.0f);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(getCameraId()).rotateX(180); // TODO: bug here
+        this->getRegistry().get<::xrn::engine::component::Rotation>(getCameraId()).rotateX(180);
         // player
         this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setZ(mapSize.z);
         this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).rotateX(180);
@@ -295,13 +299,12 @@ void ::game::client::Scene::loadObjects()
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
 
-    {
+    { // ball
         auto entity{ m_ball };
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
         this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
-
     }
 }
 
@@ -312,31 +315,31 @@ void ::game::client::Scene::loadMap()
     {
         auto entity{ this->getRegistry().create() };
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, mapSize.x, 0.0f);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, mapSize.y, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
     }
     // top
     {
         auto entity{ this->getRegistry().create() };
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, -mapSize.x, 0.0f);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, -mapSize.y, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -180.0f, 0.0f, 0.0f });
     }
     // left
     {
         auto entity{ this->getRegistry().create() };
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, -mapSize.y, 0.0f, 0.0f);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, -mapSize.x, 0.0f, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.x, mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 90.0f });
     }
     // right
     {
         auto entity{ this->getRegistry().create() };
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Floor"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, mapSize.y, 0.0f, 0.0f);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, mapSize.x, 0.0f, 0.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, mapSize.y, mapSize.x, mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, -90.0f });
     }
 }
@@ -346,11 +349,11 @@ void ::game::client::Scene::loadLights()
 {
     { // lights
         std::vector<glm::vec3> lightColors{
-            { 1.0f, 0.1f, 0.1f }
-            , { 0.1f, 0.1f, 1.0f }
-            , { 0.1f, 1.0f, 0.1f }
-            , { 1.0f, 1.0f, 0.1f }
-            , { 0.1f, 1.0f, 1.0f }
+            { 1.0f, 1.0f, 1.0f }
+            , { 1.0f, 1.0f, 1.0f }
+            , { 1.0f, 1.0f, 1.0f }
+            , { 1.0f, 1.0f, 1.0f }
+            , { 1.0f, 1.0f, 1.0f }
         };
 
         // create the lights at equal distances from each other in circle
@@ -362,7 +365,7 @@ void ::game::client::Scene::loadLights()
             ) };
             auto entity{ this->getRegistry().create() };
             this->getRegistry().emplace<::xrn::engine::component::Position>(
-                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, mapSize.y - 0.5f, -15.0f, 1.0f } }
+                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, mapSize.x - 0.5f, -15.0f, 1.0f } }
             );
             this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
 

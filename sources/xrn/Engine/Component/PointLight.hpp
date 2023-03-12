@@ -21,7 +21,7 @@ struct PointLight {
 
     PointLight(
         ::glm::vec3 thatColor = ::glm::vec3{ 1.0f }
-        , float intensity = 10.0f
+        , float intensity = 5.0f
         , float thatRadius = 1.0f
     )
         : color{ thatColor, intensity }

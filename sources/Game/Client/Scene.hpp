@@ -29,9 +29,9 @@ public:
 
     using Message = ::xrn::network::Message<::game::MessageType>;
 
-    static constexpr const ::glm::vec3 mapSize{ 10.0f, 20.0f, 50.0f };
+    static constexpr const ::glm::vec3 mapSize{ 20.0f, 10.0f, 50.0f };
 
-    static constexpr const ::glm::vec3 maxMapPosition{ 17.9f, 8.0f, 0.0f };
+    static constexpr const ::glm::vec3 maxMapPosition{ 17.9f, 8.0f, 50.0f };
 
 
 

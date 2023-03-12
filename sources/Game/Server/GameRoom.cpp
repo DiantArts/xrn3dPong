@@ -135,8 +135,9 @@ void ::game::server::GameRoom::joinGame(
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
         m_ballControl.setSpeed(1500);
+        // m_ballControl.rotateAbsoluteX(0); // left to right
+        m_ballControl.rotateAbsoluteX(90); // forward to backward
         m_ballControl.startMovingForward();
-        m_ballRotation.updateDirection(m_ballControl);
         do {
             if (!m_player1->isConnected()) {
                 return m_player2->disconnect();
@@ -164,25 +165,7 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
-    // bind the ball inside the map
-    if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
-        m_ballControl.rotateX(180);
-        m_ballRotation.updateDirection(m_ballControl);
-        m_ballPosition.setX(::game::client::Scene::maxMapPosition.x);
-    } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
-        m_ballControl.rotateX(180);
-        m_ballRotation.updateDirection(m_ballControl);
-        m_ballPosition.setX(-::game::client::Scene::maxMapPosition.x);
-    }
-    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateY(180);
-        m_ballRotation.updateDirection(m_ballControl);
-        m_ballPosition.setY(::game::client::Scene::maxMapPosition.y);
-    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateY(180);
-        m_ballRotation.updateDirection(m_ballControl);
-        m_ballPosition.setY(-::game::client::Scene::maxMapPosition.y);
-    }
+    this->updateBallDirection();
 
     m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
 
@@ -196,4 +179,27 @@ void ::game::server::GameRoom::onTick(
         m_player1->udpSend(::std::move(message1));
         m_player2->udpSend(::std::move(message2));
     }
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::updateBallDirection()
+{
+    // bind the ball inside the map
+    if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
+        m_ballControl.rotateAbsoluteX(180);
+    } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
+        m_ballControl.rotateAbsoluteX(180);
+    }
+    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateAbsoluteX(180);
+    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateAbsoluteX(180);
+    }
+    if (m_ballPosition.get().z >= ::game::client::Scene::maxMapPosition.z) {
+        m_ballControl.rotateAbsoluteX(180);
+    } else if (m_ballPosition.get().z <= -::game::client::Scene::maxMapPosition.z) {
+        m_ballControl.rotateAbsoluteX(180);
+    }
+
+    m_ballRotation.updateDirection(m_ballControl);
 }
