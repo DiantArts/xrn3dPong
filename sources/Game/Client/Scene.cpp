@@ -34,7 +34,6 @@ void ::game::client::Scene::loadScene()
 {
     this->loadObjects();
     this->loadMap();
-    this->loadLights();
 }
 
 
@@ -208,30 +207,31 @@ void ::game::client::Scene::onReceive(
     case ::game::MessageType::playerPosition: {
         ::glm::vec3 pos;
         message >> pos;
-        ::fmt::print("<- Player '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         this->getRegistry().get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
         break;
     } case ::game::MessageType::ballPosition: {
         ::glm::vec3 pos;
         message >> pos;
-        ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         if (m_playerNumber == 1) {
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / 50);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / 50);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / mapSize.z);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / (mapSize.z - 2));
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / mapSize.z);
         } else {
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (pos.z / 50);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (-pos.z / 50);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (pos.z / mapSize.z);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (-pos.z / (mapSize.z - 2));
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / mapSize.z);
         }
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         m_playerNumber = 1;
+        this->loadLights();
+
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
     } case ::game::MessageType::playerAttributionTwo: { // starts the game
         m_playerNumber = 2;
+        this->loadLights();
 
         // move to the other side because player is player2
         // camera
@@ -354,32 +354,21 @@ void ::game::client::Scene::loadMap()
 void ::game::client::Scene::loadLights()
 {
     { // lights
-        std::vector<glm::vec3> lightColors{
-            { 1.0f, 1.0f, 1.0f }
-            , { 1.0f, 1.0f, 1.0f }
-            , { 1.0f, 1.0f, 1.0f }
-            , { 1.0f, 1.0f, 1.0f }
-            , { 1.0f, 1.0f, 1.0f }
+        std::vector<glm::vec3> lightPositions{
+            { 0, (mapSize.y + 1), mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
+            , { (mapSize.x + 1), 0, mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
+            , { 0, -(mapSize.y + 1), mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
+            , { -(mapSize.x + 1), 0, mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
+            , { mapSize.x * 2, mapSize.y + 0, 0 } // useless for now
         };
 
         // create the lights at equal distances from each other in circle
-        for (auto i{ 0uz }; const auto& color : lightColors) {
-            auto rotation{ ::glm::rotate(
-                ::glm::mat4(1.0f)
-                , i * ::glm::two_pi<float>() / lightColors.size()
-                , { 0.0f, -1.0f, 0.0f }
-            ) };
+        for (const auto& color : lightPositions) {
             auto entity{ this->getRegistry().create() };
-            this->getRegistry().emplace<::xrn::engine::component::Position>(
-                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, mapSize.x - 0.5f, -15.0f, 1.0f } }
-            );
-            this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
-
-            // make them move
+            this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ color });
             this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
-
-            this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, color);
-            ++i;
+            this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, ::glm::vec3{ 1.0f, 1.0f, 1.0f });
+            this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 0.0f, 0.0f, 0.0f);
         }
     }
 }
