@@ -9,6 +9,7 @@
 #include <Game/Client/Scene.hpp>
 #include <xrn/Engine/Components.hpp>
 #include <xrn/Engine/Configuration.hpp>
+#include "xrn/Engine/Component/PointLight.hpp"
 
 
 
@@ -215,6 +216,9 @@ void ::game::client::Scene::onReceive(
         message >> pos;
         ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         m_registry.get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
+        m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.x = pos.x;
+        // m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.y = pos.y;
+        // m_registry.get<::xrn::engine::component::PointLight>(m_ball).color.z = pos.z;
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
