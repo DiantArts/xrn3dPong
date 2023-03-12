@@ -28,7 +28,9 @@
     , m_tickFrequencTime{
         ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
     }
-{}
+{
+    XRN_INFO("New game room created, owner:{}", m_player1->getId());
+}
 
 
 
@@ -42,6 +44,7 @@
 ///////////////////////////////////////////////////////////////////////////
 ::game::server::GameRoom::~GameRoom()
 {
+    XRN_INFO("Game room deleted");
     m_isRunning = false;
     m_tickThread.join();
 }
@@ -152,10 +155,12 @@ void ::game::server::GameRoom::joinGame(
     // if player1 is disconnected
     if (!m_player1->isConnected()) {
         m_player1 = ::std::move(connection);
+        XRN_INFO("Game room owner changed:{}", m_player1->getId());
         return;
     }
 
     m_player2 = ::std::move(connection);
+    XRN_INFO("Game room joined by:{}", m_player2->getId());
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
@@ -220,10 +225,62 @@ void ::game::server::GameRoom::updateBallDirection()
     } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
         m_ballControl.rotateAbsoluteX(180);
     }
-    if (m_ballPosition.get().z >= ::game::client::Scene::maxMapPosition.z) {
+
+    for (auto& position : { m_player1Position, m_player2Position }) {
+        auto beginHitbox{ position.get() - ::game::client::Scene::playerScale };
+        auto endHitbox{ position.get() + ::game::client::Scene::playerScale };
+        auto& ball{ m_ballPosition.get() };
+
+        if (
+            ball.x < beginHitbox.x || ball.x > endHitbox.x ||
+            ball.y < beginHitbox.y || ball.y > endHitbox.y ||
+            ball.z < beginHitbox.z || ball.z > endHitbox.z
+        ) {
+            continue;
+        }
+        continue;
+
+        XRN_DEBUG(
+            "player collision: [{};{};{}] < [{};{};{}] < [{};{};{}]"
+            , beginHitbox.x
+            , beginHitbox.y
+            , beginHitbox.z
+            , ball.x
+            , ball.y
+            , ball.z
+            , endHitbox.x
+            , endHitbox.y
+            , endHitbox.z
+        );
+
         m_ballControl.rotateAbsoluteX(180);
-    } else if (m_ballPosition.get().z <= -::game::client::Scene::maxMapPosition.z) {
-        m_ballControl.rotateAbsoluteX(180);
+        XRN_INFO(
+            "collision resolved: [{};{};{}] < [{};{};{}] < [{};{};{}]"
+            , beginHitbox.x
+            , beginHitbox.y
+            , beginHitbox.z
+            , ball.x
+            , ball.y
+            , ball.z
+            , endHitbox.x
+            , endHitbox.y
+            , endHitbox.z
+        );
+
+        XRN_DEBUG("player collision");
+        return;
+    }
+
+    if (m_ballPosition.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
+        XRN_DEBUG("Player1 won");
+        m_ballControl.resetRotatedFlag();
+        m_ballRotation.setRotation(270, 0, 0);
+        m_ballPosition.set(0, 0, 0);
+    } else if (m_ballPosition.get().z <= -(::game::client::Scene::maxMapPosition.z + 5)) { // player2 win
+        XRN_DEBUG("Player2 won");
+        m_ballControl.resetRotatedFlag();
+        m_ballRotation.setRotation(90, 0, 0);
+        m_ballPosition.set(0, 0, 0);
     }
 
     m_ballRotation.updateDirection(m_ballControl);

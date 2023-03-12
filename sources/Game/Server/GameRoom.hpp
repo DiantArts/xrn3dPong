@@ -206,10 +206,10 @@ private:
 private:
 
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player1;
-    ::xrn::engine::component::Position m_player1Position;
+    ::xrn::engine::component::Position m_player1Position{ 0.0f, 0.0f, -50.0f };
 
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player2{ nullptr };
-    ::xrn::engine::component::Position m_player2Position;
+    ::xrn::engine::component::Position m_player2Position{ 0.0f, 0.0f, 50.0f };
 
     bool m_isRunning{ false };
 

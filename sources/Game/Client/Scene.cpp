@@ -288,20 +288,20 @@ void ::game::client::Scene::loadObjects()
 
     { // player
         // if camera detached, create a random object to replace player
-        auto entity{ m_isCameraDetached ? this->getRegistry().create() : this->getPlayerId ()};
+        auto entity{ m_isCameraDetached ? this->getRegistry().create() : this->getPlayerId()};
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
         this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, -mapSize.z);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, -mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, this->playerScale);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
     { // enemy
         auto entity{ m_enemy };
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.5f, mapSize.z);
-        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 2.0f, 0.1f, 2.0f);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, mapSize.z);
+        this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, this->playerScale);
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
     }
 
