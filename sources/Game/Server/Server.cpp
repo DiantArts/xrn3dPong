@@ -39,7 +39,7 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 void ::game::Server::onReceive(
-    ::xrn::network::Message<::game::MessageType>& message
+    Server::Message& message
     , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
 {
@@ -61,16 +61,15 @@ void ::game::Server::onReceive(
             m_rooms.emplace_back(connection);
         } else {
             m_rooms.back().joinGame(connection);
-            this->tcpSendToClient(
-                ::xrn::network::Message<::game::MessageType>{ ::game::MessageType::playerAttributionOne }
-                , m_rooms.back().getPlayer1()
-            );
-            this->tcpSendToClient(
-                ::xrn::network::Message<::game::MessageType>{ ::game::MessageType::playerAttributionTwo }
-                , m_rooms.back().getPlayer2()
-            );
+            {
+                auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionOne) };
+                this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer1());
+            }
+            {
+                auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionTwo) };
+                this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer2());
+            }
         }
-
         break;
     } default: {
         this->tcpSendToAllClients(message, connection);

@@ -7,6 +7,7 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <Game/Server/GameRoom.hpp>
+#include <Game/Client/Scene.hpp>
 #include <Game/MessageType.hpp>
 #include <xrn/Engine/Configuration.hpp>
 
@@ -96,12 +97,24 @@ void ::game::server::GameRoom::joinGame(
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
 {
+    // if player1 is disconnected
+    if (!m_player1->isConnected()) {
+        m_player1 = ::std::move(connection);
+        return;
+    }
+
     m_player2 = ::std::move(connection);
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
+        ::xrn::Clock m_clock;
+        m_ballControl.startMovingForward();
         do {
-            this->onTick();
-            ::std::this_thread::sleep_for(m_tickFrequencTime.getAsChronoMilliseconds());
+            if (!m_player1->isConnected() || !m_player2->isConnected()) {
+                return;
+            }
+            auto deltaTime{ m_clock.restart() };
+            this->onTick(deltaTime);
+            ::std::this_thread::sleep_for((m_tickFrequencTime).getAsChronoMilliseconds());
         } while (this->isRunning());
     } };
 }
@@ -116,11 +129,37 @@ void ::game::server::GameRoom::joinGame(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::server::GameRoom::onTick()
+void ::game::server::GameRoom::onTick(
+    ::xrn::Time deltaTime
+)
 {
-    m_ballPosition.moveX(1);
-    ::xrn::network::Message<::game::MessageType> message{ ::game::MessageType::ballPosition };
-    message << m_ballPosition.get();
-    m_player1->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
-    m_player2->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
+    // bind the ball inside the map
+    if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
+        m_ballControl.rotateX(180);
+        m_ballRotation.updateDirection(m_ballControl);
+    } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
+        m_ballControl.rotateX(180);
+        m_ballRotation.updateDirection(m_ballControl);
+    }
+    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateY(180);
+        m_ballRotation.updateDirection(m_ballControl);
+    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
+        m_ballControl.rotateY(180);
+        m_ballRotation.updateDirection(m_ballControl);
+    }
+    m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
+    ::fmt::print("{}\n", deltaTime.getAsMilliseconds());
+    ::fmt::print("[{};{};{}]\n", m_ballPosition.get().x, m_ballPosition.get().y, m_ballPosition.get().z);
+
+    {
+        // create messages
+        auto message1{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
+        *message1 << m_ballPosition.get();
+        auto message2{ ::std::make_unique<GameRoom::Message>(*message1) };
+
+        // send
+        m_player1->udpSend(::std::move(message1));
+        m_player2->udpSend(::std::move(message2));
+    }
 }

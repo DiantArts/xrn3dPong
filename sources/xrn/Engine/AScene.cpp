@@ -277,8 +277,7 @@ void ::xrn::engine::AScene::run()
         }
 
         if (m_tickClock.getElapsed() >= m_tickFrequencyTime) {
-            m_tickClock.reset();
-            if (!this->onTick()) {
+            if (!this->onTick(m_tickClock.restart())) {
                 m_window.close();
                 break;
             }

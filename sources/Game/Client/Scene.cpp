@@ -61,6 +61,9 @@ void ::game::client::Scene::loadScene()
 auto ::game::client::Scene::onUpdate()
     -> bool
 {
+    if (!this->isConnectedToServer()) {
+        return false;
+    }
     return true;
 }
 
@@ -73,14 +76,12 @@ auto ::game::client::Scene::onPostUpdate()
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
         if (position.get().x >= maxMapPosition.x) {
             position.setX(maxMapPosition.x);
-        }
-        if (position.get().x <= -maxMapPosition.x) {
+        } else if (position.get().x <= -maxMapPosition.x) {
             position.setX(-maxMapPosition.x);
         }
         if (position.get().y >= maxMapPosition.y) {
             position.setY(maxMapPosition.y);
-        }
-        if (position.get().y <= -maxMapPosition.y) {
+        } else if (position.get().y <= -maxMapPosition.y) {
             position.setY(-maxMapPosition.y);
         }
     }
@@ -89,18 +90,17 @@ auto ::game::client::Scene::onPostUpdate()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::game::client::Scene::onTick()
-    -> bool
+auto ::game::client::Scene::onTick(
+    ::xrn::Time deltaTime [[ maybe_unused ]]
+) -> bool
 {
     if (!m_isCameraDetached) {
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_player) };
+
         // send corrected position to server
-        this->udpSendToServer(
-            ::game::MessageType::playerPosition
-            , position.get().x
-            , position.get().y
-            , position.get().z // ignored but send eitherway
-        );
+        auto message{::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
+        *message << position.get();
+        this->udpSendToServer(::std::move(message));
     }
     return true;
 }
@@ -199,18 +199,20 @@ void ::game::client::Scene::onMouseMoved(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::onReceive(
-    ::xrn::network::Message<::game::MessageType>& message
+    Scene::Message& message
     , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection [[ maybe_unused ]]
 )
 {
     switch (message.getType()) {
     case ::game::MessageType::playerPosition: {
-        ::glm::vec3 pos{ message.pull<float>(), message.pull<float>(), message.pull<float>() };
+        ::glm::vec3 pos;
+        message >> pos;
         ::fmt::print("<- Player '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         m_registry.get<::xrn::engine::component::Position>(m_enemy).set(::std::move(pos));
         break;
     } case ::game::MessageType::ballPosition: {
-        ::glm::vec3 pos{ message.pull<float>(), message.pull<float>(), message.pull<float>() };
+        ::glm::vec3 pos;
+        message >> pos;
         ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         m_registry.get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         break;
@@ -249,7 +251,7 @@ void ::game::client::Scene::onReceive(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::queueForGame()
 {
-    this->tcpSendToServer(::game::MessageType::queuing);
+    this->tcpSendToServer(::std::make_unique<Scene::Message>(::game::MessageType::queuing));
 }
 
 
@@ -358,7 +360,7 @@ void ::game::client::Scene::loadLights()
             ) };
             auto entity{ m_registry.create() };
             m_registry.emplace<::xrn::engine::component::Position>(
-                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, -0.0f, -15.0f, 1.0f } }
+                entity, ::glm::vec3{ rotation * ::glm::vec4{ -0.0f, mapSize.y - 0.5f, -15.0f, 1.0f } }
             );
             m_registry.emplace<::xrn::engine::component::Rotation>(entity, 90.0f, 0.0f, 0.0f);
 

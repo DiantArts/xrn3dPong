@@ -92,7 +92,7 @@ void ::xrn::engine::component::Position::update(
     }
 
     // apply movement
-    auto velocity{ control.getSpeed() * deltaTime * speedDirectionDivider / 100000 };
+    auto velocity{ control.getSpeed() * deltaTime * speedDirectionDivider / 100'000 };
 
     // bot top
     if (control.isAbleToFly()) {

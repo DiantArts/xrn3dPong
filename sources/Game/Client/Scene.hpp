@@ -27,6 +27,8 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    using Message = ::xrn::network::Message<::game::MessageType>;
+
     static constexpr const ::glm::vec3 mapSize{ 10.0f, 20.0f, 50.0f };
 
     static constexpr const ::glm::vec3 maxMapPosition{ 17.9f, 8.0f, 0.0f };
@@ -131,8 +133,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// called with the m_tickFrequencyTime per seconds
     ///////////////////////////////////////////////////////////////////////////
-    [[ nodiscard ]] auto onTick()
-        -> bool override;
+    [[ nodiscard ]] auto onTick(
+        ::xrn::Time deltaTime
+    ) -> bool override;
 
     ///////////////////////////////////////////////////////////////////////////
     /// Automatically called when handling events
@@ -163,7 +166,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void onReceive(
-        ::xrn::network::Message<::game::MessageType>& message
+        Scene::Message& message
         , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
     ) override;
 
