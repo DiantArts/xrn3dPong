@@ -225,6 +225,8 @@ private:
 
     ::entt::entity m_enemy;
 
+    ::xrn::Id m_playerNumber{ 0 };
+
     ::entt::entity m_ball;
 
 };

@@ -216,16 +216,22 @@ void ::game::client::Scene::onReceive(
         message >> pos;
         ::fmt::print("<-  Ball  '[{};{};{}]'\n", pos.x, pos.y, pos.z);
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
-        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / 50);
-        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / 50);
-        this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / 50);
-        // this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 0.1;
-        // this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1;
+        if (m_playerNumber == 1) {
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / 50);
+        } else {
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (-pos.z / 50);
+            this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / 50);
+        }
         break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
+        m_playerNumber = 1;
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
     } case ::game::MessageType::playerAttributionTwo: { // starts the game
+        m_playerNumber = 2;
 
         // move to the other side because player is player2
         // camera

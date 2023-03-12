@@ -159,7 +159,7 @@ void ::game::server::GameRoom::joinGame(
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
-        m_ballControl.setSpeed(1500);
+        m_ballControl.setSpeed(3000);
         // m_ballControl.rotateAbsoluteX(0); // left to right
         m_ballControl.rotateAbsoluteX(90); // forward to backward
         m_ballControl.startMovingForward();
