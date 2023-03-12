@@ -24,8 +24,12 @@
 ::xrn::engine::AScene::AScene(
     bool isCameraDetached
 )
+    // entity that the player controls
+    : m_isCameraDetached{ isCameraDetached }
+    , m_player{ m_registry.create() }
+    , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
     // create the vulkan things (I dont remember what it does)
-    : m_pDescriptorSetLayout{ ::xrn::engine::vulkan::descriptor::SetLayout::Builder{ m_device }
+    , m_pDescriptorSetLayout{ ::xrn::engine::vulkan::descriptor::SetLayout::Builder{ m_device }
         .addBinding(0, ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, ::VK_SHADER_STAGE_ALL_GRAPHICS)
         .build()
     }
@@ -46,10 +50,6 @@
     , m_tickFrequencyTime{
         ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
     }
-    // entity that the player controls
-    , m_isCameraDetached{ isCameraDetached }
-    , m_player{ m_registry.create() }
-    , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
 {
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
@@ -112,7 +112,7 @@ void ::xrn::engine::AScene::onSystemKeyPressed(
     // if player is controllable
     if (m_isCameraDetached) {
         if (
-            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
             playerController
         ) {
             // move
@@ -165,7 +165,7 @@ void ::xrn::engine::AScene::onSystemKeyReleased(
     // if player is controllable
     if (m_isCameraDetached) {
         if (
-            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
             playerController
         ) {
             // move
@@ -217,7 +217,7 @@ void ::xrn::engine::AScene::onSystemMouseMoved(
 {
     if (m_isCameraDetached) {
         if (
-            auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+            auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
             playerController
         ) {
             playerController->rotateX(-offset.x);
@@ -271,7 +271,7 @@ void ::xrn::engine::AScene::run()
 
         m_window.handleEvents(*this);
 
-        if (!this->onUpdate() || !this->update() || !this->postUpdate()) {
+        if (!this->onUpdate() || !this->update() || !this->onPostUpdate()) {
             m_window.close();
             break;
         }
@@ -297,9 +297,6 @@ float deltaT;
 auto ::xrn::engine::AScene::update()
     -> bool
 {
-    // m_registry.get<::xrn::engine::component::Rotation>(m_debugEntity).rotateZ(m_frameInfo.deltaTime / 1000);
-    // ::fmt::print("{}\n", m_registry.get<::xrn::engine::component::Rotation>(m_debugEntity).get().z);
-
     this->updateCamera();
 
     // control
@@ -388,23 +385,6 @@ auto ::xrn::engine::AScene::update()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::AScene::updateCamera()
-{
-    const float aspect{ m_renderer.getAspectRatio() };
-    // m_camera.setOrthographicProjection(-aspect, aspect, -1.0, 1.0, -1.0, 1.0);
-    m_camera.setPerspectiveProjection(::glm::radians(50.0f), aspect, 0.1f, 1000.0f);
-    // m_camera.setViewTarget(
-        // { 0.0f, 0.0f, 0.0f }
-        // , this->getPlayerComponent<::xrn::engine::component::Transform3d>().getPosition()
-    // );
-
-    m_frameInfo.projectionView = m_camera.getProjection() * m_camera.getView();
-    m_frameInfo.ubo.projection = m_camera.getProjection();
-    m_frameInfo.ubo.view = m_camera.getView();
-}
-
-
-///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::AScene::draw()
 {
 
@@ -439,4 +419,23 @@ void ::xrn::engine::AScene::limitFrameRate()
     if (t > m_frameInfo.deltaTime) {
         ::std::this_thread::sleep_for(::std::chrono::milliseconds(t - m_frameInfo.deltaTime));
     }
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::AScene::updateCamera()
+{
+    const float aspect{ m_renderer.getAspectRatio() };
+    // m_camera.setOrthographicProjection(-aspect, aspect, -1.0, 1.0, -1.0, 1.0);
+    m_camera.setPerspectiveProjection(::glm::radians(50.0f), aspect, 0.1f, 1000.0f);
+    // m_camera.setViewTarget(
+        // { 0.0f, 0.0f, 0.0f }
+        // , this->getPlayerComponent<::xrn::engine::component::Transform3d>().getPosition()
+    // );
+
+    m_frameInfo.projectionView = m_camera.getProjection() * m_camera.getView();
+    m_frameInfo.ubo.projection = m_camera.getProjection();
+    m_frameInfo.ubo.view = m_camera.getView();
 }

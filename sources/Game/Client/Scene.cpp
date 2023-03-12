@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // Headers
 ///////////////////////////////////////////////////////////////////////////
-#include <Game/Scene.hpp>
+#include <Game/Client/Scene.hpp>
 #include <xrn/Engine/Components.hpp>
 #include <xrn/Engine/Configuration.hpp>
 
@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::game::Scene::Scene()
+::game::client::Scene::Scene()
     : ::xrn::engine::AScene::AScene{ false /* isCameraDetached */}
     , m_enemy{ m_registry.create() }
     , m_ball{ m_registry.create() }
@@ -29,7 +29,7 @@
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::loadScene()
+void ::game::client::Scene::loadScene()
 {
     this->loadObjects();
     this->loadMap();
@@ -46,7 +46,7 @@ void ::game::Scene::loadScene()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::game::Scene::~Scene() = default;
+::game::client::Scene::~Scene() = default;
 
 
 
@@ -58,14 +58,14 @@ void ::game::Scene::loadScene()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::game::Scene::onUpdate()
+auto ::game::client::Scene::onUpdate()
     -> bool
 {
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::game::Scene::postUpdate()
+auto ::game::client::Scene::onPostUpdate()
     -> bool
 {
     // TODO: tmp max position check (use a MaxPosition component or inivisble wall)
@@ -89,7 +89,7 @@ auto ::game::Scene::postUpdate()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::game::Scene::onTick()
+auto ::game::client::Scene::onTick()
     -> bool
 {
     if (!m_isCameraDetached) {
@@ -106,12 +106,12 @@ auto ::game::Scene::onTick()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::onKeyPressed(
+void ::game::client::Scene::onKeyPressed(
     ::std::int16_t keyCode
 )
 {
     if (
-        auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+        auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
         playerController
     ) {
         // move
@@ -150,12 +150,12 @@ void ::game::Scene::onKeyPressed(
 
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::onKeyReleased(
+void ::game::client::Scene::onKeyReleased(
     ::std::int16_t keyCode
 )
 {
     if (
-        auto* playerController{ this->tryGetPlayerComponent<::xrn::engine::component::Control>() };
+        auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
         playerController
     ) {
         // move
@@ -192,13 +192,13 @@ void ::game::Scene::onKeyReleased(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::onMouseMoved(
+void ::game::client::Scene::onMouseMoved(
     ::glm::vec2 position [[ maybe_unused ]]
 )
 {}
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::onReceive(
+void ::game::client::Scene::onReceive(
     ::xrn::network::Message<::game::MessageType>& message
     , ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection [[ maybe_unused ]]
 )
@@ -247,7 +247,7 @@ void ::game::Scene::onReceive(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::queueForGame()
+void ::game::client::Scene::queueForGame()
 {
     this->tcpSendToServer(::game::MessageType::queuing);
 }
@@ -262,7 +262,7 @@ void ::game::Scene::queueForGame()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::loadObjects()
+void ::game::client::Scene::loadObjects()
 {
     { // camera
         auto entity{ m_camera.getId() };
@@ -302,7 +302,7 @@ void ::game::Scene::loadObjects()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::loadMap()
+void ::game::client::Scene::loadMap()
 {
     // bot
     {
@@ -334,12 +334,11 @@ void ::game::Scene::loadMap()
         m_registry.emplace<::xrn::engine::component::Position>(entity, mapSize.y, 0.0f, 0.0f);
         m_registry.emplace<::xrn::engine::component::Scale>(entity, mapSize.x, mapSize.y, mapSize.z);
         m_registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, -90.0f });
-        m_debugEntity = entity;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::Scene::loadLights()
+void ::game::client::Scene::loadLights()
 {
     { // lights
         std::vector<glm::vec3> lightColors{

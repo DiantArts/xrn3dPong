@@ -134,6 +134,7 @@ using ::std::chrono_literals::operator""ms;
 #include <xrn/Network.hpp>
 
 
+
 inline auto operator<<(
     ::std::ostream& os
     , const ::glm::vec2& vec
@@ -151,6 +152,29 @@ inline auto operator<<(
     os << '[' << vec.x << ", " << vec.y << ", " << vec.z << ']';
     return os;
 }
+
+template <
+    typename T
+> auto operator<<(
+    ::xrn::network::Message<T>& message
+    , const ::glm::vec2& vec
+) -> ::xrn::network::Message<T>&
+{
+    message << vec.x << vec.y;
+    return message;
+}
+
+template <
+    typename T
+> auto operator<<(
+    ::xrn::network::Message<T>& message
+    , const ::glm::vec3& vec
+) -> ::xrn::network::Message<T>&
+{
+    message << vec.x << vec.y << vec.z;
+    return message;
+}
+
 
 
 #endif // ___INCLUDE_GUARD_INCLUDES_PCH_HPP___

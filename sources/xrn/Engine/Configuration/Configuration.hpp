@@ -28,7 +28,7 @@ struct Configuration
 
     // others
     ::std::uint16_t maxFrameRate{ 60 };
-    static inline constexpr ::std::size_t defaultTickFrequency{ 5 };
+    static inline constexpr ::std::size_t defaultTickFrequency{ 30 };
 };
 
 } // namespace xrn::engine::detail::configuration

@@ -119,12 +119,8 @@ void ::game::server::GameRoom::joinGame(
 void ::game::server::GameRoom::onTick()
 {
     m_ballPosition.moveX(1);
-    ::xrn::network::Message<::game::MessageType> message{
-        ::game::MessageType::ballPosition
-        , m_ballPosition.get().x
-        , m_ballPosition.get().y
-        , m_ballPosition.get().z
-    };
+    ::xrn::network::Message<::game::MessageType> message{ ::game::MessageType::ballPosition };
+    message << m_ballPosition.get();
     m_player1->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
     m_player2->udpSend(::std::make_unique<::xrn::network::Message<::game::MessageType>>(message));
 }
