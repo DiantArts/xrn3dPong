@@ -45,14 +45,26 @@ void ::game::Server::onReceive(
 {
     switch (message.getType()) {
     case ::game::MessageType::playerPosition: {
+        ::glm::vec3 pos;
+        message >> pos;
+
+        // TODO: optimize to not have to search on every room every message lol
         for (auto& room : m_rooms) {
-            if (room.contains(connection)) {
-                if (auto opponent{ room.getOpponent(connection) }; opponent) {
-                    this->udpSendToClient(message, opponent);
+            if (room.isRunning()) {
+                switch (room.contains(connection)) {
+                case 1: // player1
+                    this->udpSendToClient(message, room.getPlayer2());
+                    room.setPlayer1Position(::std::move(pos));
+                    return;
+                case 2: // player2
+                    this->udpSendToClient(message, room.getPlayer1());
+                    room.setPlayer2Position(::std::move(pos));
+                    return;
+                default: return; // Not present
                 }
             }
         }
-        break;
+        return;
     } case ::game::MessageType::queuing: {
         ::std::scoped_lock lock{ m_mutex };
 
@@ -70,10 +82,10 @@ void ::game::Server::onReceive(
                 this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer2());
             }
         }
-        break;
+        return;
     } default: {
         this->tcpSendToAllClients(message, connection);
-        break;
+        return;
     }
     }
 }

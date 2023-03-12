@@ -122,11 +122,15 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Does the room contains the player in argument
     ///
+    /// 0: Does not contain the player
+    /// 1: Connection is Player1
+    /// 2: Connection is Player2
+    ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] auto contains(
-        ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> player
+        ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
     ) const
-        -> bool;
+        -> ::std::uint8_t;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Get the opponent of the player in argument
@@ -144,11 +148,25 @@ public:
         -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>;
 
     ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void setPlayer1Position(
+        ::glm::vec3&& position
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
     /// \brief Get the player
     ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] auto getPlayer2()
         -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void setPlayer2Position(
+        ::glm::vec3&& position
+    );
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Join an already existing game
@@ -188,7 +206,10 @@ private:
 private:
 
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player1;
+    ::xrn::engine::component::Position m_player1Position;
+
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player2{ nullptr };
+    ::xrn::engine::component::Position m_player2Position;
 
     bool m_isRunning{ false };
 

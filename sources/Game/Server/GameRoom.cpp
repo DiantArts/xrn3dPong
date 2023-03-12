@@ -83,11 +83,20 @@ auto ::game::server::GameRoom::isRunning() const
 
 ///////////////////////////////////////////////////////////////////////////
 auto ::game::server::GameRoom::contains(
-    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> player
+    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 ) const
-    -> bool
+    -> ::std::uint8_t
 {
-    return (player == m_player1) || (player == m_player2);
+    if (!connection) {
+        return 0;
+    }
+    if (connection == m_player1) {
+        return 1;
+    } else if (connection == m_player2) {
+        return 2;
+    } else {
+        return 0;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -113,10 +122,26 @@ auto ::game::server::GameRoom::getPlayer1()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::setPlayer1Position(
+    ::glm::vec3&& position
+)
+{
+    m_player1Position = ::std::move(position);
+}
+
+///////////////////////////////////////////////////////////////////////////
 auto ::game::server::GameRoom::getPlayer2()
     -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>
 {
     return m_player2;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::setPlayer2Position(
+    ::glm::vec3&& position
+)
+{
+    m_player2Position = ::std::move(position);
 }
 
 ///////////////////////////////////////////////////////////////////////////
