@@ -133,23 +133,39 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
+    // tmp
+    if (m_ballControl.isMovingForward()) {
+        m_ballPosition.moveX(1);
+    } else {
+        m_ballPosition.moveX(-1);
+    }
+
     // bind the ball inside the map
     if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
         m_ballControl.rotateX(180);
         m_ballRotation.updateDirection(m_ballControl);
+
+        // tmp solution
+        m_ballControl.stopMoving();
+        m_ballControl.startMovingBackward();
     } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
         m_ballControl.rotateX(180);
         m_ballRotation.updateDirection(m_ballControl);
+
+        // tmp solution
+        m_ballControl.stopMoving();
+        m_ballControl.startMovingForward();
     }
-    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateY(180);
-        m_ballRotation.updateDirection(m_ballControl);
-    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateY(180);
-        m_ballRotation.updateDirection(m_ballControl);
-    }
-    m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
-    ::fmt::print("{}\n", deltaTime.getAsMilliseconds());
+    // if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
+        // m_ballControl.rotateY(180);
+        // m_ballRotation.updateDirection(m_ballControl);
+    // } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
+        // m_ballControl.rotateY(180);
+        // m_ballRotation.updateDirection(m_ballControl);
+    // }
+
+    // m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
+    // ::fmt::print("{}\n", deltaTime.getAsMilliseconds());
     ::fmt::print("[{};{};{}]\n", m_ballPosition.get().x, m_ballPosition.get().y, m_ballPosition.get().z);
 
     {
