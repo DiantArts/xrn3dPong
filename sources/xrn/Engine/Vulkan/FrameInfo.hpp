@@ -21,6 +21,7 @@ struct FrameInfo {
         , ::xrn::engine::AScene& parentScene
     );
 
+    ::std::size_t fps;
     ::std::size_t frameIndex;
     ::xrn::Time deltaTime;
 

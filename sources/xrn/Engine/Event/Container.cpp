@@ -56,11 +56,11 @@ auto ::xrn::engine::event::Container::operator=(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::event::Container::resolve(
-    ::xrn::engine::AScene& app
+    ::xrn::engine::AScene& scene
 )
 {
     while (!m_events.empty()) {
-        m_events.front()->resolve(app);
+        m_events.front()->resolve(scene);
         m_events.pop();
     }
 }

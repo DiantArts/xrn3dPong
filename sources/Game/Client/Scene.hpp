@@ -29,7 +29,7 @@ public:
 
     using Message = ::xrn::network::Message<::game::MessageType>;
 
-    static constexpr const ::glm::vec3 playerScale{ 2.0f, 0.1f, 2.0f };
+    static constexpr const ::glm::vec3 playerScale{ 2.0f, 2.0f, 0.1f };
 
     static constexpr const ::glm::vec3 mapSize{ 20.0f, 10.0f, 50.0f };
 

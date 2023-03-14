@@ -293,10 +293,19 @@ auto ::xrn::engine::AScene::getPlayerId()
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::AScene::run()
 {
-    ::xrn::Clock m_clock;
+    ::xrn::Clock clock, fpsClock;
+    ::std::size_t fpsCount{ 0 };
 
     while (!m_window.shouldClose()) {
-        m_frameInfo.deltaTime = m_clock.restart();
+        ++fpsCount;
+        if (fpsClock.getElapsed() >= ::xrn::Time::createAsSeconds(1)) {
+            XRN_INFO("FPS: {}", fpsCount);
+            m_frameInfo.fps = fpsCount;
+            fpsCount = 0;
+            fpsClock.reset();
+        }
+
+        m_frameInfo.deltaTime = clock.restart();
 
         m_window.handleEvents(*this);
 
@@ -443,10 +452,9 @@ void ::xrn::engine::AScene::limitFrameRate()
 {
     auto t{ ::xrn::Time::createAsSeconds(1) / ::xrn::engine::configuration.maxFrameRate };
     if (t > m_frameInfo.deltaTime) {
-        ::std::this_thread::sleep_for(::std::chrono::milliseconds(t - m_frameInfo.deltaTime));
+        ::std::this_thread::sleep_for((t - m_frameInfo.deltaTime).getAsChronoMilliseconds());
     }
 }
-
 
 
 

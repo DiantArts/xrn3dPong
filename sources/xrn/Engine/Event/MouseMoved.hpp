@@ -64,7 +64,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     virtual void resolve(
-        ::xrn::engine::AScene& app
+        ::xrn::engine::AScene& scene
     ) override;
 
 

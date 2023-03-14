@@ -97,6 +97,13 @@ auto ::game::client::Scene::onTick(
     if (!m_isCameraDetached) {
         auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
 
+        XRN_INFO(
+            "New position: [{:.5};{:.5};{:.5}]"
+            , position.get().x
+            , position.get().y
+            , position.get().z
+        );
+
         // send corrected position to server
         auto message{::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
         *message << position.get();
@@ -120,9 +127,9 @@ void ::game::client::Scene::onKeyPressed(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
             return playerController->startMovingDown();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            return playerController->startMovingLeft();
+            return playerController->startMovingBackward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            return playerController->startMovingRight();
+            return playerController->startMovingForward();
 
         // move arrows
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
@@ -130,9 +137,9 @@ void ::game::client::Scene::onKeyPressed(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
             return playerController->startMovingDown();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
-            return playerController->startMovingLeft();
+            return playerController->startMovingBackward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
-            return playerController->startMovingRight();
+            return playerController->startMovingForward();
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
@@ -164,9 +171,9 @@ void ::game::client::Scene::onKeyReleased(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
             return playerController->stopMovingDown();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            return playerController->stopMovingLeft();
+            return playerController->stopMovingBackward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            return playerController->stopMovingRight();
+            return playerController->stopMovingForward();
 
         // move arrows
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
@@ -174,9 +181,9 @@ void ::game::client::Scene::onKeyReleased(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
             return playerController->stopMovingDown();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
-            return playerController->stopMovingLeft();
+            return playerController->stopMovingBackward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
-            return playerController->stopMovingRight();
+            return playerController->stopMovingForward();
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
@@ -290,11 +297,12 @@ void ::game::client::Scene::loadObjects()
         // if camera detached, create a random object to replace player
         auto entity{ m_isCameraDetached ? this->getRegistry().create() : this->getPlayerId()};
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
-        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
+        // this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
+        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(300);
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, -mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, this->playerScale);
-        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
     }
 
     { // enemy
@@ -302,7 +310,7 @@ void ::game::client::Scene::loadObjects()
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, this->playerScale);
-        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
     }
 
     { // ball

@@ -27,7 +27,7 @@ struct Configuration
     static inline constexpr float maxPitch{ 89.999f };
 
     // others
-    ::std::uint16_t maxFrameRate{ 60 };
+    ::std::uint16_t maxFrameRate{ 60 }; // does not work well (diminish frame rate but not to the value)
     static inline constexpr ::std::size_t defaultTickFrequency{ 30 };
 };
 

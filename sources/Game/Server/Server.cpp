@@ -73,13 +73,15 @@ void ::game::Server::onReceive(
             m_rooms.emplace_back(connection);
         } else {
             m_rooms.back().joinGame(connection);
-            {
-                auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionOne) };
-                this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer1());
-            }
-            {
-                auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionTwo) };
-                this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer2());
+            if (m_rooms.back().isFull()) {
+                {
+                    auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionOne) };
+                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer1());
+                }
+                {
+                    auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionTwo) };
+                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer2());
+                }
             }
         }
         return;

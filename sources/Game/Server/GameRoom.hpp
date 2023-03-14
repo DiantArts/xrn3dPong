@@ -2,6 +2,7 @@
 
 #include <xrn/Engine/Components.hpp>
 #include <Game/MessageType.hpp>
+#include <Game/Server/Ball.hpp>
 
 namespace game::server {
 
@@ -196,11 +197,6 @@ private:
         ::xrn::Time deltaTime
     );
 
-    ///////////////////////////////////////////////////////////////////////////
-    ///
-    ///////////////////////////////////////////////////////////////////////////
-    void updateBallDirection();
-
 
 
 private:
@@ -213,10 +209,7 @@ private:
 
     bool m_isRunning{ false };
 
-    // ball propreties
-    ::xrn::engine::component::Control m_ballControl;
-    ::xrn::engine::component::Position m_ballPosition;
-    ::xrn::engine::component::Rotation m_ballRotation;
+    ::game::server::Ball m_ball;
 
     // Tick
     ::std::thread m_tickThread;

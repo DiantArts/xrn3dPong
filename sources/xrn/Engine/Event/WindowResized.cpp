@@ -7,7 +7,7 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <xrn/Engine/Configuration.hpp>
-#include <xrn/Engine/Event/WindowResize.hpp>
+#include <xrn/Engine/Event/WindowResized.hpp>
 #include <xrn/Engine/AScene.hpp>
 
 
@@ -19,7 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::event::WindowResize::WindowResize(
+::xrn::engine::event::WindowResized::WindowResized(
     ::xrn::engine::vulkan::Window::Size size
 )
     : m_size{ ::std::move(size) }
@@ -35,18 +35,18 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::event::WindowResize::~WindowResize() = default;
+::xrn::engine::event::WindowResized::~WindowResized() = default;
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::event::WindowResize::WindowResize(
-    ::xrn::engine::event::WindowResize&&
+::xrn::engine::event::WindowResized::WindowResized(
+    ::xrn::engine::event::WindowResized&&
 ) noexcept = default;
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::engine::event::WindowResize::operator=(
-    ::xrn::engine::event::WindowResize&&
+auto ::xrn::engine::event::WindowResized::operator=(
+    ::xrn::engine::event::WindowResized&&
 ) noexcept
-    -> ::xrn::engine::event::WindowResize& = default;
+    -> ::xrn::engine::event::WindowResized& = default;
 
 
 
@@ -58,7 +58,7 @@ auto ::xrn::engine::event::WindowResize::operator=(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::event::WindowResize::resolve(
+void ::xrn::engine::event::WindowResized::resolve(
     ::xrn::engine::AScene& scene
 )
 {

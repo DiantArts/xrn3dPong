@@ -102,7 +102,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void resolve(
-        ::xrn::engine::AScene& app
+        ::xrn::engine::AScene& scene
     );
 
 

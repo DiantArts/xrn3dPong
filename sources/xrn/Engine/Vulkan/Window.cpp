@@ -7,7 +7,7 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <xrn/Engine/Vulkan/Window.hpp>
-#include <xrn/Engine/Event/WindowResize.hpp>
+#include <xrn/Engine/Event/WindowResized.hpp>
 #include <xrn/Engine/Event/KeyPressed.hpp>
 #include <xrn/Engine/Event/KeyReleased.hpp>
 #include <xrn/Engine/Event/MouseMoved.hpp>
@@ -217,7 +217,7 @@ void ::xrn::engine::vulkan::Window::framebufferResizeCallback(
     , const int height
 ) {
     auto& events{ *reinterpret_cast<::xrn::engine::event::Container*>(::glfwGetWindowUserPointer(window)) };
-    events.emplace<::xrn::engine::event::WindowResize>(Window::Size{
+    events.emplace<::xrn::engine::event::WindowResized>(Window::Size{
         .width = static_cast<::std::size_t>(width)
         , .height = static_cast<::std::size_t>(height)
     });

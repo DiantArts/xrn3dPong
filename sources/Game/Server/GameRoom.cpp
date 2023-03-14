@@ -44,9 +44,11 @@
 ///////////////////////////////////////////////////////////////////////////
 ::game::server::GameRoom::~GameRoom()
 {
-    XRN_INFO("Game room deleted");
     m_isRunning = false;
-    m_tickThread.join();
+    if (m_tickThread.joinable()) {
+        m_tickThread.join();
+    }
+    XRN_INFO("Game room deleted");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -164,10 +166,7 @@ void ::game::server::GameRoom::joinGame(
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
-        m_ballControl.setSpeed(3000);
-        // m_ballControl.rotateAbsoluteX(0); // left to right
-        m_ballControl.rotateAbsoluteX(90); // forward to backward
-        m_ballControl.startMovingForward();
+        m_ball.setDefaultPropreties();
         do {
             if (!m_player1->isConnected()) {
                 return m_player2->disconnect();
@@ -195,93 +194,15 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
-    this->updateBallDirection();
-
-    m_ballPosition.update(deltaTime, m_ballControl, m_ballRotation.getDirection());
-
+    m_ball.onTick(deltaTime, m_player1Position, m_player2Position);
     {
         // create messages
         auto message1{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
-        *message1 << m_ballPosition.get();
+        *message1 << m_ball.getPosition();
         auto message2{ ::std::make_unique<GameRoom::Message>(*message1) };
 
         // send
         m_player1->udpSend(::std::move(message1));
         m_player2->udpSend(::std::move(message2));
     }
-}
-
-///////////////////////////////////////////////////////////////////////////
-void ::game::server::GameRoom::updateBallDirection()
-{
-    // bind the ball inside the map
-    if (m_ballPosition.get().x >= ::game::client::Scene::maxMapPosition.x) {
-        m_ballControl.rotateAbsoluteX(180);
-    } else if (m_ballPosition.get().x <= -::game::client::Scene::maxMapPosition.x) {
-        m_ballControl.rotateAbsoluteX(180);
-    }
-    if (m_ballPosition.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateAbsoluteX(180);
-    } else if (m_ballPosition.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        m_ballControl.rotateAbsoluteX(180);
-    }
-
-    for (auto& position : { m_player1Position, m_player2Position }) {
-        auto beginHitbox{ position.get() - ::game::client::Scene::playerScale };
-        auto endHitbox{ position.get() + ::game::client::Scene::playerScale };
-        auto& ball{ m_ballPosition.get() };
-
-        if (
-            ball.x < beginHitbox.x || ball.x > endHitbox.x ||
-            ball.y < beginHitbox.y || ball.y > endHitbox.y ||
-            ball.z < beginHitbox.z || ball.z > endHitbox.z
-        ) {
-            continue;
-        }
-        continue;
-
-        XRN_DEBUG(
-            "player collision: [{};{};{}] < [{};{};{}] < [{};{};{}]"
-            , beginHitbox.x
-            , beginHitbox.y
-            , beginHitbox.z
-            , ball.x
-            , ball.y
-            , ball.z
-            , endHitbox.x
-            , endHitbox.y
-            , endHitbox.z
-        );
-
-        m_ballControl.rotateAbsoluteX(180);
-        XRN_INFO(
-            "collision resolved: [{};{};{}] < [{};{};{}] < [{};{};{}]"
-            , beginHitbox.x
-            , beginHitbox.y
-            , beginHitbox.z
-            , ball.x
-            , ball.y
-            , ball.z
-            , endHitbox.x
-            , endHitbox.y
-            , endHitbox.z
-        );
-
-        XRN_DEBUG("player collision");
-        return;
-    }
-
-    if (m_ballPosition.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
-        XRN_DEBUG("Player1 won");
-        m_ballControl.resetRotatedFlag();
-        m_ballRotation.setRotation(270, 0, 0);
-        m_ballPosition.set(0, 0, 0);
-    } else if (m_ballPosition.get().z <= -(::game::client::Scene::maxMapPosition.z + 5)) { // player2 win
-        XRN_DEBUG("Player2 won");
-        m_ballControl.resetRotatedFlag();
-        m_ballRotation.setRotation(90, 0, 0);
-        m_ballPosition.set(0, 0, 0);
-    }
-
-    m_ballRotation.updateDirection(m_ballControl);
 }

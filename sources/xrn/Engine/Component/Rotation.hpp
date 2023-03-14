@@ -38,9 +38,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     Rotation(
-        float rotationXOffset,
-        float rotationYOffset,
-        float rotationZOffset
+        float rotationXOffset
+        , float rotationYOffset
+        , float rotationZOffset
     );
 
 
@@ -63,9 +63,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void rotate(
-        float rotationXOffset,
-        float rotationYOffset,
-        float rotationZOffset
+        float rotationXOffset
+        , float rotationYOffset
+        , float rotationZOffset
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -100,9 +100,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void setRotation(
-        float rotationX,
-        float rotationY,
-        float rotationZ
+        float rotationX
+        , float rotationY
+        , float rotationZ
     );
 
     ///////////////////////////////////////////////////////////////////////////
