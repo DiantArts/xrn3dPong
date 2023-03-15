@@ -116,7 +116,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
-    void updateBallDirection(
+    void updateBallRotation(
         const ::xrn::engine::component::Position& position1
         , const ::xrn::engine::component::Position& position2
     );

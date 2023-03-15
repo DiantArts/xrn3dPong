@@ -62,36 +62,47 @@ void ::game::server::Ball::onTick(
     , const ::xrn::engine::component::Position& position2
 )
 {
-    this->updateBallDirection(position1, position2);
+    this->updateBallRotation(position1, position2);
+    m_rotation.updateDirection();
+    XRN_INFO(
+        "rotation: [{:.5};{:.5}]"
+        , m_rotation.get().x
+        , m_rotation.get().y
+    );
 
     m_position.update(deltaTime, m_control, m_rotation.getDirection());
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::server::Ball::updateBallDirection(
+void ::game::server::Ball::updateBallRotation(
     const ::xrn::engine::component::Position& position1
     , const ::xrn::engine::component::Position& position2
 )
 {
+    auto& ball{ m_position.get() };
+
     if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) {
-        const ::glm::vec2 normal{ 90.f, 0.f };
-        m_rotation.setRotation(m_rotation.getXY() - normal);
+        const ::glm::vec2 normal{ 0.f, 180.f };
+        m_rotation.setRotation(normal - m_rotation.getXY());
+        m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
     } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) {
-        const ::glm::vec2 normal{ -90.f, 0.f };
-        m_rotation.setRotation(m_rotation.getXY() - normal);
+        const ::glm::vec2 normal{ 0.f, 180.f };
+        m_rotation.setRotation(normal - m_rotation.getXY());
+        m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
     }
     if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) {
         const ::glm::vec2 normal{ 0.f, 90.f };
-        m_rotation.setRotation(m_rotation.getXY() - normal);
+        m_rotation.setRotation(normal - m_rotation.getXY());
+        m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
     } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        const ::glm::vec2 normal{ 0.f, -90.f };
-        m_rotation.setRotation(m_rotation.getXY() - normal);
+        const ::glm::vec2 normal{ 0.f, 0.f };
+        m_rotation.setRotation(normal - m_rotation.getXY());
+        m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
     }
 
     for (auto& position : { position1.get(), position2.get() }) {
         auto beginHitbox{ position - (::game::client::Scene::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
         auto endHitbox{ position + (::game::client::Scene::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
-        auto& ball{ m_position.get() };
 
         if (
             ball.x < beginHitbox.x || ball.x > endHitbox.x ||
@@ -140,12 +151,12 @@ void ::game::server::Ball::updateBallDirection(
         }
 
         if (position.z < 0) {
-            const ::glm::vec2 normal{ 0.f, 0.f };
-            m_rotation.setRotation(m_rotation.getXY() - normal);
+            const ::glm::vec2 normal{ 180.f, 180.f };
+            m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, endHitbox.z);
         } else {
-            const ::glm::vec2 normal{ -10.f, 190.f };
-            m_rotation.setRotation(m_rotation.getXY() - normal);
+            const ::glm::vec2 normal{ 180.f, 180.f };
+            m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, beginHitbox.z);
         }
         break;
@@ -160,12 +171,6 @@ void ::game::server::Ball::updateBallDirection(
         m_rotation.setRotation(90, 0, 0);
         m_position.set(0, 0, 0);
     }
-    m_rotation.updateDirection();
-    XRN_INFO(
-        "rotation: [{:.5};{:.5}]"
-        , m_rotation.get().x
-        , m_rotation.get().y
-    );
 }
 
 
@@ -181,10 +186,11 @@ void ::game::server::Ball::updateBallDirection(
 void ::game::server::Ball::setDefaultPropreties()
 {
     m_control.setSpeed(3000);
-    // m_rotation.setRotationX(45); // left to right
-    // m_rotation.setRotationY(45); // left to right
-    // m_rotation.setRotationX(90); // forward to backward
-    m_rotation.setRotationX(85); // forward to backward
+    // m_rotation.setRotationX(20);
+    // m_rotation.setRotationY(20);
+    // m_rotation.setRotationX(105); // forward to backward
+    m_rotation.setRotationX(45);
+    m_rotation.setRotationY(45); // left to right
     m_control.startMovingForward();
 }
 
