@@ -131,6 +131,7 @@ void ::game::server::GameRoom::setPlayer1Position(
     ::glm::vec3&& position
 )
 {
+    m_player1BurstSpeed = m_player1Position.get() - position;
     m_player1Position = ::std::move(position);
 }
 
@@ -146,6 +147,7 @@ void ::game::server::GameRoom::setPlayer2Position(
     ::glm::vec3&& position
 )
 {
+    m_player2BurstSpeed = m_player2Position.get() - position;
     m_player2Position = ::std::move(position);
 }
 
@@ -194,8 +196,16 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
-    m_ball.onTick(deltaTime, m_player1Position, m_player2Position);
-    {
+    // updade ball
+    m_ball.onTick(
+        deltaTime
+        , m_player1Position
+        , m_player2BurstSpeed
+        , m_player2Position
+        , m_player2BurstSpeed
+    );
+
+    { // send info to clients
         // create messages
         auto message1{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
         *message1 << m_ball.getPosition();

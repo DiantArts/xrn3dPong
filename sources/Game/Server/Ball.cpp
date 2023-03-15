@@ -59,16 +59,19 @@ auto ::game::server::Ball::operator=(
 void ::game::server::Ball::onTick(
     ::xrn::Time deltaTime
     , const ::xrn::engine::component::Position& position1
+    , const ::glm::vec3& burstSpeed1
     , const ::xrn::engine::component::Position& position2
+    , const ::glm::vec3& burstSpeed2
 )
 {
-    this->updateBallRotation(position1, position2);
+    this->updateBallRotation(position1, burstSpeed1, position2, burstSpeed2);
     m_rotation.updateDirection();
-    XRN_INFO(
-        "rotation: [{:.5};{:.5}]"
-        , m_rotation.get().x
-        , m_rotation.get().y
-    );
+
+    // XRN_INFO(
+        // "rotation: [{:.5};{:.5}]"
+        // , m_rotation.get().x
+        // , m_rotation.get().y
+    // );
 
     m_position.update(deltaTime, m_control, m_rotation.getDirection());
 }
@@ -76,28 +79,38 @@ void ::game::server::Ball::onTick(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::updateBallRotation(
     const ::xrn::engine::component::Position& position1
+    , const ::glm::vec3& burstSpeed1
     , const ::xrn::engine::component::Position& position2
+    , const ::glm::vec3& burstSpeed2
 )
 {
     auto& ball{ m_position.get() };
 
-    if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) {
+    if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) { // left?
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
-    } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) {
+        // this->setDefaultPropreties();
+    } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) { // right?
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        // this->setDefaultPropreties();
     }
-    if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        const ::glm::vec2 normal{ 0.f, 90.f };
-        m_rotation.setRotation(normal - m_rotation.getXY());
+    if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) { // bot
+        m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
-    } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        const ::glm::vec2 normal{ 0.f, 0.f };
-        m_rotation.setRotation(normal - m_rotation.getXY());
+        // const ::glm::vec2 normal{ 180.f, 0.f };
+        // m_rotation.setRotation(normal - m_rotation.getXY());
+        // m_rotation.setRotationX(180 - 70 - 45);
+        // m_rotation.setRotationX(180 - 70 - 45);
+        // m_rotation.setRotationY(180 + 20);
+    } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) { // top
+        m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
+        // const ::glm::vec2 normal{ 0.f, 0.f };
+        // m_rotation.setRotation(normal - m_rotation.getXY());
+        // m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
     }
 
     for (auto& position : { position1.get(), position2.get() }) {
@@ -185,12 +198,14 @@ void ::game::server::Ball::updateBallRotation(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::setDefaultPropreties()
 {
+    // XRN_WARN("reset propreties");
     m_control.setSpeed(3000);
     // m_rotation.setRotationX(20);
     // m_rotation.setRotationY(20);
     // m_rotation.setRotationX(105); // forward to backward
-    m_rotation.setRotationX(45);
-    m_rotation.setRotationY(45); // left to right
+    m_position.set(0, 0, 0);
+    m_rotation.setRotationX(70);
+    m_rotation.setRotationY(20); // left to right
     m_control.startMovingForward();
 }
 

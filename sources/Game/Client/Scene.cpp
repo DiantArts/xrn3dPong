@@ -365,7 +365,7 @@ void ::game::client::Scene::loadLights()
             , { (mapSize.x + 1), 0, mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
             , { 0, -(mapSize.y + 1), mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
             , { -(mapSize.x + 1), 0, mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
-            , { mapSize.x * 2, mapSize.y + 0, 0 } // useless for now
+            , { mapSize.x + 1000, mapSize.y + 0, 0 } // useless for now
         };
 
         // create the lights at equal distances from each other in circle

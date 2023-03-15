@@ -110,7 +110,9 @@ public:
     void onTick(
         ::xrn::Time deltaTime
         , const ::xrn::engine::component::Position& position1
+        , const ::glm::vec3& burstSpeed1
         , const ::xrn::engine::component::Position& position2
+        , const ::glm::vec3& burstSpeed2
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -118,7 +120,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void updateBallRotation(
         const ::xrn::engine::component::Position& position1
+        , const ::glm::vec3& burstSpeed1
         , const ::xrn::engine::component::Position& position2
+        , const ::glm::vec3& burstSpeed2
     );
 
 
