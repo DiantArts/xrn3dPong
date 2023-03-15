@@ -58,8 +58,8 @@ auto ::game::server::Ball::operator=(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::onTick(
     ::xrn::Time deltaTime
-    , ::xrn::engine::component::Position& position1
-    , ::xrn::engine::component::Position& position2
+    , const ::xrn::engine::component::Position& position1
+    , const ::xrn::engine::component::Position& position2
 )
 {
     this->updateBallDirection(position1, position2);
@@ -69,54 +69,29 @@ void ::game::server::Ball::onTick(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::updateBallDirection(
-    ::xrn::engine::component::Position& position1
-    , ::xrn::engine::component::Position& position2
+    const ::xrn::engine::component::Position& position1
+    , const ::xrn::engine::component::Position& position2
 )
 {
-    // bind the ball inside the map
     if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) {
-        m_control.rotateAbsoluteX(180);
+        const ::glm::vec2 normal{ 90.f, 0.f };
+        m_rotation.setRotation(m_rotation.getXY() - normal);
     } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) {
-        m_control.rotateAbsoluteX(180);
+        const ::glm::vec2 normal{ -90.f, 0.f };
+        m_rotation.setRotation(m_rotation.getXY() - normal);
     }
     if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) {
-        m_control.rotateAbsoluteX(180);
+        const ::glm::vec2 normal{ 0.f, 90.f };
+        m_rotation.setRotation(m_rotation.getXY() - normal);
     } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) {
-        m_control.rotateAbsoluteX(180);
+        const ::glm::vec2 normal{ 0.f, -90.f };
+        m_rotation.setRotation(m_rotation.getXY() - normal);
     }
 
     for (auto& position : { position1.get(), position2.get() }) {
         auto beginHitbox{ position - (::game::client::Scene::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
         auto endHitbox{ position + (::game::client::Scene::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
         auto& ball{ m_position.get() };
-
-        if (position.z < 0) {
-            XRN_INFO(
-                "detection: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-                , endHitbox.x
-                , endHitbox.y
-                , endHitbox.z
-                , ball.x
-                , ball.y
-                , ball.z
-                , beginHitbox.x
-                , beginHitbox.y
-                , beginHitbox.z - 2.f
-            );
-        } else {
-            XRN_INFO(
-                "detection: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-                , beginHitbox.x
-                , beginHitbox.y
-                , beginHitbox.z
-                , ball.x
-                , ball.y
-                , ball.z
-                , endHitbox.x
-                , endHitbox.y
-                , endHitbox.z + 2.f
-            );
-        }
 
         if (
             ball.x < beginHitbox.x || ball.x > endHitbox.x ||
@@ -135,58 +110,62 @@ void ::game::server::Ball::updateBallDirection(
                 continue;
             }
         }
-        // continue;
 
-        XRN_DEBUG(
-            "player collision: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-            , beginHitbox.x
-            , beginHitbox.y
-            , beginHitbox.z
-            , ball.x
-            , ball.y
-            , ball.z
-            , endHitbox.x
-            , endHitbox.y
-            , endHitbox.z
-        );
-
-        m_control.rotateAbsoluteX(180);
         if (position.z < 0) {
+            XRN_NOTE(
+                "collision: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
+                , endHitbox.x
+                , endHitbox.y
+                , endHitbox.z
+                , ball.x
+                , ball.y
+                , ball.z
+                , beginHitbox.x
+                , beginHitbox.y
+                , beginHitbox.z - 2.f
+            );
+        } else {
+            XRN_NOTE(
+                "collision: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
+                , beginHitbox.x
+                , beginHitbox.y
+                , beginHitbox.z
+                , ball.x
+                , ball.y
+                , ball.z
+                , endHitbox.x
+                , endHitbox.y
+                , endHitbox.z + 2.f
+            );
+        }
+
+        if (position.z < 0) {
+            const ::glm::vec2 normal{ 0.f, 0.f };
+            m_rotation.setRotation(m_rotation.getXY() - normal);
             m_position.set(ball.x, ball.y, endHitbox.z);
         } else {
+            const ::glm::vec2 normal{ -10.f, 190.f };
+            m_rotation.setRotation(m_rotation.getXY() - normal);
             m_position.set(ball.x, ball.y, beginHitbox.z);
         }
-        XRN_INFO(
-            "player collision resolved: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-            , beginHitbox.x
-            , beginHitbox.y
-            , beginHitbox.z
-            , ball.x
-            , ball.y
-            , ball.z
-            , endHitbox.x
-            , endHitbox.y
-            , endHitbox.z
-        );
-
-        XRN_DEBUG("player collision");
+        break;
     }
 
     if (m_position.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
         XRN_INFO("Player1 won");
-        // m_control.rotateAbsoluteX(180);
-        m_control.resetRotatedFlag();
         m_rotation.setRotation(270, 0, 0);
         m_position.set(0, 0, 0);
     } else if (m_position.get().z <= -(::game::client::Scene::maxMapPosition.z + 5)) { // player2 win
         XRN_INFO("Player2 won");
-        // m_control.rotateAbsoluteX(180);
-        m_control.resetRotatedFlag();
         m_rotation.setRotation(90, 0, 0);
         m_position.set(0, 0, 0);
     }
-
-    m_rotation.updateDirection(m_control);
+    m_rotation.updateDirection();
+    XRN_INFO(
+        "rotation: [{:.5};{:.5}]"
+        , m_rotation.get().x
+        , m_rotation.get().y
+    );
 }
 
 
@@ -202,8 +181,10 @@ void ::game::server::Ball::updateBallDirection(
 void ::game::server::Ball::setDefaultPropreties()
 {
     m_control.setSpeed(3000);
-    // m_control.rotateAbsoluteX(0); // left to right
-    m_control.rotateAbsoluteX(90); // forward to backward
+    // m_rotation.setRotationX(45); // left to right
+    // m_rotation.setRotationY(45); // left to right
+    // m_rotation.setRotationX(90); // forward to backward
+    m_rotation.setRotationX(85); // forward to backward
     m_control.startMovingForward();
 }
 

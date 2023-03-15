@@ -109,16 +109,16 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void onTick(
         ::xrn::Time deltaTime
-        , ::xrn::engine::component::Position& position1
-        , ::xrn::engine::component::Position& position2
+        , const ::xrn::engine::component::Position& position1
+        , const ::xrn::engine::component::Position& position2
     );
 
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
     void updateBallDirection(
-        ::xrn::engine::component::Position& position1
-        , ::xrn::engine::component::Position& position2
+        const ::xrn::engine::component::Position& position1
+        , const ::xrn::engine::component::Position& position2
     );
 
 

@@ -69,6 +69,20 @@ void ::xrn::engine::component::Rotation::rotate(
 void ::xrn::engine::component::Rotation::rotate(
     const float rotationXOffset
     , const float rotationYOffset
+)
+{
+    if (rotationXOffset != 0) {
+        this->rotateX(rotationXOffset);
+    }
+    if (rotationYOffset != 0) {
+        this->rotateY(rotationYOffset);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Rotation::rotate(
+    const float rotationXOffset
+    , const float rotationYOffset
     , const float rotationZOffset
 )
 {
@@ -92,6 +106,9 @@ void ::xrn::engine::component::Rotation::rotateX(
     while (m_rotation.x >= 360) {
         m_rotation.x -= 360;
     }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
     m_isChanged = true;
 }
 
@@ -103,6 +120,9 @@ void ::xrn::engine::component::Rotation::rotateY(
     m_rotation.y += offset;
     while (m_rotation.y >= 360) {
         m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
     }
     m_isChanged = true;
 }
@@ -116,6 +136,52 @@ void ::xrn::engine::component::Rotation::rotateZ(
     while (m_rotation.z >= 360) {
         m_rotation.z -= 360;
     }
+    while (m_rotation.z < 0) {
+        m_rotation.z += 360;
+    }
+    m_isChanged = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Rotation::rotateXY(
+    const float offset
+)
+{
+    m_rotation.x += offset;
+    while (m_rotation.x >= 360) {
+        m_rotation.x -= 360;
+    }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
+    while (m_rotation.y >= 360) {
+        m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
+    }
+    m_isChanged = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Rotation::setRotation(
+    const ::glm::vec2& rotation
+)
+{
+    m_rotation.x = rotation.x;
+    m_rotation.y = rotation.y;
+    while (m_rotation.x >= 360) {
+        m_rotation.x -= 360;
+    }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
+    while (m_rotation.y >= 360) {
+        m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
+    }
     m_isChanged = true;
 }
 
@@ -128,15 +194,46 @@ void ::xrn::engine::component::Rotation::setRotation(
     while (m_rotation.x >= 360) {
         m_rotation.x -= 360;
     }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
     while (m_rotation.y >= 360) {
         m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
     }
     while (m_rotation.z >= 360) {
         m_rotation.z -= 360;
     }
+    while (m_rotation.z < 0) {
+        m_rotation.z += 360;
+    }
     m_isChanged = true;
 }
 
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Rotation::setRotation(
+    const float rotationX
+    , const float rotationY
+)
+{
+    m_rotation.x = rotationX;
+    m_rotation.y = rotationY;
+    while (m_rotation.x >= 360) {
+        m_rotation.x -= 360;
+    }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
+    while (m_rotation.y >= 360) {
+        m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
+    }
+    m_isChanged = true;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::engine::component::Rotation::setRotation(
@@ -149,11 +246,20 @@ void ::xrn::engine::component::Rotation::setRotation(
     while (m_rotation.x >= 360) {
         m_rotation.x -= 360;
     }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
     while (m_rotation.y >= 360) {
         m_rotation.y -= 360;
     }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
+    }
     while (m_rotation.z >= 360) {
         m_rotation.z -= 360;
+    }
+    while (m_rotation.z < 0) {
+        m_rotation.z += 360;
     }
     m_isChanged = true;
 }
@@ -167,6 +273,9 @@ void ::xrn::engine::component::Rotation::setRotationX(
     while (m_rotation.x >= 360) {
         m_rotation.x -= 360;
     }
+    while (m_rotation.x < 0) {
+        m_rotation.x += 360;
+    }
     m_isChanged = true;
 }
 
@@ -178,6 +287,9 @@ void ::xrn::engine::component::Rotation::setRotationY(
     m_rotation.y = rotationY;
     while (m_rotation.y >= 360) {
         m_rotation.y -= 360;
+    }
+    while (m_rotation.y < 0) {
+        m_rotation.y += 360;
     }
     m_isChanged = true;
 }
@@ -191,7 +303,17 @@ void ::xrn::engine::component::Rotation::setRotationZ(
     while (m_rotation.z >= 360) {
         m_rotation.z -= 360;
     }
+    while (m_rotation.z < 0) {
+        m_rotation.z += 360;
+    }
     m_isChanged = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+[[ nodiscard ]] auto ::xrn::engine::component::Rotation::getXY() const
+    -> ::glm::vec2
+{
+    return ::glm::vec2{ m_rotation.x, m_rotation.y };
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -237,6 +359,20 @@ void ::xrn::engine::component::Rotation::updateDirection(
             , ::glm::sin(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
         ));
         control.resetRotatedFlag();
+        m_isChanged = false;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::component::Rotation::updateDirection()
+{
+    if (this->isChanged()) {
+        m_direction = ::glm::normalize(::glm::vec3(
+            ::glm::cos(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
+            , ::glm::sin(::glm::radians(m_rotation.y))
+            , ::glm::sin(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
+        ));
+        m_isChanged = false;
     }
 }
 

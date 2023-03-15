@@ -97,12 +97,12 @@ auto ::game::client::Scene::onTick(
     if (!m_isCameraDetached) {
         auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
 
-        XRN_INFO(
-            "New position: [{:.5};{:.5};{:.5}]"
-            , position.get().x
-            , position.get().y
-            , position.get().z
-        );
+        // XRN_INFO(
+            // "New position: [{:.5};{:.5};{:.5}]"
+            // , position.get().x
+            // , position.get().y
+            // , position.get().z
+        // );
 
         // send corrected position to server
         auto message{::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
@@ -131,15 +131,13 @@ void ::game::client::Scene::onKeyPressed(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
             return playerController->startMovingForward();
 
-        // move arrows
+        // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            return playerController->startMovingUp();
+            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            return m_playerNumber == 1 ? cameraController.startMovingBackward() : cameraController.startMovingForward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            return playerController->startMovingDown();
-        } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
-            return playerController->startMovingBackward();
-        } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
-            return playerController->startMovingForward();
+            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            return m_playerNumber == 1 ? cameraController.startMovingForward() : cameraController.startMovingBackward();
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
@@ -175,15 +173,13 @@ void ::game::client::Scene::onKeyReleased(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
             return playerController->stopMovingForward();
 
-        // move arrows
+        // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            return playerController->stopMovingUp();
+            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            return m_playerNumber == 1 ? cameraController.stopMovingBackward() : cameraController.stopMovingForward();
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            return playerController->stopMovingDown();
-        } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft2) {
-            return playerController->stopMovingBackward();
-        } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight2) {
-            return playerController->stopMovingForward();
+            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            return m_playerNumber == 1 ? cameraController.stopMovingForward() : cameraController.stopMovingBackward();
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
@@ -242,8 +238,8 @@ void ::game::client::Scene::onReceive(
 
         // move to the other side because player is player2
         // camera
-        this->getRegistry().get<::xrn::engine::component::Position>(getCameraId()).setZ(mapSize.z + 25.0f);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(getCameraId()).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId()).setZ(mapSize.z + 30.0f);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getCameraId()).rotateX(180);
         // player
         this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setZ(mapSize.z);
         this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).rotateX(180);
@@ -286,10 +282,10 @@ void ::game::client::Scene::queueForGame()
 void ::game::client::Scene::loadObjects()
 {
     { // camera
-        auto entity{ getCameraId() };
+        auto entity{ this->getCameraId() };
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
-        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(3000);
-        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 25.0f) });
+        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(1000);
+        this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(mapSize.z + 30.0f) });
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
     }
 
@@ -297,8 +293,8 @@ void ::game::client::Scene::loadObjects()
         // if camera detached, create a random object to replace player
         auto entity{ m_isCameraDetached ? this->getRegistry().create() : this->getPlayerId()};
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
-        // this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
-        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(300);
+        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(2500);
+        // this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(300);
         this->getRegistry().emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(this->getVulkanDevice(), "Cube"));
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, -mapSize.z);
         this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, this->playerScale);

@@ -414,6 +414,12 @@ auto ::xrn::engine::AScene::update()
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_camera.getId()) };
         auto& rotation{ m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()) };
         m_camera.setViewDirection(position, rotation.getDirection());
+        XRN_INFO(
+            "update camera pos: [{:.5};{:.5};{:.5}]"
+            , position.get().x
+            , position.get().y
+            , position.get().z
+        );
         // m_camera.setViewDirection(::glm::vec3{ 0.0f, 0.0f, -2.5f }, ::glm::vec3{ 0.0f, 0.0f, 1.0f });
     }
     return true;
