@@ -1,5 +1,5 @@
 # 3D pong
-Small 3D pong game using Vulkan (base code can be found here: https://github.com/DiantArts/VulkanSandbox)
+Multiplayer 3D pong game using Vulkan (base code can be found here: https://github.com/DiantArts/VulkanSandbox)
 
 # How to run
 Run the following commands to install the dependencies (ubuntu-22.04 example):
