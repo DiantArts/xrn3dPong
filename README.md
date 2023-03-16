@@ -20,3 +20,4 @@ Launch the client
 ```
 
 Use `-d` to enable debug.
+Use `-h` for help.
