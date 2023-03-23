@@ -9,11 +9,14 @@
 #include <Game/Client/Scene.hpp>
 
 ///////////////////////////////////////////////////////////////////////////
-auto main()
-    -> int
+auto main(
+    const int argc
+    , const char* argv[]
+) -> int
 {
+    XRN_FATAL_SASSERT(argc == 3, "Usage: client <address> <port>");
     ::game::client::Scene scene;
-    if (scene.connectToServer("127.0.0.1", 8080)) {
+    if (scene.connectToServer(argv[1], static_cast<::std::uint16_t>(::std::atoi(argv[2])))) {
         scene.queueForGame(); // automatically load the scene and start the game
         scene.run();
     }

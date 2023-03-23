@@ -10,8 +10,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 auto main(
-    int argc
-    , char** argv
+    const int argc
+    , const char* argv[]
 ) -> int
 {
     XRN_FATAL_SASSERT(argc == 2, "Usage: server <host>");

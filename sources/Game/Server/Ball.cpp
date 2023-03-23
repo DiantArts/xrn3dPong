@@ -90,27 +90,17 @@ void ::game::server::Ball::updateBallRotation(
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
-        // this->setDefaultPropreties();
     } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) { // right?
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
-        // this->setDefaultPropreties();
     }
     if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) { // bot
         m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
-        // const ::glm::vec2 normal{ 180.f, 0.f };
-        // m_rotation.setRotation(normal - m_rotation.getXY());
-        // m_rotation.setRotationX(180 - 70 - 45);
-        // m_rotation.setRotationX(180 - 70 - 45);
-        // m_rotation.setRotationY(180 + 20);
     } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) { // top
         m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
-        // const ::glm::vec2 normal{ 0.f, 0.f };
-        // m_rotation.setRotation(normal - m_rotation.getXY());
-        // m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
     }
 
     for (auto& position : { position1.get(), position2.get() }) {
@@ -136,34 +126,6 @@ void ::game::server::Ball::updateBallRotation(
         }
 
         if (position.z < 0) {
-            XRN_NOTE(
-                "collision: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-                , endHitbox.x
-                , endHitbox.y
-                , endHitbox.z
-                , ball.x
-                , ball.y
-                , ball.z
-                , beginHitbox.x
-                , beginHitbox.y
-                , beginHitbox.z - 2.f
-            );
-        } else {
-            XRN_NOTE(
-                "collision: [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}] < [{:.5};{:.5};{:.5}]"
-                , beginHitbox.x
-                , beginHitbox.y
-                , beginHitbox.z
-                , ball.x
-                , ball.y
-                , ball.z
-                , endHitbox.x
-                , endHitbox.y
-                , endHitbox.z + 2.f
-            );
-        }
-
-        if (position.z < 0) {
             const ::glm::vec2 normal{ 180.f, 180.f };
             m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, endHitbox.z);
@@ -172,7 +134,7 @@ void ::game::server::Ball::updateBallRotation(
             m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, beginHitbox.z);
         }
-        break;
+        return;
     }
 
     if (m_position.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
@@ -198,14 +160,10 @@ void ::game::server::Ball::updateBallRotation(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::setDefaultPropreties()
 {
-    // XRN_WARN("reset propreties");
     m_control.setSpeed(3000);
-    // m_rotation.setRotationX(20);
-    // m_rotation.setRotationY(20);
-    // m_rotation.setRotationX(105); // forward to backward
     m_position.set(0, 0, 0);
-    m_rotation.setRotationX(70);
-    m_rotation.setRotationY(20); // left to right
+    // m_rotation.setRotationX(90);
+    m_rotation.setRotation(70, 20, 0);
     m_control.startMovingForward();
 }
 
