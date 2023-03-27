@@ -24,12 +24,16 @@
 ::game::server::GameRoom::GameRoom(
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> connection
 )
-    : m_player1{ ::std::move(connection) }
-    , m_tickFrequencTime{
+    : m_tickFrequencTime{
         ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
     }
 {
-    XRN_INFO("New game room created, owner:{}", m_player1->getId());
+    m_player1.connection = ::std::move(connection);
+    XRN_INFO("New game room created, owner:{}", m_player1.connection->getId());
+
+    // defaultValues of player2
+    m_player2.position.setZ(50.0f);
+    m_player2.id = 2;
 }
 
 
@@ -76,7 +80,7 @@ auto ::game::server::GameRoom::operator=(
 auto ::game::server::GameRoom::isFull() const
     -> bool
 {
-    return m_player2 != nullptr;
+    return m_player2.connection != nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -95,9 +99,9 @@ auto ::game::server::GameRoom::contains(
     if (!connection) {
         return 0;
     }
-    if (connection == m_player1) {
+    if (connection == m_player1.connection) {
         return 1;
-    } else if (connection == m_player2) {
+    } else if (connection == m_player2.connection) {
         return 2;
     } else {
         return 0;
@@ -109,10 +113,10 @@ auto ::game::server::GameRoom::getOpponent(
     ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> player
 ) -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>
 {
-    if (player == m_player1) {
-        return m_player2;
-    } else if (player == m_player2) {
-        return m_player1;
+    if (player == m_player1.connection) {
+        return m_player2.connection;
+    } else if (player == m_player2.connection) {
+        return m_player1.connection;
     }
 
     XRN_FATAL("Get opponent of a room that is not the player's one");
@@ -123,7 +127,7 @@ auto ::game::server::GameRoom::getOpponent(
 auto ::game::server::GameRoom::getPlayer1()
     -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>
 {
-    return m_player1;
+    return m_player1.connection;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -131,15 +135,15 @@ void ::game::server::GameRoom::setPlayer1Position(
     ::glm::vec3&& position
 )
 {
-    m_player1BurstSpeed = m_player1Position.get() - position;
-    m_player1Position = ::std::move(position);
+    m_player1.burstSpeed = m_player1.position.get() - position;
+    m_player1.position = ::std::move(position);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 auto ::game::server::GameRoom::getPlayer2()
     -> ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>>
 {
-    return m_player2;
+    return m_player2.connection;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -147,8 +151,28 @@ void ::game::server::GameRoom::setPlayer2Position(
     ::glm::vec3&& position
 )
 {
-    m_player2BurstSpeed = m_player2Position.get() - position;
-    m_player2Position = ::std::move(position);
+    m_player2.burstSpeed = m_player2.position.get() - position;
+    m_player2.position = ::std::move(position);
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::udpSendToBothClients(
+    ::std::unique_ptr<GameRoom::Message> message1
+)
+{
+    auto message2{ ::std::make_unique<GameRoom::Message>(*message1) };
+    m_player1.connection->udpSend(::std::move(message1));
+    m_player2.connection->udpSend(::std::move(message2));
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::tcpSendToBothClients(
+    ::std::unique_ptr<GameRoom::Message> message1
+)
+{
+    auto message2{ ::std::make_unique<GameRoom::Message>(*message1) };
+    m_player1.connection->tcpSend(::std::move(message1));
+    m_player2.connection->tcpSend(::std::move(message2));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -157,23 +181,23 @@ void ::game::server::GameRoom::joinGame(
 )
 {
     // if player1 is disconnected
-    if (!m_player1->isConnected()) {
-        m_player1 = ::std::move(connection);
-        XRN_INFO("Game room owner changed:{}", m_player1->getId());
+    if (!m_player1.connection->isConnected()) {
+        m_player1.connection = ::std::move(connection);
+        XRN_INFO("Game room owner changed:{}", m_player1.connection->getId());
         return;
     }
 
-    m_player2 = ::std::move(connection);
-    XRN_INFO("Game room joined by:{}", m_player2->getId());
+    m_player2.connection = ::std::move(connection);
+    XRN_INFO("Game room joined by:{}", m_player2.connection->getId());
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
         ::xrn::Clock m_clock;
         m_ball.setDefaultPropreties();
         do {
-            if (!m_player1->isConnected()) {
-                return m_player2->disconnect();
-            } else if (!m_player2->isConnected()) {
-                return m_player1->disconnect();
+            if (!m_player1.connection->isConnected()) {
+                return m_player2.connection->disconnect();
+            } else if (!m_player2.connection->isConnected()) {
+                return m_player1.connection->disconnect();
             }
             auto deltaTime{ m_clock.restart() };
             this->onTick(deltaTime);
@@ -196,23 +220,44 @@ void ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
 )
 {
-    // updade ball
+    // ball behaviors
+
+    switch (m_ball.updateBallRotation(m_player1, m_player2)) {
+    case 1: { // collided with player 1
+        auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::playSound) };
+        *message << 0;
+        this->tcpSendToBothClients(::std::move(message));
+        break;
+    } case 2: { // collided with player 2
+        auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::playSound) };
+        *message << 0;
+        this->tcpSendToBothClients(::std::move(message));
+        break;
+    } case 3: { // collided with wall
+        auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::playSound) };
+        *message << 0;
+        this->tcpSendToBothClients(::std::move(message));
+        break;
+    }}
+
+    switch (m_ball.checkWinCondition()) {
+    case 1: { // player1 win
+        XRN_INFO("Player1 won");
+        break;
+    } case 2: { // player2 win
+        XRN_INFO("Player2 won");
+        break;
+    }};
+
     m_ball.onTick(
         deltaTime
-        , m_player1Position
-        , m_player2BurstSpeed
-        , m_player2Position
-        , m_player2BurstSpeed
+        , m_player1
+        , m_player2
     );
 
     { // send info to clients
-        // create messages
-        auto message1{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
-        *message1 << m_ball.getPosition();
-        auto message2{ ::std::make_unique<GameRoom::Message>(*message1) };
-
-        // send
-        m_player1->udpSend(::std::move(message1));
-        m_player2->udpSend(::std::move(message2));
+        auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
+        *message << m_ball.getPosition();
+        this->udpSendToBothClients(::std::move(message));
     }
 }

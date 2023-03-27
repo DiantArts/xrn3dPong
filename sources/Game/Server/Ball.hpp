@@ -2,6 +2,7 @@
 
 #include <xrn/Engine/Components.hpp>
 #include <Game/MessageType.hpp>
+#include <Game/Server/Player.hpp>
 
 namespace game::server {
 
@@ -109,21 +110,35 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void onTick(
         ::xrn::Time deltaTime
-        , const ::xrn::engine::component::Position& position1
-        , const ::glm::vec3& burstSpeed1
-        , const ::xrn::engine::component::Position& position2
-        , const ::glm::vec3& burstSpeed2
+        , ::game::server::Player& player1
+        , ::game::server::Player& player2
     );
 
     ///////////////////////////////////////////////////////////////////////////
+    /// \brief update pos and check and resolve collision
+    ///
+    /// returns:
+    ///     0: no collision
+    ///     1: if collided with a player
+    ///     2: if collided with a wall
     ///
     ///////////////////////////////////////////////////////////////////////////
-    void updateBallRotation(
-        const ::xrn::engine::component::Position& position1
-        , const ::glm::vec3& burstSpeed1
-        , const ::xrn::engine::component::Position& position2
-        , const ::glm::vec3& burstSpeed2
-    );
+    auto updateBallRotation(
+        ::game::server::Player& player1
+        , ::game::server::Player& player2
+    ) -> ::std::uint8_t;
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief update pos and check and resolve collision
+    ///
+    /// returns:
+    ///     0: no win condition met
+    ///     1: player1 win
+    ///     2: player2 win
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    auto checkWinCondition()
+        -> ::std::uint8_t;
 
 
 

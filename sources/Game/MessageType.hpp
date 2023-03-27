@@ -12,6 +12,8 @@ enum class MessageType
     playerPosition // udp sending to the server the position of the player
     , ballPosition // server sending the position of the ball
 
+    , playSound // server request the client to play a sound from index
+
     , queuing // notify the server that the client is queuing for a game
     , playerAttributionOne // notify the client that an opponent has been found and the player is now player1
     , playerAttributionTwo // notify the client that an opponent has been found and the player is now player2

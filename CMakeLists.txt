@@ -14,8 +14,8 @@ set(XRN_ERROR_LIMIT 1)
 set(XRN_PERSONAL_DEPENDENCIES xrnLog xrnMeta xrnUtil xrnEcs xrnNetwork) # include other xrn projects
 set(XRN_LIBRARIES_REQUIRED glfw/3.3.7 entt/3.10.1 spdlog/1.10.0 asio/1.24.0)
 set(XRN_LIBRARIES_REQUIREMENTS Vulkan glfw3 EnTT fmt Threads spdlog fmt asio) # find_package
-set(XRN_LIBRARIES_DEPENDENCIES Vulkan::Vulkan glfw::glfw EnTT::EnTT fmt::fmt Threads::Threads CONAN_PKG::spdlog CONAN_PKG::fmt CONAN_PKG::asio) # target_link_libraries
-set(XRN_LIBRARIES_HEADERS glfw3 EnTT spdlog fmt asio) # include_directories()
+set(XRN_LIBRARIES_DEPENDENCIES Vulkan::Vulkan EnTT::EnTT fmt::fmt Threads::Threads CONAN_PKG::glfw CONAN_PKG::spdlog CONAN_PKG::fmt CONAN_PKG::asio sfml-audio) # target_link_libraries
+set(XRN_LIBRARIES_HEADERS glfw3 EnTT spdlog fmt asio sfml) # include_directories()
 
 set(SPDLOG_BUILD_SHARED OFF)
 set(SPDLOG_FMT_EXTERNAL ON)

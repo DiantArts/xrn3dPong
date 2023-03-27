@@ -76,7 +76,7 @@ public:
 
 private:
 
-    ::std::vector<::game::server::GameRoom> m_rooms;
+    ::std::vector<::std::unique_ptr<::game::server::GameRoom>> m_rooms;
 
     ::std::mutex m_mutex;
 

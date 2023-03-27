@@ -58,13 +58,10 @@ auto ::game::server::Ball::operator=(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::onTick(
     ::xrn::Time deltaTime
-    , const ::xrn::engine::component::Position& position1
-    , const ::glm::vec3& burstSpeed1
-    , const ::xrn::engine::component::Position& position2
-    , const ::glm::vec3& burstSpeed2
+    , ::game::server::Player& player1
+    , ::game::server::Player& player2
 )
 {
-    this->updateBallRotation(position1, burstSpeed1, position2, burstSpeed2);
     m_rotation.updateDirection();
 
     // XRN_INFO(
@@ -77,35 +74,38 @@ void ::game::server::Ball::onTick(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::server::Ball::updateBallRotation(
-    const ::xrn::engine::component::Position& position1
-    , const ::glm::vec3& burstSpeed1
-    , const ::xrn::engine::component::Position& position2
-    , const ::glm::vec3& burstSpeed2
-)
+auto ::game::server::Ball::updateBallRotation(
+    ::game::server::Player& player1
+    , ::game::server::Player& player2
+) -> ::std::uint8_t
 {
+    auto isCollided{ false };
     auto& ball{ m_position.get() };
 
     if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) { // left?
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        isCollided = true;
     } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) { // right?
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
         m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        isCollided = true;
     }
     if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) { // bot
         m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
+        isCollided = true;
     } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) { // top
         m_rotation.setRotationY(-m_rotation.get().y);
         m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
+        isCollided = true;
     }
 
-    for (auto& position : { position1.get(), position2.get() }) {
-        auto beginHitbox{ position - (::game::client::Scene::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
-        auto endHitbox{ position + (::game::client::Scene::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
+    for (auto& player : { player1, player2 }) {
+        auto beginHitbox{ player.position.get() - (::game::client::Scene::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
+        auto endHitbox{ player.position.get() + (::game::client::Scene::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
 
         if (
             ball.x < beginHitbox.x || ball.x > endHitbox.x ||
@@ -113,7 +113,7 @@ void ::game::server::Ball::updateBallRotation(
         ) {
             continue;
         }
-        if (position.z < 0) {
+        if (player.position.get().z < 0) {
             // add 1 to componsate the lag
             if (ball.z < beginHitbox.z - 2.f || ball.z > endHitbox.z) {
                 continue;
@@ -125,7 +125,7 @@ void ::game::server::Ball::updateBallRotation(
             }
         }
 
-        if (position.z < 0) {
+        if (player.position.get().z < 0) {
             const ::glm::vec2 normal{ 180.f, 180.f };
             m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, endHitbox.z);
@@ -134,18 +134,26 @@ void ::game::server::Ball::updateBallRotation(
             m_rotation.setRotation(normal - m_rotation.getXY());
             m_position.set(ball.x, ball.y, beginHitbox.z);
         }
-        return;
+        return player.id;
     }
 
+    return isCollided ? 1 : 0;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::game::server::Ball::checkWinCondition()
+    -> ::std::uint8_t
+{
     if (m_position.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
-        XRN_INFO("Player1 won");
         m_rotation.setRotation(270, 0, 0);
         m_position.set(0, 0, 0);
+        return 1;
     } else if (m_position.get().z <= -(::game::client::Scene::maxMapPosition.z + 5)) { // player2 win
-        XRN_INFO("Player2 won");
         m_rotation.setRotation(90, 0, 0);
         m_position.set(0, 0, 0);
+        return 2;
     }
+    return 0;
 }
 
 

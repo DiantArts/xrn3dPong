@@ -50,15 +50,15 @@ void ::game::Server::onReceive(
 
         // TODO: optimize to not have to search on every room every message lol
         for (auto& room : m_rooms) {
-            if (room.isRunning()) {
-                switch (room.contains(connection)) {
+            if (room->isRunning()) {
+                switch (room->contains(connection)) {
                 case 1: // player1
-                    this->udpSendToClient(message, room.getPlayer2());
-                    room.setPlayer1Position(::std::move(pos));
+                    this->udpSendToClient(message, room->getPlayer2());
+                    room->setPlayer1Position(::std::move(pos));
                     return;
                 case 2: // player2
-                    this->udpSendToClient(message, room.getPlayer1());
-                    room.setPlayer2Position(::std::move(pos));
+                    this->udpSendToClient(message, room->getPlayer1());
+                    room->setPlayer2Position(::std::move(pos));
                     return;
                 default: return; // Not present
                 }
@@ -69,18 +69,18 @@ void ::game::Server::onReceive(
         ::std::scoped_lock lock{ m_mutex };
 
         // TODO: insert matchmaking
-        if (m_rooms.empty() || m_rooms.back().isFull()) {
-            m_rooms.emplace_back(connection);
+        if (m_rooms.empty() || m_rooms.back()->isFull()) {
+            m_rooms.emplace_back(::std::make_unique<::game::server::GameRoom>(connection));
         } else {
-            m_rooms.back().joinGame(connection);
-            if (m_rooms.back().isFull()) {
+            m_rooms.back()->joinGame(connection);
+            if (m_rooms.back()->isFull()) {
                 {
                     auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionOne) };
-                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer1());
+                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back()->getPlayer1());
                 }
                 {
                     auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionTwo) };
-                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back().getPlayer2());
+                    this->tcpSendToClient(::std::move(messageBack), m_rooms.back()->getPlayer2());
                 }
             }
         }

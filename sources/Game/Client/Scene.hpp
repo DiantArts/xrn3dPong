@@ -231,6 +231,14 @@ private:
 
     ::entt::entity m_ball;
 
+    ::sf::Music m_music;
+    sf::SoundBuffer m_soundBuffer;
+    ::sf::Sound m_sound;
+    ::std::array<::std::string, 2> m_soundFilenames{
+        "ballBounceOffWall.ogg"
+        , "ballToPlayer.ogg"
+    };
+
 };
 
 } // namespace game::client

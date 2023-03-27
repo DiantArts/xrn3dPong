@@ -11,6 +11,8 @@
 #include <xrn/Engine/Configuration.hpp>
 #include "xrn/Engine/Component/PointLight.hpp"
 
+// #define ENABLE_MUSIC_FOR_ALL_CLIENTS
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +36,11 @@ void ::game::client::Scene::loadScene()
 {
     this->loadObjects();
     this->loadMap();
+    auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
+    if (m_music.openFromFile(filepath)) {
+        XRN_ERROR("unable to load sound file: {}", filepath);
+    }
+    m_music.setLoop(true);
 }
 
 
@@ -215,8 +222,8 @@ void ::game::client::Scene::onReceive(
     } case ::game::MessageType::ballPosition: {
         ::glm::vec3 pos;
         message >> pos;
-        this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
-        this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         if (m_playerNumber == 1) {
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / mapSize.z);
@@ -228,15 +235,43 @@ void ::game::client::Scene::onReceive(
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / mapSize.z);
         }
         break;
+    } case ::game::MessageType::playSound: { // starts the game
+#ifndef ENABLE_MUSIC_FOR_ALL_CLIENTS
+        if (m_playerNumber == 1) {
+#endif
+        int soundIndex;
+        message >> soundIndex;
+
+        // load sound
+        if (!m_soundBuffer.loadFromFile("./data/Audio/" + m_soundFilenames[soundIndex])) {
+            XRN_ERROR("unable to load sound file: {} (index: {})"
+                , m_soundFilenames[soundIndex]
+                , soundIndex
+            )
+        } else {
+            // play sound
+            m_sound.setBuffer(m_soundBuffer);
+            m_sound.play();
+        }
+#ifndef ENABLE_MUSIC_FOR_ALL_CLIENTS
+        }
+#endif
+        break;
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         m_playerNumber = 1;
         this->loadLights();
+
+        m_music.play();
 
         // this->tcpSendToServer(::game::MessageType::readyToPlay);
         break;
     } case ::game::MessageType::playerAttributionTwo: { // starts the game
         m_playerNumber = 2;
         this->loadLights();
+
+#ifdef ENABLE_MUSIC_FOR_ALL_CLIENTS
+        m_music.play();
+#endif
 
         // move to the other side because player is player2
         // camera

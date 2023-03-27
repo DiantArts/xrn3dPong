@@ -3,6 +3,7 @@
 #include <xrn/Engine/Components.hpp>
 #include <Game/MessageType.hpp>
 #include <Game/Server/Ball.hpp>
+#include <Game/Server/Player.hpp>
 
 namespace game::server {
 
@@ -170,6 +171,20 @@ public:
     );
 
     ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void udpSendToBothClients(
+        ::std::unique_ptr<GameRoom::Message> message1
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void tcpSendToBothClients(
+        ::std::unique_ptr<GameRoom::Message> message1
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
     /// \brief Join an already existing game
     ///
     ///////////////////////////////////////////////////////////////////////////
@@ -201,13 +216,8 @@ private:
 
 private:
 
-    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player1;
-    ::xrn::engine::component::Position m_player1Position{ 0.0f, 0.0f, -50.0f };
-    ::glm::vec3 m_player1BurstSpeed{ 0.0f, 0.0f, 0.0f };
-
-    ::std::shared_ptr<::xrn::network::Connection<::game::MessageType>> m_player2{ nullptr };
-    ::xrn::engine::component::Position m_player2Position{ 0.0f, 0.0f, 50.0f };
-    ::glm::vec3 m_player2BurstSpeed{ 0.0f, 0.0f, 0.0f };
+    ::game::server::Player m_player1;
+    ::game::server::Player m_player2;
 
     bool m_isRunning{ false };
 

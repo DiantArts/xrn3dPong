@@ -143,6 +143,8 @@ using ::std::chrono_literals::operator""ms;
 #include <GLFW/glfw3.h>
 #define XRN_USE_VALIDATION_LAYERS
 
+#include <SFML/Audio.hpp>
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
