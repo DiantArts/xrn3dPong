@@ -86,8 +86,6 @@ void ::game::Server::onReceive(
         }
         return;
     } default: {
-        this->tcpSendToAllClients(message, connection);
         return;
-    }
-    }
+    }}
 }

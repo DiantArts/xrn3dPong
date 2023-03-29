@@ -263,7 +263,7 @@ void ::game::client::Scene::onReceive(
 
         m_music.play();
 
-        // this->tcpSendToServer(::game::MessageType::readyToPlay);
+        this->tcpSendToServer(::std::make_unique<Scene::Message>(::game::MessageType::readyToPlay));
         break;
     } case ::game::MessageType::playerAttributionTwo: { // starts the game
         m_playerNumber = 2;
@@ -284,7 +284,7 @@ void ::game::client::Scene::onReceive(
         this->getRegistry().get<::xrn::engine::component::Position>(m_enemy).setZ(-mapSize.z);
         this->getRegistry().get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
 
-        // this->tcpSendToServer(::game::MessageType::readyToPlay);
+        this->tcpSendToServer(::std::make_unique<Scene::Message>(::game::MessageType::readyToPlay));
         break;
     } default: {
     break;
