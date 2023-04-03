@@ -6,7 +6,7 @@
 #include <xrn/Engine/Vulkan/FrameInfo.hpp>
 #include <xrn/Engine/Component/Transform3d.hpp>
 
-namespace xrn::engine::system::graphic {
+namespace xrn::engine::system {
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief No clue what it does xD
@@ -15,9 +15,7 @@ namespace xrn::engine::system::graphic {
 /// \include PointLight.hpp <PointLight.hpp>
 ///
 ///////////////////////////////////////////////////////////////////////////
-class PointLight
-    // : public ::xrn::engine::system::graphic::ASystem
-{
+class PointLight {
 
 public:
 
@@ -103,6 +101,7 @@ public:
         ::xrn::engine::vulkan::FrameInfo& frameInfo
         , const ::xrn::engine::component::PointLight& pointLight
         , const ::xrn::engine::component::Position& position
+        , ::std::size_t lightIndex
     ) const;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -117,10 +116,10 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void draw(
         ::xrn::engine::vulkan::FrameInfo& frameInfo
-        , const ::xrn::engine::component::PointLight& pointLight
-        , const ::xrn::engine::component::Position& position
+        , ::xrn::engine::component::PointLight& pointLight
+        , ::xrn::engine::component::Position& position
         , ::std::size_t lightIndex
-    ) const;
+    );
 
 
 
@@ -164,4 +163,4 @@ private:
 
 };
 
-} // namespace xrn::engine::system::graphic
+} // namespace xrn::engine::system

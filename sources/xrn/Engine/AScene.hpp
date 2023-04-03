@@ -7,6 +7,8 @@
 #include <xrn/Engine/Vulkan/Descriptor.hpp>
 #include <xrn/Engine/System/Graphic/Render.hpp>
 #include <xrn/Engine/System/Graphic/PointLight.hpp>
+#include <xrn/Engine/System/Render.hpp>
+#include <xrn/Engine/System/PointLight.hpp>
 #include <xrn/Engine/Camera.hpp>
 
 namespace xrn::engine {
@@ -287,6 +289,8 @@ private:
 
     ::xrn::engine::system::graphic::Render m_renderSystem;
     ::xrn::engine::system::graphic::PointLight m_pointLightSystem;
+    // ::xrn::engine::system::Render m_renderSystem;
+    // ::xrn::engine::system::PointLight m_pointLightSystem;
 
     // Tick
     ::xrn::Clock m_tickClock;

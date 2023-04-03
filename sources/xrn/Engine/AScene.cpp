@@ -439,11 +439,9 @@ void ::xrn::engine::AScene::draw()
     });
 
     m_pointLightSystem.bind(m_frameInfo);
-    auto lightIndex{ 0uz };
     m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
-        [this, &lightIndex](auto& pointLight, auto& position) {
-            m_pointLightSystem(m_frameInfo, pointLight, position, lightIndex);
-            ++lightIndex;
+        [this](auto& pointLight, auto& position) {
+            m_pointLightSystem(m_frameInfo, pointLight, position);
         }
     );
 

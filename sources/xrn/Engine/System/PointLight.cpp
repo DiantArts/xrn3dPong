@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // Headers
 ///////////////////////////////////////////////////////////////////////////
-#include <xrn/Engine/System/Graphic/PointLight.hpp>
+#include <xrn/Engine/System/PointLight.hpp>
 
 
 
@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::system::graphic::PointLight::PointLight(
+::xrn::engine::system::PointLight::PointLight(
     ::xrn::engine::vulkan::Device& device
     , ::VkRenderPass renderPass
     , ::VkDescriptorSetLayout descriptorSetLayout
@@ -39,7 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::system::graphic::PointLight::~PointLight()
+::xrn::engine::system::PointLight::~PointLight()
 {
     ::vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr);
 }
@@ -54,7 +54,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::graphic::PointLight::createPipelineLayout(
+void ::xrn::engine::system::PointLight::createPipelineLayout(
     ::VkDescriptorSetLayout descriptorSetLayout
 )
 {
@@ -81,7 +81,7 @@ void ::xrn::engine::system::graphic::PointLight::createPipelineLayout(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::graphic::PointLight::createPipeline(
+void ::xrn::engine::system::PointLight::createPipeline(
     ::VkRenderPass renderPass
 )
 {
@@ -96,13 +96,13 @@ void ::xrn::engine::system::graphic::PointLight::createPipeline(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::graphic::PointLight::operator()(
+void ::xrn::engine::system::PointLight::operator()(
     ::xrn::engine::vulkan::FrameInfo& frameInfo
     , const ::xrn::engine::component::PointLight& pointLight
     , const ::xrn::engine::component::Position& position
+    , ::std::size_t lightIndex
 ) const
 {
-    // frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
     ::xrn::engine::component::PointLight::PushConstant pushConstant{ pointLight, position };
     ::vkCmdPushConstants(
         frameInfo.commandBuffer
@@ -116,7 +116,7 @@ void ::xrn::engine::system::graphic::PointLight::operator()(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::graphic::PointLight::bind(
+void ::xrn::engine::system::PointLight::bind(
     ::xrn::engine::vulkan::FrameInfo& frameInfo
 )
 {
@@ -134,12 +134,12 @@ void ::xrn::engine::system::graphic::PointLight::bind(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::graphic::PointLight::draw(
-    ::xrn::engine::vulkan::FrameInfo& frameInfo
-    , const ::xrn::engine::component::PointLight& pointLight
-    , const ::xrn::engine::component::Position& position
-    , ::std::size_t lightIndex
-) const
+void ::xrn::engine::system::PointLight::draw(
+    ::xrn::engine::vulkan::FrameInfo& frameInfo [[ maybe_unused ]]
+    , ::xrn::engine::component::PointLight& pointLight [[ maybe_unused ]]
+    , ::xrn::engine::component::Position& position [[ maybe_unused ]]
+    , ::std::size_t lightIndex [[ maybe_unused ]]
+)
 {
     frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
 }
