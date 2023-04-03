@@ -11,10 +11,10 @@ namespace xrn::engine::system {
 /// \brief No clue what it does xD
 /// \ingroup vulkan
 ///
-/// \include MoveObjects.hpp <MoveObjects.hpp>
+/// \include MoveControlled.hpp <MoveControlled.hpp>
 ///
 ///////////////////////////////////////////////////////////////////////////
-class MoveObjects {
+class MoveControlled {
 
 public:
 

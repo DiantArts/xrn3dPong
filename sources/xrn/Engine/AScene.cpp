@@ -33,13 +33,13 @@
     // Keep track of information to help vulkan
     , m_frameInfo{ m_descriptorSets, *this }
     , m_uboBuffers{ ::xrn::engine::vulkan::SwapChain::MAX_FRAMES_IN_FLIGHT }
-    , m_renderSystem{
+    , m_draw3d{
         m_device
         , m_renderer.getSwapChainRenderPass()
         , m_pDescriptorSetLayout->getDescriptorSetLayout()
     }
     // draw lights and update their position
-    , m_pointLightSystem{
+    , m_drawPointLight{
         m_device
         , m_renderer.getSwapChainRenderPass()
         , m_pDescriptorSetLayout->getDescriptorSetLayout()
@@ -340,7 +340,7 @@ auto ::xrn::engine::AScene::update()
     for (auto [entity, control]: m_registry.view<::xrn::engine::component::Control>().each()) {
         auto* position{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
         auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
-        m_moveObjectsSystem(m_frameInfo, control, position, rotation);
+        m_moveControlled(m_frameInfo, control, position, rotation);
     }
 
     // transform (apply position rotation scale)
@@ -348,36 +348,7 @@ auto ::xrn::engine::AScene::update()
         auto* position{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
         auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
         auto* scale{ m_registry.try_get<::xrn::engine::component::Scale>(entity) };
-
-        // matrix and normalMatrix
-        if (position) {
-            if (rotation) {
-                if (scale) {
-                    if (position->isChanged() || rotation->isChanged() || scale->isChanged()) {
-                        transform.updateMatrix(*position, *rotation, *scale);
-                        transform.updateNormalMatrix(*rotation, *scale);
-                    }
-                    scale->resetChangedFlag();
-                    rotation->resetChangedFlag();
-                } else if (position->isChanged() || rotation->isChanged()) {
-                    transform.updateMatrix(*position, *rotation);
-                    transform.updateNormalMatrix(*rotation);
-                    rotation->resetChangedFlag();
-                }
-            } else {
-                if (scale) {
-                    if (position->isChanged() || scale->isChanged()) {
-                        transform.updateMatrix(*position);
-                        transform.updateMatrix(*position, { 0.0f, 0.0f, 0.0f }, *scale);
-                        transform.updateNormalMatrix(*scale);
-                        scale->resetChangedFlag();
-                    }
-                } else if (position->isChanged()) {
-                    transform.updateMatrix(*position);
-                }
-            }
-            position->resetChangedFlag();
-        }
+        m_updateTransform3d(m_frameInfo, transform, position, rotation, scale);
     }
 
     {
@@ -386,7 +357,7 @@ auto ::xrn::engine::AScene::update()
             [this, &lightIndex](auto& pointLight, auto& position) {
                 // auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
                 // position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
-                // m_pointLightSystem.draw(m_frameInfo, pointLight, position, lightIndex);
+                // m_drawPointLight.draw(m_frameInfo, pointLight, position, lightIndex);
                 ++lightIndex;
             }
         );
@@ -415,15 +386,15 @@ void ::xrn::engine::AScene::draw()
 
     m_renderer.beginSwapChainRenderPass(m_frameInfo.commandBuffer);
 
-    m_renderSystem.bind(m_frameInfo);
+    m_draw3d.bind(m_frameInfo);
     m_registry.view<::xrn::engine::component::Transform3d>().each([this](auto& transform){
-        m_renderSystem(m_frameInfo, transform);
+        m_draw3d(m_frameInfo, transform);
     });
 
-    m_pointLightSystem.bind(m_frameInfo);
+    m_drawPointLight.bind(m_frameInfo);
     m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
         [this, lightIndex = 0](auto& pointLight, auto& position) mutable {
-            m_pointLightSystem(m_frameInfo, pointLight, position, lightIndex);
+            m_drawPointLight(m_frameInfo, pointLight, position, lightIndex);
             ++lightIndex;
         }
     );

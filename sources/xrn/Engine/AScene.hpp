@@ -7,7 +7,8 @@
 #include <xrn/Engine/Vulkan/Descriptor.hpp>
 #include <xrn/Engine/System/Graphic/Render.hpp>
 #include <xrn/Engine/System/Graphic/PointLight.hpp>
-#include <xrn/Engine/System/MoveObjects.hpp>
+#include <xrn/Engine/System/MoveControlled.hpp>
+#include <xrn/Engine/System/UpdateTransform3d.hpp>
 #include <xrn/Engine/Camera.hpp>
 
 namespace xrn::engine {
@@ -287,9 +288,10 @@ private:
     ::xrn::engine::vulkan::Renderer m_renderer{ m_window, m_device };
 
     // systems
-    ::xrn::engine::system::graphic::Render m_renderSystem;
-    ::xrn::engine::system::graphic::PointLight m_pointLightSystem;
-    ::xrn::engine::system::MoveObjects m_moveObjectsSystem;
+    ::xrn::engine::system::graphic::Render m_draw3d;
+    ::xrn::engine::system::graphic::PointLight m_drawPointLight;
+    ::xrn::engine::system::MoveControlled m_moveControlled;
+    ::xrn::engine::system::UpdateTransform3d m_updateTransform3d;
 
     // Tick
     ::xrn::Clock m_tickClock;
