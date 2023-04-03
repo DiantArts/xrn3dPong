@@ -6,14 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // Headers
 ///////////////////////////////////////////////////////////////////////////
-#include <xrn/Engine/System/Render.hpp>
-
-
-
-struct SimplePushConstantData {
-    ::glm::mat4 modelMatrix{ 1.0f };
-    ::glm::mat4 normalMatrix{ 1.0f };
-};
+#include <xrn/Engine/System/Graphic/PointLight.hpp>
 
 
 
@@ -25,7 +18,7 @@ struct SimplePushConstantData {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::system::Render::Render(
+::xrn::engine::system::graphic::PointLight::PointLight(
     ::xrn::engine::vulkan::Device& device
     , ::VkRenderPass renderPass
     , ::VkDescriptorSetLayout descriptorSetLayout
@@ -46,7 +39,7 @@ struct SimplePushConstantData {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::engine::system::Render::~Render()
+::xrn::engine::system::graphic::PointLight::~PointLight()
 {
     ::vkDestroyPipelineLayout(m_device.device(), m_pipelineLayout, nullptr);
 }
@@ -61,14 +54,14 @@ struct SimplePushConstantData {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::Render::createPipelineLayout(
+void ::xrn::engine::system::graphic::PointLight::createPipelineLayout(
     ::VkDescriptorSetLayout descriptorSetLayout
 )
 {
     ::VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = ::VK_SHADER_STAGE_VERTEX_BIT | ::VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(::SimplePushConstantData);
+    pushConstantRange.size = sizeof(::xrn::engine::component::PointLight::PushConstant);
 
     ::std::vector<::VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };
 
@@ -88,43 +81,43 @@ void ::xrn::engine::system::Render::createPipelineLayout(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::Render::createPipeline(
+void ::xrn::engine::system::graphic::PointLight::createPipeline(
     ::VkRenderPass renderPass
 )
 {
     XRN_SASSERT(m_pipelineLayout != nullptr, "Cannot create pipeline before pipeline layout");
 
     ::xrn::engine::vulkan::Pipeline::Configuration pipelineConfig{};
+    pipelineConfig.attributeDescriptions.clear();
+    pipelineConfig.bindingDescriptions.clear();
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
-    m_pPipeline = ::std::make_unique<::xrn::engine::vulkan::Pipeline>(m_device, pipelineConfig, "simple");
+    m_pPipeline = ::std::make_unique<::xrn::engine::vulkan::Pipeline>(m_device, pipelineConfig, "pointLight");
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::Render::operator()(
+void ::xrn::engine::system::graphic::PointLight::operator()(
     ::xrn::engine::vulkan::FrameInfo& frameInfo
-    , ::xrn::engine::component::Transform3d& transform
+    , const ::xrn::engine::component::PointLight& pointLight
+    , const ::xrn::engine::component::Position& position
+    , ::std::size_t lightIndex
 ) const
 {
-    ::SimplePushConstantData push{
-        .modelMatrix = transform.getMatrix()
-        , .normalMatrix = transform.getNormalMatrix()
-    };
-
+    // frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
+    ::xrn::engine::component::PointLight::PushConstant pushConstant{ pointLight, position };
     ::vkCmdPushConstants(
         frameInfo.commandBuffer
         , m_pipelineLayout
-        , ::VK_SHADER_STAGE_VERTEX_BIT | ::VK_SHADER_STAGE_FRAGMENT_BIT
+        , VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT
         , 0
-        , sizeof(::SimplePushConstantData)
-        , &push
+        , sizeof(pushConstant)
+        , &pushConstant
     );
-    transform.getModel().bind(frameInfo.commandBuffer);
-    transform.getModel().draw(frameInfo.commandBuffer);
+    ::vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::system::Render::bind(
+void ::xrn::engine::system::graphic::PointLight::bind(
     ::xrn::engine::vulkan::FrameInfo& frameInfo
 )
 {
@@ -139,4 +132,15 @@ void ::xrn::engine::system::Render::bind(
         , 0
         , nullptr
     );
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::system::graphic::PointLight::draw(
+    ::xrn::engine::vulkan::FrameInfo& frameInfo
+    , const ::xrn::engine::component::PointLight& pointLight
+    , const ::xrn::engine::component::Position& position
+    , ::std::size_t lightIndex
+) const
+{
+    frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
 }

@@ -114,6 +114,11 @@ public:
         , ::game::server::Player& player2
     );
 
+    auto resolveBallCollisionWithWalls(
+        ::game::server::Player& player1
+        , ::game::server::Player& player2
+    ) -> bool;
+
     ///////////////////////////////////////////////////////////////////////////
     /// \brief update pos and check and resolve collision
     ///

@@ -3,19 +3,21 @@
 #include <xrn/Engine/Vulkan/Device.hpp>
 #include <xrn/Engine/Vulkan/Pipeline.hpp>
 #include <xrn/Engine/Camera.hpp>
-#include <xrn/Engine/Component/Transform3d.hpp>
 #include <xrn/Engine/Vulkan/FrameInfo.hpp>
+#include <xrn/Engine/Component/Transform3d.hpp>
 
-namespace xrn::engine::system {
+namespace xrn::engine::system::graphic {
 
 ///////////////////////////////////////////////////////////////////////////
 /// \brief No clue what it does xD
 /// \ingroup vulkan
 ///
-/// \include Render.hpp <Render.hpp>
+/// \include PointLight.hpp <PointLight.hpp>
 ///
 ///////////////////////////////////////////////////////////////////////////
-class Render {
+class PointLight
+    // : public ::xrn::engine::system::graphic::ASystem
+{
 
 public:
 
@@ -30,7 +32,7 @@ public:
     /// \brief Default constructor
     ///
     ///////////////////////////////////////////////////////////////////////////
-    explicit Render(
+    explicit PointLight(
         ::xrn::engine::vulkan::Device& device
         , ::VkRenderPass renderPass
         , ::VkDescriptorSetLayout descriptorSetLayout
@@ -49,14 +51,14 @@ public:
     /// \brief Destructor
     ///
     ///////////////////////////////////////////////////////////////////////////
-    ~Render();
+    ~PointLight();
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Copy constructor
     ///
     ///////////////////////////////////////////////////////////////////////////
-    Render(
-        const Render&
+    PointLight(
+        const PointLight&
     ) noexcept = delete;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -64,16 +66,16 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     auto operator=(
-        const Render&
+        const PointLight&
     ) noexcept
-        -> Render& = delete;
+        -> PointLight& = delete;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Move constructor
     ///
     ///////////////////////////////////////////////////////////////////////////
-    Render(
-        Render&&
+    PointLight(
+        PointLight&&
     ) noexcept = delete;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -81,9 +83,9 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     auto operator=(
-        Render&&
+        PointLight&&
     ) noexcept
-        -> Render& = delete;
+        -> PointLight& = delete;
 
 
 
@@ -99,7 +101,9 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void operator()(
         ::xrn::engine::vulkan::FrameInfo& frameInfo
-        , ::xrn::engine::component::Transform3d& transform
+        , const ::xrn::engine::component::PointLight& pointLight
+        , const ::xrn::engine::component::Position& position
+        , ::std::size_t lightIndex
     ) const;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -108,6 +112,16 @@ public:
     void bind(
         ::xrn::engine::vulkan::FrameInfo& frameInfo
     );
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void draw(
+        ::xrn::engine::vulkan::FrameInfo& frameInfo
+        , const ::xrn::engine::component::PointLight& pointLight
+        , const ::xrn::engine::component::Position& position
+        , ::std::size_t lightIndex
+    ) const;
 
 
 
@@ -151,4 +165,4 @@ private:
 
 };
 
-} // namespace xrn::engine::system
+} // namespace xrn::engine::system::graphic

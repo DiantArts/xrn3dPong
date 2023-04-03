@@ -414,7 +414,7 @@ auto ::xrn::engine::AScene::update()
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_camera.getId()) };
         auto& rotation{ m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()) };
         m_camera.setViewDirection(position, rotation.getDirection());
-        // m_camera.setViewDirection(::glm::vec3{ 0.0f, 0.0f, -2.5f }, ::glm::vec3{ 0.0f, 0.0f, 1.0f });
+        m_camera.setViewDirection(::glm::vec3{ 0.0f, 0.0f, -2.5f }, ::glm::vec3{ 0.0f, 0.0f, 1.0f });
     }
     return true;
 }
@@ -439,8 +439,12 @@ void ::xrn::engine::AScene::draw()
     });
 
     m_pointLightSystem.bind(m_frameInfo);
+    auto lightIndex{ 0uz };
     m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
-        [this](auto& pointLight, auto position) { m_pointLightSystem(m_frameInfo, pointLight, position); }
+        [this, &lightIndex](auto& pointLight, auto& position) {
+            m_pointLightSystem(m_frameInfo, pointLight, position, lightIndex);
+            ++lightIndex;
+        }
     );
 
     m_renderer.endSwapChainRenderPass(m_frameInfo.commandBuffer);

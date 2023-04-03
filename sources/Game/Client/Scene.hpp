@@ -1,7 +1,6 @@
 #pragma once
 
 #include <xrn/Engine/AScene.hpp>
-#include <xrn/Engine/System/Render.hpp>
 #include <Game/MessageType.hpp>
 
 namespace game::client {
