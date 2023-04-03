@@ -7,8 +7,7 @@
 #include <xrn/Engine/Vulkan/Descriptor.hpp>
 #include <xrn/Engine/System/Graphic/Render.hpp>
 #include <xrn/Engine/System/Graphic/PointLight.hpp>
-#include <xrn/Engine/System/Render.hpp>
-#include <xrn/Engine/System/PointLight.hpp>
+#include <xrn/Engine/System/MoveObjects.hpp>
 #include <xrn/Engine/Camera.hpp>
 
 namespace xrn::engine {
@@ -287,10 +286,10 @@ private:
     ::std::vector<::std::unique_ptr<::xrn::engine::vulkan::Buffer>> m_uboBuffers;
     ::xrn::engine::vulkan::Renderer m_renderer{ m_window, m_device };
 
+    // systems
     ::xrn::engine::system::graphic::Render m_renderSystem;
     ::xrn::engine::system::graphic::PointLight m_pointLightSystem;
-    // ::xrn::engine::system::Render m_renderSystem;
-    // ::xrn::engine::system::PointLight m_pointLightSystem;
+    ::xrn::engine::system::MoveObjects m_moveObjectsSystem;
 
     // Tick
     ::xrn::Clock m_tickClock;

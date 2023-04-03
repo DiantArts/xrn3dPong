@@ -103,6 +103,7 @@ public:
         ::xrn::engine::vulkan::FrameInfo& frameInfo
         , const ::xrn::engine::component::PointLight& pointLight
         , const ::xrn::engine::component::Position& position
+        , ::std::size_t lightIndex
     ) const;
 
     ///////////////////////////////////////////////////////////////////////////

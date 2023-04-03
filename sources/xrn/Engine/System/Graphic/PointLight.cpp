@@ -100,8 +100,10 @@ void ::xrn::engine::system::graphic::PointLight::operator()(
     ::xrn::engine::vulkan::FrameInfo& frameInfo
     , const ::xrn::engine::component::PointLight& pointLight
     , const ::xrn::engine::component::Position& position
+    , ::std::size_t lightIndex
 ) const
 {
+    frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
     // frameInfo.ubo.pointLights[lightIndex] = ::xrn::engine::component::PointLight::PushConstant{ pointLight, position };
     ::xrn::engine::component::PointLight::PushConstant pushConstant{ pointLight, position };
     ::vkCmdPushConstants(

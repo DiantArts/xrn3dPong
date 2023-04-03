@@ -340,24 +340,7 @@ auto ::xrn::engine::AScene::update()
     for (auto [entity, control]: m_registry.view<::xrn::engine::component::Control>().each()) {
         auto* position{ m_registry.try_get<::xrn::engine::component::Position>(entity) };
         auto* rotation{ m_registry.try_get<::xrn::engine::component::Rotation>(entity) };
-
-        if (rotation) {
-            rotation->updateDirection(control);
-            if (position) {
-                position->update(m_frameInfo.deltaTime, control, rotation->getDirection());
-            }
-        } else {
-            if (position) {
-                auto direction{
-                    ::glm::normalize(::glm::vec3(
-                        ::glm::cos(::glm::radians(0.0f)) * ::glm::cos(::glm::radians(0.0f))
-                        , ::glm::sin(::glm::radians(0.0f))
-                        , ::glm::sin(::glm::radians(0.0f)) * ::glm::cos(::glm::radians(0.0f))
-                    ))
-                };
-                position->update(m_frameInfo.deltaTime, control, direction);
-            }
-        }
+        m_moveObjectsSystem(m_frameInfo, control, position, rotation);
     }
 
     // transform (apply position rotation scale)
@@ -403,7 +386,7 @@ auto ::xrn::engine::AScene::update()
             [this, &lightIndex](auto& pointLight, auto& position) {
                 // auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
                 // position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
-                m_pointLightSystem.draw(m_frameInfo, pointLight, position, lightIndex);
+                // m_pointLightSystem.draw(m_frameInfo, pointLight, position, lightIndex);
                 ++lightIndex;
             }
         );
@@ -414,7 +397,6 @@ auto ::xrn::engine::AScene::update()
         auto& position{ m_registry.get<::xrn::engine::component::Position>(m_camera.getId()) };
         auto& rotation{ m_registry.get<::xrn::engine::component::Rotation>(m_camera.getId()) };
         m_camera.setViewDirection(position, rotation.getDirection());
-        m_camera.setViewDirection(::glm::vec3{ 0.0f, 0.0f, -2.5f }, ::glm::vec3{ 0.0f, 0.0f, 1.0f });
     }
     return true;
 }
@@ -440,8 +422,9 @@ void ::xrn::engine::AScene::draw()
 
     m_pointLightSystem.bind(m_frameInfo);
     m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
-        [this](auto& pointLight, auto& position) {
-            m_pointLightSystem(m_frameInfo, pointLight, position);
+        [this, lightIndex = 0](auto& pointLight, auto& position) mutable {
+            m_pointLightSystem(m_frameInfo, pointLight, position, lightIndex);
+            ++lightIndex;
         }
     );
 
