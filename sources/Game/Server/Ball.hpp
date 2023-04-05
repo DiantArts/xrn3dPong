@@ -114,10 +114,8 @@ public:
         , ::game::server::Player& player2
     );
 
-    auto resolveBallCollisionWithWalls(
-        ::game::server::Player& player1
-        , ::game::server::Player& player2
-    ) -> bool;
+    auto resolveBallCollisionWithWalls()
+        -> bool;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief update pos and check and resolve collision
@@ -172,6 +170,8 @@ private:
     ::xrn::engine::component::Control m_control;
     ::xrn::engine::component::Position m_position;
     ::xrn::engine::component::Rotation m_rotation;
+
+    ::glm::vec3 m_rotationEffect{ 0.0f };
 
 };
 

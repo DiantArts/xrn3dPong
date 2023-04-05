@@ -305,14 +305,16 @@ void ::game::client::Scene::onReceive(
     } case ::game::MessageType::ballPosition: {
         ::glm::vec3 pos;
         message >> pos;
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         if (m_playerNumber == 1) {
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / ::game::Map::mapSize.z);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / (::game::Map::mapSize.z - 2));
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / ::game::Map::mapSize.z);
         } else {
+            // this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
+            // this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (pos.z / ::game::Map::mapSize.z);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (-pos.z / (::game::Map::mapSize.z - 2));
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / ::game::Map::mapSize.z);
