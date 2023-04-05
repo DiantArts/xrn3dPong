@@ -65,6 +65,14 @@ public:
         , ::std::string_view filename
     ) -> ::std::unique_ptr<::xrn::engine::vulkan::Model>;
 
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] static auto createFromFile(
+        ::xrn::engine::vulkan::Device* device
+        , ::std::string_view filename
+    ) -> ::std::unique_ptr<::xrn::engine::vulkan::Model>;
+
 
 
 public:
@@ -82,6 +90,15 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     explicit Model(
         ::xrn::engine::vulkan::Device& m_device
+        , const Model::Builder& builder
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    explicit Model(
+        ::xrn::engine::vulkan::Device* m_device
         , const Model::Builder& builder
     );
 
@@ -193,7 +210,7 @@ private:
     ///////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    ::xrn::engine::vulkan::Device& m_device;
+    ::xrn::engine::vulkan::Device* m_device;
 
     // vertex
     ::std::unique_ptr<::xrn::engine::vulkan::Buffer> m_vertexBuffer;

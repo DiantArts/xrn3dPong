@@ -9,6 +9,7 @@
 #include <Game/Server/Ball.hpp>
 #include <Game/Client/Scene.hpp>
 #include <Game/MessageType.hpp>
+#include <Game/Map.hpp>
 #include <xrn/Engine/Configuration.hpp>
 
 
@@ -83,24 +84,24 @@ auto ::game::server::Ball::resolveBallCollisionWithWalls(
     auto isCollided{ false };
     auto& ball{ m_position.get() };
 
-    if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) { // left
+    if (m_position.get().x >= ::game::Map::maxMapPosition.x) { // left
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
-        m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        m_position.set(::game::Map::maxMapPosition.x, ball.y, ball.z);
         isCollided = true;
-    } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) { // right
+    } else if (m_position.get().x <= -::game::Map::maxMapPosition.x) { // right
         const ::glm::vec2 normal{ 0.f, 180.f };
         m_rotation.setRotation(normal - m_rotation.getXY());
-        m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        m_position.set(-::game::Map::maxMapPosition.x, ball.y, ball.z);
         isCollided = true;
     }
-    if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) { // bot
+    if (m_position.get().y >= ::game::Map::maxMapPosition.y) { // bot
         m_rotation.setRotationY(-m_rotation.get().y);
-        m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
+        m_position.set(ball.x, ::game::Map::maxMapPosition.y, ball.z);
         isCollided = true;
-    } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) { // top
+    } else if (m_position.get().y <= -::game::Map::maxMapPosition.y) { // top
         m_rotation.setRotationY(-m_rotation.get().y);
-        m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
+        m_position.set(ball.x, -::game::Map::maxMapPosition.y, ball.z);
         isCollided = true;
     }
 
@@ -118,30 +119,30 @@ auto ::game::server::Ball::updateBallRotation(
 
     this->resolveBallCollisionWithWalls(player1, player2);
 
-    // if (m_position.get().x >= ::game::client::Scene::maxMapPosition.x) { // left
+    // if (m_position.get().x >= ::game::Map::maxMapPosition.x) { // left
         // const ::glm::vec2 normal{ 0.f, 180.f };
         // m_rotation.setRotation(normal - m_rotation.getXY());
-        // m_position.set(::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        // m_position.set(::game::Map::maxMapPosition.x, ball.y, ball.z);
         // isCollided = true;
-    // } else if (m_position.get().x <= -::game::client::Scene::maxMapPosition.x) { // right
+    // } else if (m_position.get().x <= -::game::Map::maxMapPosition.x) { // right
         // const ::glm::vec2 normal{ 0.f, 180.f };
         // m_rotation.setRotation(normal - m_rotation.getXY());
-        // m_position.set(-::game::client::Scene::maxMapPosition.x, ball.y, ball.z);
+        // m_position.set(-::game::Map::maxMapPosition.x, ball.y, ball.z);
         // isCollided = true;
     // }
-    // if (m_position.get().y >= ::game::client::Scene::maxMapPosition.y) { // bot
+    // if (m_position.get().y >= ::game::Map::maxMapPosition.y) { // bot
         // m_rotation.setRotationY(-m_rotation.get().y);
-        // m_position.set(ball.x, ::game::client::Scene::maxMapPosition.y, ball.z);
+        // m_position.set(ball.x, ::game::Map::maxMapPosition.y, ball.z);
         // isCollided = true;
-    // } else if (m_position.get().y <= -::game::client::Scene::maxMapPosition.y) { // top
+    // } else if (m_position.get().y <= -::game::Map::maxMapPosition.y) { // top
         // m_rotation.setRotationY(-m_rotation.get().y);
-        // m_position.set(ball.x, -::game::client::Scene::maxMapPosition.y, ball.z);
+        // m_position.set(ball.x, -::game::Map::maxMapPosition.y, ball.z);
         // isCollided = true;
     // }
 
     for (auto& player : { player1, player2 }) {
-        auto beginHitbox{ player.position.get() - (::game::client::Scene::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
-        auto endHitbox{ player.position.get() + (::game::client::Scene::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
+        auto beginHitbox{ player.position.get() - (::game::Map::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
+        auto endHitbox{ player.position.get() + (::game::Map::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
 
         if (
             ball.x < beginHitbox.x || ball.x > endHitbox.x ||
@@ -180,11 +181,11 @@ auto ::game::server::Ball::updateBallRotation(
 auto ::game::server::Ball::checkWinCondition()
     -> ::std::uint8_t
 {
-    if (m_position.get().z >= ::game::client::Scene::maxMapPosition.z + 5) { // player1 win
+    if (m_position.get().z >= ::game::Map::maxMapPosition.z + 5) { // player1 win
         m_rotation.setRotation(270, 0, 0);
         m_position.set(0, 0, 0);
         return 1;
-    } else if (m_position.get().z <= -(::game::client::Scene::maxMapPosition.z + 5)) { // player2 win
+    } else if (m_position.get().z <= -(::game::Map::maxMapPosition.z + 5)) { // player2 win
         m_rotation.setRotation(90, 0, 0);
         m_position.set(0, 0, 0);
         return 2;

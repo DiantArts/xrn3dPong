@@ -50,8 +50,6 @@
     , m_player{ m_registry.create() }
     , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
 {
-    // entity that the player controls
-
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
         .setMaxSets(::xrn::engine::vulkan::SwapChain::MAX_FRAMES_IN_FLIGHT)

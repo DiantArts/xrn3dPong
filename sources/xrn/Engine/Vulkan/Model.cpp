@@ -176,6 +176,17 @@ auto ::xrn::engine::vulkan::Model::createFromFile(
     return ::std::make_unique<::xrn::engine::vulkan::Model>(device, modelBuilder);
 }
 
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::vulkan::Model::createFromFile(
+    ::xrn::engine::vulkan::Device* device
+    , ::std::string_view filename
+) -> ::std::unique_ptr<::xrn::engine::vulkan::Model>
+{
+    Model::Builder modelBuilder;
+    modelBuilder.loadFromFile(filename);
+    return ::std::make_unique<::xrn::engine::vulkan::Model>(device, modelBuilder);
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,6 +199,17 @@ auto ::xrn::engine::vulkan::Model::createFromFile(
 ///////////////////////////////////////////////////////////////////////////
 ::xrn::engine::vulkan::Model::Model(
     ::xrn::engine::vulkan::Device& device
+    , const Model::Builder& builder
+)
+    : m_device{ &device }
+{
+    this->createVertexBuffers(builder.vertices);
+    this->createIndexBuffers(builder.indices);
+}
+
+///////////////////////////////////////////////////////////////////////////
+::xrn::engine::vulkan::Model::Model(
+    ::xrn::engine::vulkan::Device* device
     , const Model::Builder& builder
 )
     : m_device{ device }
@@ -263,7 +285,7 @@ void ::xrn::engine::vulkan::Model::createVertexBuffers(
     ::VkDeviceSize bufferSize{ vertexSize * m_vertexCount };
 
     ::xrn::engine::vulkan::Buffer stagingBuffer{
-        m_device
+        *m_device
         , vertexSize
         , m_vertexCount
         , ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT
@@ -273,13 +295,13 @@ void ::xrn::engine::vulkan::Model::createVertexBuffers(
     stagingBuffer.writeToBuffer(::std::bit_cast<void*>(vertices.data()));
 
     m_vertexBuffer = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
-        m_device
+        *m_device
         , vertexSize
         , m_vertexCount
         , ::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT
         , ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
-    m_device.copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
+    m_device->copyBuffer(stagingBuffer.getBuffer(), m_vertexBuffer->getBuffer(), bufferSize);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -295,7 +317,7 @@ void ::xrn::engine::vulkan::Model::createIndexBuffers(
     ::VkDeviceSize bufferSize{ indexSize * m_indexCount };
 
     ::xrn::engine::vulkan::Buffer stagingBuffer{
-        m_device
+        *m_device
         , indexSize
         , m_indexCount
         , ::VK_BUFFER_USAGE_TRANSFER_SRC_BIT
@@ -305,11 +327,11 @@ void ::xrn::engine::vulkan::Model::createIndexBuffers(
     stagingBuffer.writeToBuffer(::std::bit_cast<void*>(indices.data()));
 
     m_indexBuffer = ::std::make_unique<::xrn::engine::vulkan::Buffer>(
-        m_device
+        *m_device
         , indexSize
         , m_indexCount
         , ::VK_BUFFER_USAGE_INDEX_BUFFER_BIT | ::VK_BUFFER_USAGE_TRANSFER_DST_BIT
         , ::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
-    m_device.copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
+    m_device->copyBuffer(stagingBuffer.getBuffer(), m_indexBuffer->getBuffer(), bufferSize);
 }
