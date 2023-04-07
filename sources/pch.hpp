@@ -136,6 +136,7 @@ using ::std::chrono_literals::operator""ms;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtx/hash.hpp>
+#include <glm/geometric.hpp>
 
 #include <entt/entt.hpp>
 

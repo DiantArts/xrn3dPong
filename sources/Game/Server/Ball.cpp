@@ -155,7 +155,6 @@ auto ::game::server::Ball::updateBallRotation(
         }
         m_rotationEffect.x = player.burstSpeed.x * 0.5;
         m_rotationEffect.y = player.burstSpeed.y * 0.5;
-        ::fmt::print("{};{}\n", m_rotationEffect.x, m_rotationEffect.y);
         // .z is always 0 becacuse the player cannot move on z axis
         // m_rotationEffect = player.burstSpeed;
         return player.id;
@@ -171,10 +170,12 @@ auto ::game::server::Ball::checkWinCondition()
     if (m_position.get().z >= ::game::Map::maxMapPosition.z + 5) { // player1 win
         m_rotation.setRotation(270, 0, 0);
         m_position.set(0, 0, 0);
+        m_rotationEffect = ::glm::vec3{ 0 };
         return 1;
     } else if (m_position.get().z <= -(::game::Map::maxMapPosition.z + 5)) { // player2 win
         m_rotation.setRotation(90, 0, 0);
         m_position.set(0, 0, 0);
+        m_rotationEffect = ::glm::vec3{ 0 };
         return 2;
     }
     return 0;

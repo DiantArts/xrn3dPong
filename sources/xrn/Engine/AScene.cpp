@@ -49,6 +49,7 @@
     }
     , m_player{ m_registry.create() }
     , m_camera{ m_isCameraDetached ? m_player : m_registry.create() }
+    , m_mousePointer{ m_camera, m_window }
 {
     // vulkan stuff
     m_pDescriptorPool = ::xrn::engine::vulkan::descriptor::Pool::Builder{ m_device }
@@ -214,6 +215,8 @@ void ::xrn::engine::AScene::onSystemMouseMoved(
     ::glm::vec2 offset
 )
 {
+    m_mousePointer.updateRay(m_camera, m_window);
+
     if (m_isCameraDetached) {
         if (
             auto* playerController{ m_registry.try_get<::xrn::engine::component::Control>(m_player) };
@@ -279,6 +282,12 @@ auto ::xrn::engine::AScene::getPlayerId()
     return m_player;
 }
 
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::AScene::getMousePointer()
+    -> ::xrn::engine::MousePointer&
+{
+    return m_mousePointer;
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,4 +435,6 @@ void ::xrn::engine::AScene::updateCamera()
     m_frameInfo.projectionView = m_camera.getProjection() * m_camera.getView();
     m_frameInfo.ubo.projection = m_camera.getProjection();
     m_frameInfo.ubo.view = m_camera.getView();
+
+    m_mousePointer.updateRay(m_camera);
 }

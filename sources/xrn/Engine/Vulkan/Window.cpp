@@ -57,11 +57,7 @@ auto ::xrn::engine::vulkan::Window::Size::isValid()
     XRN_ASSERT(!!m_window, "Create glfw window");
 
     ::glfwSetWindowUserPointer(m_window.get(), &m_events);
-    ::glfwSetCursorPos(
-        m_window.get()
-        , static_cast<double>(m_size.width) / 2
-        , static_cast<double>(m_size.height) / 2);
-    ::glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    this->hideCursor();
 
     // setup callbacks
     ::glfwSetFramebufferSizeCallback(m_window.get(), Window::framebufferResizeCallback);
@@ -166,6 +162,25 @@ void ::xrn::engine::vulkan::Window::resize(
     this->setResizedFlag();
 }
 
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::vulkan::Window::hideCursor(
+    bool shouldHide // = true
+)
+{
+    if (shouldHide) {
+        ::glfwSetCursorPos(
+            m_window.get()
+            , static_cast<double>(m_size.width) / 2
+            , static_cast<double>(m_size.height) / 2
+        );
+        ::glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        m_isCursorHidden = true;
+    } else {
+        ::glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        m_isCursorHidden = false;
+    }
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +195,15 @@ auto ::xrn::engine::vulkan::Window::getSize() const
     -> const Window::Size&
 {
     return m_size;
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::engine::vulkan::Window::getCursorPosition() const
+    -> ::glm::vec2
+{
+    double xpos, ypos;
+    ::glfwGetCursorPos(m_window.get(), &xpos, &ypos);
+    return ::glm::vec2{ static_cast<float>(xpos), static_cast<float>(ypos) };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,8 +275,6 @@ void ::xrn::engine::vulkan::Window::mouseMovedCallback(
     int width, height;
     ::glfwGetWindowSize(window, &width, &height);
     events.emplace<::xrn::engine::event::MouseMoved>(xPos - width / 2, yPos - height / 2);
-    ::glfwSetCursorPos(window, width / 2, height / 2);
-
 }
 
 void ::xrn::engine::vulkan::Window::mouseScrollcallback(

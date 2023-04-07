@@ -12,6 +12,9 @@
 #include <xrn/Engine/Component/PointLight.hpp>
 #include <Game/Map.hpp>
 
+#define ENABLE_CHEAT_01
+// #define ENABLE_CHEAT_02
+// #define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
 
 
@@ -30,11 +33,15 @@
     , m_ball{ this->getRegistry().create() }
 {
     this->loadScene();
+    this->getWindow().hideCursor(false);
+
     auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
+#ifdef ENABLE_SOUND
     if (m_music.openFromFile(filepath)) {
         XRN_ERROR("unable to load sound file: {}", filepath);
     }
     m_music.setLoop(true);
+#endif // ENABLE_SOUND
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -170,21 +177,6 @@ auto ::game::client::Scene::onUpdate()
 auto ::game::client::Scene::onPostUpdate()
     -> bool
 {
-    // TODO: tmp max position check (use a MaxPosition component or inivisble wall)
-    if (!m_isCameraDetached) {
-        auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
-        if (position.get().x >= ::game::Map::maxMapPosition.x) {
-            position.setX(::game::Map::maxMapPosition.x);
-        } else if (position.get().x <= -::game::Map::maxMapPosition.x) {
-            position.setX(-::game::Map::maxMapPosition.x);
-        }
-        if (position.get().y >= ::game::Map::maxMapPosition.y) {
-            position.setY(::game::Map::maxMapPosition.y);
-        } else if (position.get().y <= -::game::Map::maxMapPosition.y) {
-            position.setY(-::game::Map::maxMapPosition.y);
-        }
-    }
-
     return true;
 }
 
@@ -286,9 +278,30 @@ void ::game::client::Scene::onKeyReleased(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::onMouseMoved(
-    ::glm::vec2 position [[ maybe_unused ]]
+    ::glm::vec2 _ [[ maybe_unused ]]
 )
-{}
+{
+    auto newPosition{ this->getMousePointer().castToPlane(
+        this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId())
+        , { 0.0f, 0.0f, ::game::Map::maxMapPosition.z * (m_playerNumber == 1 ? -1 : 1) }
+        , { 0.0f, 0.0f, 0.0f }
+    ) };
+
+    auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
+    if (newPosition.x >= ::game::Map::maxMapPosition.x) {
+        newPosition.x = ::game::Map::maxMapPosition.x;
+    } else if (newPosition.x <= -::game::Map::maxMapPosition.x) {
+        newPosition.x = -::game::Map::maxMapPosition.x;
+    }
+    if (newPosition.y >= ::game::Map::maxMapPosition.y) {
+        newPosition.y = ::game::Map::maxMapPosition.y;
+    } else if (newPosition.y <= -::game::Map::maxMapPosition.y) {
+        newPosition.y = -::game::Map::maxMapPosition.y;
+    }
+
+    position.setX(newPosition.x);
+    position.setY(newPosition.y);
+}
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::onReceive(
@@ -307,23 +320,28 @@ void ::game::client::Scene::onReceive(
         message >> pos;
         this->getRegistry().get<::xrn::engine::component::Position>(m_ball).set(::std::move(pos));
         if (m_playerNumber == 1) {
+#ifdef ENABLE_CHEAT_01
             this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
             this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
+#endif // ENABLE_CHEAT_01
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (-pos.z / ::game::Map::mapSize.z);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (pos.z / (::game::Map::mapSize.z - 2));
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (pos.z / ::game::Map::mapSize.z);
         } else {
-            // this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
-            // this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
+#ifdef ENABLE_CHEAT_02
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
+#endif // ENABLE_CHEAT_02
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.r = 1 - (pos.z / ::game::Map::mapSize.z);
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.g = 1 - (-pos.z / (::game::Map::mapSize.z - 2));
             this->getRegistry().get<::xrn::engine::component::PointLight>(m_ball).color.b = 1 - (-pos.z / ::game::Map::mapSize.z);
         }
         break;
+#ifdef ENABLE_SOUND
     } case ::game::MessageType::playSound: { // starts the game
 #ifndef ENABLE_MUSIC_FOR_ALL_CLIENTS
         if (m_playerNumber == 1) {
-#endif
+#endif // ENABLE_MUSIC_FOR_ALL_CLIENTS
         int soundIndex;
         message >> soundIndex;
 
@@ -340,13 +358,16 @@ void ::game::client::Scene::onReceive(
         }
 #ifndef ENABLE_MUSIC_FOR_ALL_CLIENTS
         }
-#endif
+#endif // ENABLE_MUSIC_FOR_ALL_CLIENTS
         break;
+#endif // ENABLE_SOUND
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         m_playerNumber = 1;
         this->loadLights();
 
+#ifdef ENABLE_SOUND
         m_music.play();
+#endif // ENABLE_SOUND
 
         this->tcpSendToServer(::std::make_unique<Scene::Message>(::game::MessageType::readyToPlay));
         break;
@@ -354,9 +375,11 @@ void ::game::client::Scene::onReceive(
         m_playerNumber = 2;
         this->loadLights();
 
+#ifdef ENABLE_SOUND
 #ifdef ENABLE_MUSIC_FOR_ALL_CLIENTS
         m_music.play();
-#endif
+#endif // ENABLE_MUSIC_FOR_ALL_CLIENTS
+#endif // ENABLE_SOUND
 
         // move to the other side because player is player2
         // camera

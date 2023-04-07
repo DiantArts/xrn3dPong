@@ -195,6 +195,20 @@ public:
     [[ nodiscard ]] auto getSize() const
         -> const Window::Size&;
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief Gets the position of the cursor
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto getCursorPosition() const
+        -> ::glm::vec2;
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief hide or reaveal cursor depending on the argument
+    ///////////////////////////////////////////////////////////////////////////
+    void hideCursor(
+        bool shouldHide = true
+    );
+
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -310,6 +324,7 @@ private:
     ::std::unique_ptr<::GLFWwindow, Window::Deleter> m_window;
 
     bool m_shouldClose{ false };
+    bool m_isCursorHidden{ true };
 
     ::xrn::engine::event::Container m_events;
 
