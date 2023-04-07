@@ -24,7 +24,7 @@
     ::glm::vec3 offset
 )
 {
-    this->setRotation(::std::move(offset));
+    this->set(::std::move(offset));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ void ::xrn::engine::component::Rotation::rotateXY(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotation(
+void ::xrn::engine::component::Rotation::set(
     const ::glm::vec2& rotation
 )
 {
@@ -186,7 +186,7 @@ void ::xrn::engine::component::Rotation::setRotation(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotation(
+void ::xrn::engine::component::Rotation::set(
     ::glm::vec3 rotation
 )
 {
@@ -213,7 +213,7 @@ void ::xrn::engine::component::Rotation::setRotation(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotation(
+void ::xrn::engine::component::Rotation::set(
     const float rotationX
     , const float rotationY
 )
@@ -236,7 +236,7 @@ void ::xrn::engine::component::Rotation::setRotation(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotation(
+void ::xrn::engine::component::Rotation::set(
     const float rotationX
     , const float rotationY
     , const float rotationZ
@@ -265,7 +265,7 @@ void ::xrn::engine::component::Rotation::setRotation(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotationX(
+void ::xrn::engine::component::Rotation::setX(
     const float rotationX
 )
 {
@@ -280,7 +280,7 @@ void ::xrn::engine::component::Rotation::setRotationX(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotationY(
+void ::xrn::engine::component::Rotation::setY(
     const float rotationY
 )
 {
@@ -295,7 +295,7 @@ void ::xrn::engine::component::Rotation::setRotationY(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::engine::component::Rotation::setRotationZ(
+void ::xrn::engine::component::Rotation::setZ(
     const float rotationZ
 )
 {
@@ -352,7 +352,7 @@ void ::xrn::engine::component::Rotation::updateDirection(
             newRotation.y = ::xrn::engine::configuration.minPitch;
         }
 
-        this->setRotation(::std::move(newRotation));
+        this->set(::std::move(newRotation));
         m_direction = ::glm::normalize(::glm::vec3(
             ::glm::cos(::glm::radians(m_rotation.x)) * ::glm::cos(::glm::radians(m_rotation.y))
             , ::glm::sin(::glm::radians(m_rotation.y))
