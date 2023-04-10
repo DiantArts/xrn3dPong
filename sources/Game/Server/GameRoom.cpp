@@ -27,6 +27,7 @@
     : m_tickFrequencTime{
         ::xrn::Time::createAsSeconds(1) / ::xrn::engine::Configuration::defaultTickFrequency
     }
+    , m_ballSpawnFrequencyTime{ ::xrn::Time::createAsSeconds(8) }
 {
     m_player1.connection = ::std::move(connection);
     XRN_INFO("New game room created, owner:{}", m_player1.connection->getId());
@@ -191,8 +192,10 @@ void ::game::server::GameRoom::joinGame(
     XRN_INFO("Game room joined by:{}", m_player2.connection->getId());
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
-        ::xrn::Clock m_clock;
-        m_ball.setDefaultPropreties();
+        ::xrn::Clock m_clock, ballSpawn;
+
+        m_balls.emplace_back();
+        m_balls.back().setDefaultPropreties();
         do {
             if (!m_player1.connection->isConnected()) {
                 return m_player2.connection->disconnect();
@@ -200,9 +203,21 @@ void ::game::server::GameRoom::joinGame(
                 return m_player1.connection->disconnect();
             }
             auto deltaTime{ m_clock.restart() };
-            this->onTick(deltaTime);
+            if (ballSpawn.getElapsed() >= m_ballSpawnFrequencyTime) {
+                ballSpawn.reset();
+                this->createBall();
+            }
+            for (auto i{ 0uz }; i < m_balls.size(); ++i) {
+                if (this->onTick(deltaTime, i)) {
+                    goto BREAK_THREAD_LOOP;
+                }
+            }
             ::std::this_thread::sleep_for((m_tickFrequencTime).getAsChronoMilliseconds());
         } while (this->isRunning());
+BREAK_THREAD_LOOP:
+        m_player1.connection->disconnect();
+        m_player2.connection->disconnect();
+        m_isRunning = false;
     } };
 }
 
@@ -216,13 +231,32 @@ void ::game::server::GameRoom::joinGame(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::server::GameRoom::onTick(
+void ::game::server::GameRoom::createBall()
+{
+    m_balls.emplace_back();
+    m_balls.back().setDefaultPropreties();
+    auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::createBall) };
+    this->tcpSendToBothClients(::std::move(message));
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::resetBalls()
+{
+    // m_balls.clear();
+    // m_balls.emplace_back();
+    // m_balls.back().setDefaultPropreties();
+    // auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::resetBalls) };
+    // this->tcpSendToBothClients(::std::move(message));
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::game::server::GameRoom::onTick(
     ::xrn::Time deltaTime
-)
+    , ::std::size_t index
+) -> bool
 {
     // ball behaviors
-
-    switch (m_ball.updateBallRotation(m_player1, m_player2)) {
+    switch (m_balls[index].updateBallRotation(m_player1, m_player2)) {
     case 1: { // collided with player 1
         auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::playSound) };
         *message << 0;
@@ -240,30 +274,38 @@ void ::game::server::GameRoom::onTick(
         break;
     }}
 
-    switch (m_ball.checkWinCondition()) {
-    case 1: { // player1 win
-        if (++m_player1.score >= 5) {
-            this->triggerWin(m_player1.id);
-        }
-        break;
-    } case 2: { // player2 win
-        if (++m_player2.score >= 5) {
-            this->triggerWin(m_player2.id);
-        }
-        break;
-    }};
-
-    m_ball.onTick(
+    m_balls[index].onTick(
         deltaTime
         , m_player1
         , m_player2
     );
 
+
+
+    switch (m_balls[index].checkWinCondition()) {
+    case 1: { // player1 win
+        if (++m_player1.score >= 5) {
+            this->triggerWin(m_player1.id);
+            return true;
+        }
+        this->resetBalls();
+        return false;
+    } case 2: { // playclearBallser2 win
+        if (++m_player2.score >= 5) {
+            this->triggerWin(m_player2.id);
+            return true;
+        }
+        this->resetBalls();
+        return false;
+    } };
+
     { // send info to clients
         auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::ballPosition) };
-        *message << m_ball.getPosition();
+        *message << static_cast<int>(index);
+        *message << m_balls[index].getPosition();
         this->udpSendToBothClients(::std::move(message));
     }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -276,7 +318,4 @@ void ::game::server::GameRoom::triggerWin(
     } else {
         XRN_INFO("Player2 won");
     }
-    m_player1.connection->disconnect();
-    m_player2.connection->disconnect();
-    m_isRunning = false;
 }

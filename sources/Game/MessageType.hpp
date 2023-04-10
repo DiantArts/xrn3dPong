@@ -11,6 +11,8 @@ enum class MessageType
 {
     playerPosition // udp sending to the server the position of the player
     , ballPosition // server sending the position of the ball
+    , createBall
+    , resetBalls
 
     , playSound // server request the client to play a sound from index
 

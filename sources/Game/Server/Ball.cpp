@@ -150,10 +150,11 @@ auto ::game::server::Ball::updateBallRotation(
             } else if (m_rotation.get().y > 20.f) {
                 m_rotation.setY(20.f);
             } else if (m_rotation.get().y < 340.f) {
-                // m_rotation.setY(340.f);
+                m_rotation.setY(340.f);
             }
         } else { // player2 max ball rotation
-            if (m_rotation.get().y < 160.f) {
+            if (m_rotation.get().y > 160.f || m_rotation.get().y < 200.f) { // temporary fix
+            } else if (m_rotation.get().y < 160.f) {
                 m_rotation.setY(160.f);
             } else if (m_rotation.get().y > 200.f) {
                 m_rotation.setY(200.f);
@@ -199,12 +200,17 @@ auto ::game::server::Ball::checkWinCondition()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::server::Ball::setDefaultPropreties()
+void ::game::server::Ball::setDefaultPropreties(
+    bool oppositeDirection // = false
+)
 {
     m_control.setSpeed(3000);
     m_position.set(0, 0, 0);
-    m_rotation.setX(90);
-    // m_rotation.set(70, 20, 0);
+    if (oppositeDirection) {
+        m_rotation.setX(90 + 180);
+    } else {
+        m_rotation.setX(90);
+    }
     m_control.startMovingForward();
 }
 

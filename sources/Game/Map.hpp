@@ -38,6 +38,13 @@ public:
         , ::xrn::engine::vulkan::Device* device
         , ::entt::entity player
         , ::entt::entity enemy
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    static void createBall(
+        ::entt::registry& registry
         , ::entt::entity ball
     );
 

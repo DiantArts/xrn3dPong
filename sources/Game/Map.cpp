@@ -21,7 +21,6 @@ void ::game::Map::loadObjects(
     , ::xrn::engine::vulkan::Device* device
     , ::entt::entity player
     , ::entt::entity enemy
-    , ::entt::entity ball
 )
 {
     { // player
@@ -42,13 +41,19 @@ void ::game::Map::loadObjects(
         registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
     }
 
-    { // ball
-        auto entity{ ball };
-        registry.emplace<::xrn::engine::component::Control>(entity);
-        registry.emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
-        registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
-        registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
-    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::Map::createBall(
+    ::entt::registry& registry
+    , ::entt::entity ball
+)
+{
+    auto entity{ ball };
+    registry.emplace<::xrn::engine::component::Control>(entity);
+    registry.emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
+    registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
+    registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
 }
 
 ///////////////////////////////////////////////////////////////////////////
