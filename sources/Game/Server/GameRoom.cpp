@@ -242,10 +242,14 @@ void ::game::server::GameRoom::onTick(
 
     switch (m_ball.checkWinCondition()) {
     case 1: { // player1 win
-        XRN_INFO("Player1 won");
+        if (++m_player1.score >= 5) {
+            this->triggerWin(m_player1.id);
+        }
         break;
     } case 2: { // player2 win
-        XRN_INFO("Player2 won");
+        if (++m_player2.score >= 5) {
+            this->triggerWin(m_player2.id);
+        }
         break;
     }};
 
@@ -260,4 +264,19 @@ void ::game::server::GameRoom::onTick(
         *message << m_ball.getPosition();
         this->udpSendToBothClients(::std::move(message));
     }
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::game::server::GameRoom::triggerWin(
+    ::std::uint8_t winnerId
+)
+{
+    if (m_player1.id == winnerId) {
+        XRN_INFO("Player1 won");
+    } else {
+        XRN_INFO("Player2 won");
+    }
+    m_player1.connection->disconnect();
+    m_player2.connection->disconnect();
+    m_isRunning = false;
 }

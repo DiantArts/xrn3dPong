@@ -63,13 +63,6 @@ void ::game::server::Ball::onTick(
     , ::game::server::Player& player2
 )
 {
-    // XRN_INFO(
-        // "rotation: [{:.5};{:.5}]"
-        // , m_rotation.get().x
-        // , m_rotation.get().y
-    // );
-
-
     m_rotation.rotate(m_rotationEffect);
     m_rotation.updateDirection();
     m_position.update(deltaTime, m_control, m_rotation.getDirection());
@@ -119,7 +112,7 @@ auto ::game::server::Ball::updateBallRotation(
     auto& ball{ m_position.get() };
 
     if (this->resolveBallCollisionWithWalls()) {
-        return true;
+        return 3;
     }
 
     for (auto& player : { player1, player2 }) {
@@ -170,13 +163,12 @@ auto ::game::server::Ball::updateBallRotation(
         // .z is always 0 becacuse the player cannot move on z axis
         m_rotationEffect.x = player.burstSpeed.x * .5f;
         m_rotationEffect.y = player.burstSpeed.y * .5f;
-        XRN_WARNING("{},{}", player.burstSpeed.x, player.burstSpeed.y);
 
         m_position.set(ball.x, ball.y, beginHitbox.z);
         return player.id;
     }
 
-    return false;
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////

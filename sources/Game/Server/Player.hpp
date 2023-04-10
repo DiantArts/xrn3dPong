@@ -17,6 +17,7 @@ struct Player
     ::xrn::engine::component::Position position{ 0.0f, 0.0f, -50.0f };
     ::glm::vec3 burstSpeed{ 0.0f, 0.0f, 0.0f };
     ::std::uint8_t id{ 1 };
+    ::std::uint8_t score{ 0 };
 
 };
 

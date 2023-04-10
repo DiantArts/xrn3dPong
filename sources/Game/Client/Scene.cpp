@@ -13,8 +13,9 @@
 #include <Game/Map.hpp>
 
 #define ENABLE_CHEAT_01
-#define ENABLE_CHEAT_02
-// #define ENABLE_SOUND
+// #define ENABLE_CHEAT_02
+// #define ENABLE_KEY_PRESSED
+#define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
 
 
@@ -203,6 +204,7 @@ void ::game::client::Scene::onKeyPressed(
         auto* playerController{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
         playerController
     ) {
+#ifdef ENABLE_KEY_PRESSED
         // move
         if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
             return playerController->startMovingUp();
@@ -231,6 +233,7 @@ void ::game::client::Scene::onKeyPressed(
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookRight) {
             return playerController->rotateX(-45 / 2);
         }
+#endif // ENABLE_KEY_PRESSED
     }
 }
 
