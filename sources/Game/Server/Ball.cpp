@@ -153,10 +153,11 @@ auto ::game::server::Ball::updateBallRotation(
             m_rotation.setX(120.f);
         }
         if (m_position.get().z < 0) { // player1 max ball rotation
-            if (m_rotation.get().y > 20.f) {
+            if (m_rotation.get().y < 20.f || m_rotation.get().y > 340.f) { // temporary fix
+            } else if (m_rotation.get().y > 20.f) {
                 m_rotation.setY(20.f);
             } else if (m_rotation.get().y < 340.f) {
-                m_rotation.setY(340.f);
+                // m_rotation.setY(340.f);
             }
         } else { // player2 max ball rotation
             if (m_rotation.get().y < 160.f) {
@@ -169,6 +170,7 @@ auto ::game::server::Ball::updateBallRotation(
         // .z is always 0 becacuse the player cannot move on z axis
         m_rotationEffect.x = player.burstSpeed.x * .5f;
         m_rotationEffect.y = player.burstSpeed.y * .5f;
+        XRN_WARNING("{},{}", player.burstSpeed.x, player.burstSpeed.y);
 
         m_position.set(ball.x, ball.y, beginHitbox.z);
         return player.id;

@@ -13,7 +13,7 @@
 #include <Game/Map.hpp>
 
 #define ENABLE_CHEAT_01
-// #define ENABLE_CHEAT_02
+#define ENABLE_CHEAT_02
 // #define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
 
@@ -186,8 +186,8 @@ auto ::game::client::Scene::onTick(
 ) -> bool
 {
     if (!m_isCameraDetached) {
+        auto message{ ::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
         auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
-        auto message{::std::make_unique<Scene::Message>(::game::MessageType::playerPosition) };
         *message << position.get();
         this->udpSendToServer(::std::move(message));
     }
@@ -281,26 +281,41 @@ void ::game::client::Scene::onMouseMoved(
     ::glm::vec2 _ [[ maybe_unused ]]
 )
 {
-    auto newPosition{ this->getMousePointer().castToPlane(
-        this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId())
-        , { 0.0f, 0.0f, ::game::Map::maxMapPosition.z * (m_playerNumber == 1 ? -1 : 1) }
-        , { 0.0f, 0.0f, 0.0f }
-    ) };
+    auto movePlayer{ [this](){
+        auto newPosition{ this->getMousePointer().castToPlane(
+            this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId())
+            , { 0.0f, 0.0f, ::game::Map::maxMapPosition.z * (m_playerNumber == 1 ? -1 : 1) }
+            , { 0.0f, 0.0f, 0.0f }
+        ) };
 
-    auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
-    if (newPosition.x >= ::game::Map::maxMapPosition.x) {
-        newPosition.x = ::game::Map::maxMapPosition.x;
-    } else if (newPosition.x <= -::game::Map::maxMapPosition.x) {
-        newPosition.x = -::game::Map::maxMapPosition.x;
-    }
-    if (newPosition.y >= ::game::Map::maxMapPosition.y) {
-        newPosition.y = ::game::Map::maxMapPosition.y;
-    } else if (newPosition.y <= -::game::Map::maxMapPosition.y) {
-        newPosition.y = -::game::Map::maxMapPosition.y;
-    }
+        auto& position{ this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()) };
+        if (newPosition.x >= ::game::Map::maxMapPosition.x) {
+            newPosition.x = ::game::Map::maxMapPosition.x;
+        } else if (newPosition.x <= -::game::Map::maxMapPosition.x) {
+            newPosition.x = -::game::Map::maxMapPosition.x;
+        }
+        if (newPosition.y >= ::game::Map::maxMapPosition.y) {
+            newPosition.y = ::game::Map::maxMapPosition.y;
+        } else if (newPosition.y <= -::game::Map::maxMapPosition.y) {
+            newPosition.y = -::game::Map::maxMapPosition.y;
+        }
 
-    position.setX(newPosition.x);
-    position.setY(newPosition.y);
+        position.setX(newPosition.x);
+        position.setY(newPosition.y);
+    } };
+
+    switch (m_playerNumber) {
+#ifndef ENABLE_CHEAT_01
+    case 1:
+        movePlayer();
+        break;
+#endif // ENABLE_CHEAT_01
+#ifndef ENABLE_CHEAT_02
+    case 2:
+        movePlayer();
+        break;
+#endif // ENABLE_CHEAT_02
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////

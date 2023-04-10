@@ -70,10 +70,12 @@ void ::game::Server::onReceive(
 
         // TODO: insert matchmaking
         if (m_rooms.empty() || m_rooms.back()->isFull()) {
+            XRN_INFO("Create new roow");
             m_rooms.emplace_back(::std::make_unique<::game::server::GameRoom>(connection));
         } else {
             m_rooms.back()->joinGame(connection);
             if (m_rooms.back()->isFull()) {
+                XRN_INFO("Roow now full");
                 {
                     auto messageBack{ ::std::make_unique<Server::Message>(::game::MessageType::playerAttributionOne) };
                     this->tcpSendToClient(::std::move(messageBack), m_rooms.back()->getPlayer1());
