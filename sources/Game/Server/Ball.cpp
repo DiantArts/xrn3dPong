@@ -59,8 +59,6 @@ auto ::game::server::Ball::operator=(
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::Ball::onTick(
     ::xrn::Time deltaTime
-    , ::game::server::Player& player1
-    , ::game::server::Player& player2
 )
 {
     m_rotation.rotate(m_rotationEffect);
@@ -108,7 +106,6 @@ auto ::game::server::Ball::updateBallRotation(
     , ::game::server::Player& player2
 ) -> ::std::uint8_t
 {
-    auto isCollided{ false };
     auto& ball{ m_position.get() };
 
     if (this->resolveBallCollisionWithWalls()) {

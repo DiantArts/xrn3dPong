@@ -110,8 +110,6 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     void onTick(
         ::xrn::Time deltaTime
-        , ::game::server::Player& player1
-        , ::game::server::Player& player2
     );
 
     auto resolveBallCollisionWithWalls()

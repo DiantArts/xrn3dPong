@@ -138,6 +138,8 @@ using ::std::chrono_literals::operator""ms;
 #include <glm/gtx/hash.hpp>
 #include <glm/geometric.hpp>
 
+#include <stb/stb_image.h>
+
 #include <entt/entt.hpp>
 
 #define GLFW_INCLUDE_VULKAN

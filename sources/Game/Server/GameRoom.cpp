@@ -276,13 +276,7 @@ auto ::game::server::GameRoom::onTick(
         break;
     }}
 
-    m_balls[index].onTick(
-        deltaTime
-        , m_player1
-        , m_player2
-    );
-
-
+    m_balls[index].onTick(deltaTime);
 
     switch (m_balls[index].checkWinCondition()) {
     case 1: { // player1 win

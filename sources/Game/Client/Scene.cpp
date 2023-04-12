@@ -34,8 +34,8 @@
     this->loadScene();
     this->getWindow().hideCursor(false);
 
-    auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
 #ifdef ENABLE_SOUND
+    auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
     if (m_music.openFromFile(filepath)) {
         XRN_ERROR("unable to load sound file: {}", filepath);
     }
@@ -267,20 +267,20 @@ void ::game::client::Scene::onReceive(
         int index;
         ::glm::vec3 pos;
         message >> index >> pos;
-        if (index < m_balls.size()) {
+        if (static_cast<::std::size_t>(index) < m_balls.size()) {
             this->getRegistry().get<::xrn::engine::component::Position>(m_balls[index]).set(::std::move(pos));
         }
         if (m_playerNumber == 1) {
 #ifdef ENABLE_BOT_CHEAT
             this->moveBotCheat();
 #endif // ENABLE_BOT_CHEAT
-            if (index < m_balls.size()) {
+            if (static_cast<::std::size_t>(index) < m_balls.size()) {
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (-pos.z / ::game::Map::mapSize.z);
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (pos.z / (::game::Map::mapSize.z - 2));
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (pos.z / ::game::Map::mapSize.z);
             }
         } else {
-            if (index < m_balls.size()) {
+            if (static_cast<::std::size_t>(index) < m_balls.size()) {
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (pos.z / ::game::Map::mapSize.z);
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (-pos.z / (::game::Map::mapSize.z - 2));
                 this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (-pos.z / ::game::Map::mapSize.z);

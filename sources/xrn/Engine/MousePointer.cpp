@@ -59,8 +59,8 @@ void ::xrn::engine::MousePointer::updateRay(
 {
     auto mousePosition{ window.getCursorPosition() };
     m_normalizedMouseCoordinates = ::glm::vec4{
-        (2.0f * mousePosition.x) / window.getSize().width - 1
-        , (2.0f * mousePosition.y) / window.getSize().height - 1
+        (2.0f * mousePosition.x) / static_cast<float>(window.getSize().width) - 1
+        , (2.0f * mousePosition.y) / static_cast<float>(window.getSize().height) - 1
         , -1.0f
         , 1.0f
     };

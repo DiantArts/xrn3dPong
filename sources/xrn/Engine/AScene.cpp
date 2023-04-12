@@ -361,7 +361,7 @@ auto ::xrn::engine::AScene::update()
     {
         auto lightIndex{ 0uz };
         m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
-            [this, &lightIndex](auto& pointLight, auto& position) {
+            [&lightIndex](auto&, auto&) {
                 // auto rotation{ ::glm::rotate(::glm::mat4(1.0f), static_cast<float>(frameInfo.deltaTime.get()) / 1000, { 0.0f, -1.0f, 0.0f }) };
                 // position = ::glm::vec3{ rotation * ::glm::vec4{ ::glm::vec3{ position }, 1.0f } };
                 // m_drawPointLight.draw(m_frameInfo, pointLight, position, lightIndex);
