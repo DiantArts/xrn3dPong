@@ -205,7 +205,7 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
-    void loadLights();
+    void moveBotCheat();
 
 
 
@@ -230,6 +230,8 @@ private:
         "ballBounceOffWall.ogg"
         , "ballToPlayer.ogg"
     };
+
+    bool m_clearBalls{ false };
 
 };
 

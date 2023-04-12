@@ -242,6 +242,8 @@ private:
     ::xrn::Time m_tickFrequencTime;
     ::xrn::Time m_ballSpawnFrequencyTime;
 
+    ::xrn::Clock m_ballSpawnClock;
+
 };
 
 } // namespace game::server

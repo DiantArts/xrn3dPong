@@ -12,8 +12,7 @@
 #include <xrn/Engine/Component/PointLight.hpp>
 #include <Game/Map.hpp>
 
-// #define ENABLE_CHEAT_01
-// #define ENABLE_CHEAT_02
+#define ENABLE_BOT_CHEAT
 // #define ENABLE_KEY_PRESSED
 // #define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
@@ -93,6 +92,10 @@ auto ::game::client::Scene::onUpdate()
 {
     if (!this->isConnectedToServer()) {
         return false;
+    }
+    if (m_clearBalls) {
+        m_clearBalls = false;
+        this->resetBalls();
     }
     return true;
 }
@@ -231,16 +234,14 @@ void ::game::client::Scene::onMouseMoved(
     } };
 
     switch (m_playerNumber) {
-#ifndef ENABLE_CHEAT_01
+#ifndef ENABLE_BOT_CHEAT
     case 1:
         movePlayer();
         break;
-#endif // ENABLE_CHEAT_01
-#ifndef ENABLE_CHEAT_02
+#endif // ENABLE_BOT_CHEAT
     case 2:
         movePlayer();
         break;
-#endif // ENABLE_CHEAT_02
     }
 }
 
@@ -260,29 +261,30 @@ void ::game::client::Scene::onReceive(
         this->createBall();
         break;
     } case ::game::MessageType::resetBalls: {
-        this->resetBalls();
+        m_clearBalls = true;
         break;
     } case ::game::MessageType::ballPosition: {
         int index;
         ::glm::vec3 pos;
         message >> index >> pos;
-        this->getRegistry().get<::xrn::engine::component::Position>(m_balls[index]).set(::std::move(pos));
+        if (index < m_balls.size()) {
+            this->getRegistry().get<::xrn::engine::component::Position>(m_balls[index]).set(::std::move(pos));
+        }
         if (m_playerNumber == 1) {
-#ifdef ENABLE_CHEAT_01
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
-#endif // ENABLE_CHEAT_01
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (-pos.z / ::game::Map::mapSize.z);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (pos.z / (::game::Map::mapSize.z - 2));
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (pos.z / ::game::Map::mapSize.z);
+#ifdef ENABLE_BOT_CHEAT
+            this->moveBotCheat();
+#endif // ENABLE_BOT_CHEAT
+            if (index < m_balls.size()) {
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (-pos.z / ::game::Map::mapSize.z);
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (pos.z / (::game::Map::mapSize.z - 2));
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (pos.z / ::game::Map::mapSize.z);
+            }
         } else {
-#ifdef ENABLE_CHEAT_02
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
-            this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
-#endif // ENABLE_CHEAT_02
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (pos.z / ::game::Map::mapSize.z);
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (-pos.z / (::game::Map::mapSize.z - 2));
-            this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (-pos.z / ::game::Map::mapSize.z);
+            if (index < m_balls.size()) {
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.r = 1 - (pos.z / ::game::Map::mapSize.z);
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.g = 1 - (-pos.z / (::game::Map::mapSize.z - 2));
+                this->getRegistry().get<::xrn::engine::component::PointLight>(m_balls[index]).color.b = 1 - (-pos.z / ::game::Map::mapSize.z);
+            }
         }
         break;
 #ifdef ENABLE_SOUND
@@ -311,7 +313,6 @@ void ::game::client::Scene::onReceive(
 #endif // ENABLE_SOUND
     } case ::game::MessageType::playerAttributionOne: { // starts the game
         m_playerNumber = 1;
-        this->loadLights();
 
 #ifdef ENABLE_SOUND
         m_music.play();
@@ -321,7 +322,6 @@ void ::game::client::Scene::onReceive(
         break;
     } case ::game::MessageType::playerAttributionTwo: { // starts the game
         m_playerNumber = 2;
-        this->loadLights();
 
 #ifdef ENABLE_SOUND
 #ifdef ENABLE_MUSIC_FOR_ALL_CLIENTS
@@ -384,28 +384,26 @@ void ::game::client::Scene::resetBalls()
     for (auto ball : m_balls) {
         this->getRegistry().destroy(ball);
     }
-    ::game::Map::createBall(this->getRegistry(), m_balls.back());
+    m_balls.clear();
+    this->createBall();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::game::client::Scene::loadLights()
+void ::game::client::Scene::moveBotCheat()
 {
-    { // lights
-        std::vector<glm::vec3> lightPositions{
-            { 0, (::game::Map::mapSize.y + 1), ::game::Map::mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
-            , { (::game::Map::mapSize.x + 1), 0, ::game::Map::mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
-            , { 0, -(::game::Map::mapSize.y + 1), ::game::Map::mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
-            , { -(::game::Map::mapSize.x + 1), 0, ::game::Map::mapSize.z / 2 * (m_playerNumber == 1 ? -1 : 1) }
-            , { ::game::Map::mapSize.x + 1000, ::game::Map::mapSize.y + 0, 0 } // useless for now
-        };
 
-        // create the lights at equal distances from each other in circle
-        for (const auto& color : lightPositions) {
-            auto entity{ this->getRegistry().create() };
-            this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ color });
-            this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
-            this->getRegistry().emplace<::xrn::engine::component::PointLight>(entity, ::glm::vec3{ 1.0f, 1.0f, 1.0f });
-            this->getRegistry().emplace<::xrn::engine::component::Scale>(entity, 0.0f, 0.0f, 0.0f);
+    if (!m_balls.empty()) {
+        auto pos{ this->getRegistry().get<::xrn::engine::component::Position>(m_balls.front()).get() };
+
+        for (auto it{ m_balls.begin() + 1}; it != m_balls.end(); ++it) {
+            const auto& ballPos{ this->getRegistry().get<::xrn::engine::component::Position>(*it).get() };
+
+            if (pos.z > ballPos.z) {
+                pos = ballPos;
+            }
         }
+
+        this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setX(pos.x);
+        this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setY(pos.y);
     }
 }

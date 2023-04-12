@@ -192,9 +192,10 @@ void ::game::server::GameRoom::joinGame(
     XRN_INFO("Game room joined by:{}", m_player2.connection->getId());
     m_isRunning = true;
     m_tickThread = ::std::thread{ [this]() {
-        ::xrn::Clock m_clock, ballSpawn;
+        ::xrn::Clock clock;
 
         m_balls.emplace_back();
+        m_ballSpawnClock.reset();
         m_balls.back().setDefaultPropreties();
         do {
             if (!m_player1.connection->isConnected()) {
@@ -202,9 +203,9 @@ void ::game::server::GameRoom::joinGame(
             } else if (!m_player2.connection->isConnected()) {
                 return m_player1.connection->disconnect();
             }
-            auto deltaTime{ m_clock.restart() };
-            if (ballSpawn.getElapsed() >= m_ballSpawnFrequencyTime) {
-                ballSpawn.reset();
+            auto deltaTime{ clock.restart() };
+            if (m_ballSpawnClock.getElapsed() >= m_ballSpawnFrequencyTime) {
+                m_ballSpawnClock.reset();
                 this->createBall();
             }
             for (auto i{ 0uz }; i < m_balls.size(); ++i) {
@@ -242,11 +243,12 @@ void ::game::server::GameRoom::createBall()
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::GameRoom::resetBalls()
 {
-    // m_balls.clear();
-    // m_balls.emplace_back();
-    // m_balls.back().setDefaultPropreties();
-    // auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::resetBalls) };
-    // this->tcpSendToBothClients(::std::move(message));
+    m_balls.clear();
+    m_balls.emplace_back();
+    m_balls.back().setDefaultPropreties();
+    m_ballSpawnClock.reset();
+    auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::resetBalls) };
+    this->tcpSendToBothClients(::std::move(message));
 }
 
 ///////////////////////////////////////////////////////////////////////////
