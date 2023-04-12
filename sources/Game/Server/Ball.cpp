@@ -147,14 +147,13 @@ auto ::game::server::Ball::updateBallRotation(
         }
         if (m_position.get().z < 0) { // player1 max ball rotation
             if (m_rotation.get().y < 20.f || m_rotation.get().y > 340.f) { // temporary fix
-            } else if (m_rotation.get().y > 20.f) {
+            } else if (m_rotation.get().y < 180.f) {
                 m_rotation.setY(20.f);
-            } else if (m_rotation.get().y < 340.f) {
+            } else {
                 m_rotation.setY(340.f);
             }
         } else { // player2 max ball rotation
-            if (m_rotation.get().y > 160.f || m_rotation.get().y < 200.f) { // temporary fix
-            } else if (m_rotation.get().y < 160.f) {
+            if (m_rotation.get().y < 160.f) {
                 m_rotation.setY(160.f);
             } else if (m_rotation.get().y > 200.f) {
                 m_rotation.setY(200.f);
