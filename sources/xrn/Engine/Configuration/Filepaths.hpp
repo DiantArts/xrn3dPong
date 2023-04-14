@@ -20,6 +20,7 @@ struct Filepaths
 
     // models
     ::std::string_view modelDirectory{ "./data/Visual/Model/" };
+    ::std::string_view textureDirectory{ "./data/Visual/Texture/" };
     ::std::string_view modelExtension{ ".obj" };
 };
 

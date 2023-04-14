@@ -59,10 +59,11 @@ Options (* only applies if cmake is setup):
         --gcc                   * Use gcc instead of the default CC env value
     -l, --clang++               * Use clang++ instead of the default CXX env value
         --clang                 * Use clang instead of the default CC env value
+        --server                  Run second binary (used for client/server programming)
         --cc-compiler=COMPILER  * Use the argument specified instead of CC env value
         --cxx-compiler=COMPILER * Use the argument specified instead of CXX env value
         --compiler=COMPILER     * Use the argument specified instead of CXX env value
-        --type=Type             * Use the build type specified in argument
+        --type=TYPE             * Use the build type specified in argument
                                   ($buildType by default)
         --version=VERSION       * Use the C++ version number specified in argument
                                   ($cxxVersion by default)
@@ -70,7 +71,6 @@ Options (* only applies if cmake is setup):
                                   ($buildDir by default)
         --parallel=NUMBER         Specify the number of core to use
                                   ($parallel by default)
-        --server                  Run second binary (used for client/server programming)
         --no-*                    Values:
                                     clear: Do not clear the screen when running the script
                                     build: Do not build the project
@@ -323,7 +323,7 @@ while [ $# -gt 0 ]; do
     --version) shift; cxxVersion=$1  ;;
     --directory) shift; buildDir=$1  ;;
     --parallel) shift; parallel=$1  ;;
-    --server) shift; runSecondBinary=true ;;
+    --server) runSecondBinary=true ;;
     --no-*)
         if [[ $1 == *"-clear-"* ]] || [[ $1 == *"-clear" ]]; then
             clearNeeded=false;
