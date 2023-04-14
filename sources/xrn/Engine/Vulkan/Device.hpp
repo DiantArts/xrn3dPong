@@ -18,13 +18,17 @@ struct QueueFamilyIndices {
   bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
 };
 
+#ifndef NDEBUG
+    #warning "Validation layers NOT enabled"
+#endif
+
 class Device {
  public:
-// #ifdef NDEBUG
-  // const bool enableValidationLayers = false;
-// #else
+#ifdef NDEBUG
+  const bool enableValidationLayers = false;
+#else
   const bool enableValidationLayers = true;
-// #endif
+#endif
 
   Device(::xrn::engine::vulkan::Window &window);
   ~Device();
