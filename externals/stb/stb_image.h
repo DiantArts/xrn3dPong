@@ -1,3 +1,26 @@
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wcast-align"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+
+#elif __clang__
+#pragma clang diagnostic push
+#if __has_warning("-Wold-style-cast")
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+#if __has_warning("-Wcast-align")
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+#if __has_warning("-Wimplicit-int-conversion")
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#endif
+#if __has_warning("-Wdouble-promotion")
+#pragma clang diagnostic ignored "-Wdouble-promotion"
+#endif
+
+#endif
 /* stb_image - v2.28 - public domain image loader - http://nothings.org/stb
                                   no warranty implied; use at your own risk
 
@@ -7985,3 +8008,8 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#elif __clang__
+#pragma clang diagnostic pop
+#endif

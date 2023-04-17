@@ -47,7 +47,7 @@
     ) };
     ::VkDeviceSize imageSize{ textureWidth * textureHeight * 4 };
 
-    XRN_FATAL_ASSERT(pixels, "failed to load texture image!");
+    XRN_FATAL_ASSERT(pixels, "Failed to load texture image");
 
 
     // init pixel buffer
