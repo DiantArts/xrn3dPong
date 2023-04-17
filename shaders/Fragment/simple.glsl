@@ -40,5 +40,5 @@ void main()
         diffuseLight += intensity * cosAngIncidence;
     }
 
-    outColor = vec4(diffuseLight * fragColor, 1.0);
+    outColor = vec4(diffuseLight * fragColor, 0.75);
 }

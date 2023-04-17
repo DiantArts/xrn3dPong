@@ -27,7 +27,7 @@ void ::game::Map::loadObjects(
         auto entity{ player };
         registry.emplace<::xrn::engine::component::Control>(entity);
         registry.get<::xrn::engine::component::Control>(entity).setSpeed(2500);
-        registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(device, "Cube"));
+        registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(device, "Cube2"));
         registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, -mapSize.z);
         registry.emplace<::xrn::engine::component::Scale>(entity, ::game::Map::playerScale);
         registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });
@@ -35,7 +35,7 @@ void ::game::Map::loadObjects(
 
     { // enemy
         auto entity{ enemy };
-        registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(device, "Cube"));
+        registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(device, "Cube2"));
         registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, mapSize.z);
         registry.emplace<::xrn::engine::component::Scale>(entity, ::game::Map::playerScale);
         registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 0.0f, 0.0f, 0.0f });

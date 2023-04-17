@@ -158,7 +158,7 @@ using ::std::chrono_literals::operator""ms;
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // #define PRINT_ASSERTS
-#define FORCE_PRINT
+// #define FORCE_PRINT
 // #define NO_DEBUG
 #include <xrn/Log/Logger.hpp>
 #include <xrn/Util.hpp>

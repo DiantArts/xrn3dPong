@@ -35,6 +35,7 @@ public:
         ::xrn::engine::vulkan::Pipeline::Configuration& operator=(
             const ::xrn::engine::vulkan::Pipeline::Configuration&
         ) = delete;
+        void enableAlphaBlending();
 
         ::std::vector<::VkVertexInputBindingDescription> bindingDescriptions{};
         ::std::vector<::VkVertexInputAttributeDescription> attributeDescriptions{};

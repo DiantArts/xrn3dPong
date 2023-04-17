@@ -12,6 +12,7 @@
 #include <xrn/Engine/Vulkan/Model.hpp>
 #include <xrn/Engine/Vulkan/errorToString.hpp>
 #include <xrn/Engine/Configuration.hpp>
+#include <vulkan/vulkan_core.h>
 
 
 
@@ -99,6 +100,23 @@
 
     this->bindingDescriptions = ::xrn::engine::vulkan::Model::Vertex::getBindingDescriptions();
     this->attributeDescriptions = ::xrn::engine::vulkan::Model::Vertex::getAttributeDescriptions();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::engine::vulkan::Pipeline::Configuration::enableAlphaBlending()
+{
+    this->colorBlendAttachment.blendEnable = VK_TRUE;
+    this->colorBlendAttachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT |
+        VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT;
+    this->colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    this->colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    this->colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+    this->colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    this->colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    this->colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 }
 
 

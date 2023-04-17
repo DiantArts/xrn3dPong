@@ -393,11 +393,7 @@ void ::xrn::engine::AScene::draw()
 
     m_renderer.beginSwapChainRenderPass(m_frameInfo.commandBuffer);
 
-    m_draw3d.bind(m_frameInfo);
-    m_registry.view<::xrn::engine::component::Transform3d>().each([this](auto& transform){
-        m_draw3d(m_frameInfo, transform);
-    });
-
+    // draw lights
     m_drawPointLight.bind(m_frameInfo);
     m_registry.view<::xrn::engine::component::PointLight, ::xrn::engine::component::Position>().each(
         [this, lightIndex = 0](auto& pointLight, auto& position) mutable {
@@ -405,6 +401,12 @@ void ::xrn::engine::AScene::draw()
             ++lightIndex;
         }
     );
+
+    // draw objects
+    m_draw3d.bind(m_frameInfo);
+    m_registry.view<::xrn::engine::component::Transform3d>().each([this](auto& transform){
+        m_draw3d(m_frameInfo, transform);
+    });
 
     m_renderer.endSwapChainRenderPass(m_frameInfo.commandBuffer);
     m_renderer.endFrame();

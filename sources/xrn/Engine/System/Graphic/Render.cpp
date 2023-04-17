@@ -97,6 +97,7 @@ void ::xrn::engine::system::graphic::Render::createPipeline(
     ::xrn::engine::vulkan::Pipeline::Configuration pipelineConfig{};
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
+    pipelineConfig.enableAlphaBlending();
     m_pPipeline = ::std::make_unique<::xrn::engine::vulkan::Pipeline>(m_device, pipelineConfig, "simple");
 }
 

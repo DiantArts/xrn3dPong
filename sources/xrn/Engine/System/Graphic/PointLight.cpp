@@ -92,6 +92,7 @@ void ::xrn::engine::system::graphic::PointLight::createPipeline(
     pipelineConfig.bindingDescriptions.clear();
     pipelineConfig.renderPass = renderPass;
     pipelineConfig.pipelineLayout = m_pipelineLayout;
+    pipelineConfig.enableAlphaBlending();
     m_pPipeline = ::std::make_unique<::xrn::engine::vulkan::Pipeline>(m_device, pipelineConfig, "pointLight");
 }
 

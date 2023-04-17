@@ -234,10 +234,12 @@ BREAK_THREAD_LOOP:
 ///////////////////////////////////////////////////////////////////////////
 void ::game::server::GameRoom::createBall()
 {
-    m_balls.emplace_back();
-    m_balls.back().setDefaultPropreties();
-    auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::createBall) };
-    this->tcpSendToBothClients(::std::move(message));
+    if (m_balls.size() < 10) {
+        m_balls.emplace_back();
+        m_balls.back().setDefaultPropreties();
+        auto message{ ::std::make_unique<GameRoom::Message>(::game::MessageType::createBall) };
+        this->tcpSendToBothClients(::std::move(message));
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
