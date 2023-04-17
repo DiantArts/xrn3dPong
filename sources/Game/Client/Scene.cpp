@@ -32,7 +32,7 @@
     , m_enemy{ this->getRegistry().create() }
 {
     this->loadScene();
-    this->getWindow().hideCursor(false);
+    // this->getWindow().hideCursor(false);
 
 #ifdef ENABLE_SOUND
     auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
