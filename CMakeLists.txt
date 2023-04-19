@@ -11,7 +11,7 @@ set(XRN_CXX_VERSION 23)
 set(XRN_ERROR_LIMIT 1)
 
 # dependencies
-set(XRN_PERSONAL_DEPENDENCIES xrnLog xrnMeta xrnUtil xrnEcs xrnNetwork) # include other xrn projects
+set(XRN_PERSONAL_DEPENDENCIES xrnLog xrnMeta xrnUtil xrnEcs xrnNetwork xrnEngine) # include other xrn projects
 set(XRN_LIBRARIES_REQUIRED glfw/3.3.7 entt/3.10.1 spdlog/1.10.0 asio/1.24.0)
 set(XRN_LIBRARIES_REQUIREMENTS Vulkan glfw3 EnTT fmt Threads spdlog fmt asio) # find_package
 set(XRN_LIBRARIES_DEPENDENCIES Vulkan::Vulkan EnTT::EnTT fmt::fmt Threads::Threads CONAN_PKG::glfw CONAN_PKG::spdlog CONAN_PKG::fmt CONAN_PKG::asio sfml-audio) # target_link_libraries

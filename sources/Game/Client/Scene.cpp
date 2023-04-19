@@ -123,7 +123,7 @@ auto ::game::client::Scene::onTick(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::onKeyPressed(
-    ::std::int16_t keyCode
+    ::std::int16_t keyCode [[ maybe_unused ]]
 )
 {
     if (
@@ -167,7 +167,7 @@ void ::game::client::Scene::onKeyPressed(
 
 ///////////////////////////////////////////////////////////////////////////
 void ::game::client::Scene::onKeyReleased(
-    ::std::int16_t keyCode
+    ::std::int16_t keyCode [[ maybe_unused ]]
 )
 {
     if (
