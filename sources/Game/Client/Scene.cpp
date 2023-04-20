@@ -14,7 +14,7 @@
 
 #define ENABLE_BOT_CHEAT
 // #define ENABLE_KEY_PRESSED
-// #define ENABLE_SOUND
+#define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
 
 
@@ -32,7 +32,6 @@
     , m_enemy{ this->getRegistry().create() }
 {
     this->loadScene();
-    // this->getWindow().hideCursor(false);
 
 #ifdef ENABLE_SOUND
     auto filepath{ "./data/Audio/PowerfulTrap.ogg" };
@@ -133,31 +132,41 @@ void ::game::client::Scene::onKeyPressed(
 #ifdef ENABLE_KEY_PRESSED
         // move
         if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
-            return playerController->startMovingUp();
+            playerController->startMovingUp();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
-            return playerController->startMovingDown();
+            playerController->startMovingDown();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            return playerController->startMovingBackward();
+            playerController->startMovingBackward();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            return playerController->startMovingForward();
+            playerController->startMovingForward();
+            return;
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
             auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            return m_playerNumber == 1 ? cameraController.startMovingBackward() : cameraController.startMovingForward();
+            m_playerNumber == 1 ? cameraController.startMovingBackward() : cameraController.startMovingForward();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
             auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            return m_playerNumber == 1 ? cameraController.startMovingForward() : cameraController.startMovingBackward();
+            m_playerNumber == 1 ? cameraController.startMovingForward() : cameraController.startMovingBackward();
+            return;
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
-            return playerController->rotateZ(-45 / 2);
+            playerController->rotateZ(-45 / 2);
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookDown) {
-            return playerController->rotateZ(45 / 2);
+            playerController->rotateZ(45 / 2);
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookLeft) {
-            return playerController->rotateX(45 / 2);
+            playerController->rotateX(45 / 2);
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookRight) {
-            return playerController->rotateX(-45 / 2);
+            playerController->rotateX(-45 / 2);
+            return;
         }
 #endif // ENABLE_KEY_PRESSED
     }
@@ -176,21 +185,27 @@ void ::game::client::Scene::onKeyReleased(
     ) {
         // move
         if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
-            return playerController->stopMovingUp();
+            playerController->stopMovingUp();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
-            return playerController->stopMovingDown();
+            playerController->stopMovingDown();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            return playerController->stopMovingBackward();
+            playerController->stopMovingBackward();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            return playerController->stopMovingForward();
+            playerController->stopMovingForward();
+            return;
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
             auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            return m_playerNumber == 1 ? cameraController.stopMovingBackward() : cameraController.stopMovingForward();
+            m_playerNumber == 1 ? cameraController.stopMovingBackward() : cameraController.stopMovingForward();
+            return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
             auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            return m_playerNumber == 1 ? cameraController.stopMovingForward() : cameraController.stopMovingBackward();
+            m_playerNumber == 1 ? cameraController.stopMovingForward() : cameraController.stopMovingBackward();
+            return;
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
