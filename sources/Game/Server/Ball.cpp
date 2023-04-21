@@ -61,7 +61,7 @@ void ::game::server::Ball::onTick(
     ::xrn::Time deltaTime
 )
 {
-    m_rotation.rotate(m_rotationEffect);
+    m_rotation += m_rotationEffect;
     m_rotation.updateDirection();
     m_position.update(deltaTime, m_control, m_rotation.getDirection());
 }
@@ -75,12 +75,12 @@ auto ::game::server::Ball::resolveBallCollisionWithWalls()
 
     if (m_position.get().x >= ::game::Map::maxMapPosition.x) { // left
         const ::glm::vec2 normal{ 0.f, 180.f };
-        m_rotation.set(normal - m_rotation.getXY());
+        m_rotation.setXY(normal - m_rotation.getXY());
         m_position.set(::game::Map::maxMapPosition.x, ball.y, ball.z);
         isCollided = true;
     } else if (m_position.get().x <= -::game::Map::maxMapPosition.x) { // right
         const ::glm::vec2 normal{ 0.f, 180.f };
-        m_rotation.set(normal - m_rotation.getXY());
+        m_rotation.setXY(normal - m_rotation.getXY());
         m_position.set(-::game::Map::maxMapPosition.x, ball.y, ball.z);
         isCollided = true;
     }
@@ -112,9 +112,9 @@ auto ::game::server::Ball::updateBallRotation(
         return 3;
     }
 
-    for (auto& player : { player1, player2 }) {
-        auto beginHitbox{ player.position.get() - (::game::Map::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
-        auto endHitbox{ player.position.get() + (::game::Map::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
+    for (auto* player : ::std::array<::game::server::Player*, 2>{ &player1, &player2 }) {
+        auto beginHitbox{ player->position.get() - (::game::Map::playerScale) - ::glm::vec3{ .5f, .5f, 0.f } };
+        auto endHitbox{ player->position.get() + (::game::Map::playerScale) + ::glm::vec3{ .5f, .5f, 0.f } };
 
         if (
             ball.x < beginHitbox.x || ball.x > endHitbox.x ||
@@ -122,7 +122,7 @@ auto ::game::server::Ball::updateBallRotation(
         ) {
             continue;
         }
-        if (player.position.get().z < 0) {
+        if (player->position.get().z < 0) {
             // add 1 to componsate the lag
             if (ball.z < beginHitbox.z - 2.f || ball.z > endHitbox.z) {
                 continue;
@@ -135,7 +135,7 @@ auto ::game::server::Ball::updateBallRotation(
         }
 
         const ::glm::vec2 normal{ 180.f, 180.f };
-        m_rotation.set(normal - m_rotation.getXY());
+        m_rotation.setXY(normal - m_rotation.getXY());
 
         if (m_rotation.get().x < 40.f) {
             m_rotation.setX(40.f);
@@ -158,11 +158,11 @@ auto ::game::server::Ball::updateBallRotation(
         }
 
         // .z is always 0 becacuse the player cannot move on z axis
-        m_rotationEffect.x = player.burstSpeed.x * .5f;
-        m_rotationEffect.y = player.burstSpeed.y * .5f;
+        m_rotationEffect.x = player->burstSpeed.x * .5f;
+        m_rotationEffect.y = player->burstSpeed.y * .5f;
 
         m_position.set(ball.x, ball.y, beginHitbox.z);
-        return player.id;
+        return player->id;
     }
 
     return 0;
