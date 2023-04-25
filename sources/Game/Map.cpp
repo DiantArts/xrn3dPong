@@ -25,8 +25,6 @@ void ::game::Map::loadObjects(
 {
     { // player
         auto entity{ player };
-        registry.emplace<::xrn::engine::component::Control>(entity);
-        registry.get<::xrn::engine::component::Control>(entity).setSpeed(2500);
         registry.emplace<::xrn::engine::component::Transform3d>(entity, ::xrn::engine::vulkan::Model::createFromFile(device, "Cube2"));
         registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, -mapSize.z);
         registry.emplace<::xrn::engine::component::Scale>(entity, ::game::Map::playerScale);
@@ -50,10 +48,8 @@ void ::game::Map::createBall(
 )
 {
     auto entity{ ball };
-    registry.emplace<::xrn::engine::component::Control>(entity);
     registry.emplace<::xrn::engine::component::PointLight>(entity, glm::vec3{ 1.0f, 1.0f, 1.0f });
     registry.emplace<::xrn::engine::component::Position>(entity, 0.0f, 0.0f, 0.0f);
-    registry.emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ -90.0f, 0.0f, 0.0f });
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -47,10 +47,11 @@ void ::game::client::Scene::loadScene()
 {
     { // camera
         auto entity{ this->getCameraId() };
-        this->getRegistry().emplace<::xrn::engine::component::Control>(entity); // cameras are always controlled
-        this->getRegistry().get<::xrn::engine::component::Control>(entity).setSpeed(1000);
+        this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(::game::Map::mapSize.z + 30.0f) });
         this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Direction>(entity);
+        this->getRegistry().emplace<::xrn::engine::component::Velocity>(entity);
     }
 
     ::game::Map::loadObjects(
@@ -126,46 +127,51 @@ void ::game::client::Scene::onKeyPressed(
 )
 {
     if (
-        auto* playerController{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
-        playerController
+        auto* control{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
+        control
     ) {
 #ifdef ENABLE_KEY_PRESSED
+        auto* direction{ this->getRegistry().try_get<::xrn::engine::component::Direction>(this->getPlayerId()) };
+        XRN_SASSERT(direction, "controlled actor needs a direction component");
+        auto* velocity{ this->getRegistry().try_get<::xrn::engine::component::Velocity>(this->getPlayerId()) };
+        XRN_SASSERT(velocity, "controlled actor needs a velocity component");
+
         // move
         if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
-            playerController->startMovingUp();
+            control->startMovingUp(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
-            playerController->startMovingDown();
+            control->startMovingDown(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            playerController->startMovingBackward();
+            control->startMovingBackward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            playerController->startMovingForward();
+            control->startMovingForward(*direction, *velocity);
             return;
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? cameraController.startMovingBackward() : cameraController.startMovingForward();
+            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? control.startMovingBackward(*direction, *velocity) : control.startMovingForward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? cameraController.startMovingForward() : cameraController.startMovingBackward();
+            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? control.startMovingForward(*direction, *velocity) : control.startMovingBackward(*direction, *velocity);
             return;
 
         // look
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookUp) {
-            playerController->rotateZ(-45 / 2);
+            control->addZ(-45 / 2, *direction);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookDown) {
-            playerController->rotateZ(45 / 2);
+            control->addZ(45 / 2, *direction);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookLeft) {
-            playerController->rotateX(45 / 2);
+            control->addX(45 / 2, *direction);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.lookRight) {
-            playerController->rotateX(-45 / 2);
+            control->addX(-45 / 2, *direction);
             return;
         }
 #endif // ENABLE_KEY_PRESSED
@@ -180,31 +186,36 @@ void ::game::client::Scene::onKeyReleased(
 )
 {
     if (
-        auto* playerController{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
-        playerController
+        auto* control{ this->getRegistry().try_get<::xrn::engine::component::Control>(this->getPlayerId()) };
+        control
     ) {
+        auto* direction{ this->getRegistry().try_get<::xrn::engine::component::Direction>(this->getPlayerId()) };
+        XRN_SASSERT(direction, "controlled actor needs a direction component");
+        auto* velocity{ this->getRegistry().try_get<::xrn::engine::component::Velocity>(this->getPlayerId()) };
+        XRN_SASSERT(velocity, "controlled actor needs a velocity component");
+
         // move
         if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward) {
-            playerController->stopMovingUp();
+            control->stopMovingUp(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward) {
-            playerController->stopMovingDown();
+            control->stopMovingDown(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveLeft) {
-            playerController->stopMovingBackward();
+            control->stopMovingBackward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveRight) {
-            playerController->stopMovingForward();
+            control->stopMovingForward(*direction, *velocity);
             return;
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? cameraController.stopMovingBackward() : cameraController.stopMovingForward();
+            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? control.stopMovingBackward(*direction, *velocity) : control.stopMovingForward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            auto& cameraController{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? cameraController.stopMovingForward() : cameraController.stopMovingBackward();
+            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? control.stopMovingForward(*direction, *velocity) : control.stopMovingBackward(*direction, *velocity);
             return;
 
         // look
@@ -347,13 +358,13 @@ void ::game::client::Scene::onReceive(
         // move to the other side because player is player2
         // camera
         this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId()).setZ(::game::Map::mapSize.z + 30.0f);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getCameraId()).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getCameraId()).addX(180);
         // player
         this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setZ(::game::Map::mapSize.z);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).addX(180);
         // enemy
         this->getRegistry().get<::xrn::engine::component::Position>(m_enemy).setZ(-::game::Map::mapSize.z);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(m_enemy).rotateX(180);
+        this->getRegistry().get<::xrn::engine::component::Rotation>(m_enemy).addX(180);
 
         this->tcpSendToServer(::std::make_unique<Scene::Message>(::game::MessageType::readyToPlay));
         break;

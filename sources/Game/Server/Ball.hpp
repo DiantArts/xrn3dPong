@@ -167,9 +167,8 @@ public:
 
 private:
 
-    ::xrn::engine::component::Control m_control;
     ::xrn::engine::component::Position m_position;
-    ::xrn::engine::component::Rotation m_rotation;
+    ::xrn::engine::component::Velocity m_velocity;
 
     ::glm::vec3 m_rotationEffect{ 0.0f };
 
