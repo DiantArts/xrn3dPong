@@ -152,12 +152,12 @@ void ::game::client::Scene::onKeyPressed(
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? control.startMovingBackward(*direction, *velocity) : control.startMovingForward(*direction, *velocity);
+            auto& cameraControl{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? cameraControl.startMovingBackward(*direction, *velocity) : cameraControl.startMovingForward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? control.startMovingForward(*direction, *velocity) : control.startMovingBackward(*direction, *velocity);
+            auto& cameraControl{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? cameraControl.startMovingForward(*direction, *velocity) : cameraControl.startMovingBackward(*direction, *velocity);
             return;
 
         // look
@@ -210,12 +210,12 @@ void ::game::client::Scene::onKeyReleased(
 
         // camera distance
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveForward2) {
-            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? control.stopMovingBackward(*direction, *velocity) : control.stopMovingForward(*direction, *velocity);
+            auto& cameraControl{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? cameraControl.stopMovingBackward(*direction, *velocity) : cameraControl.stopMovingForward(*direction, *velocity);
             return;
         } else if (keyCode == ::xrn::engine::configuration.keyBinding.moveBackward2) {
-            auto& control{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
-            m_playerNumber == 1 ? control.stopMovingForward(*direction, *velocity) : control.stopMovingBackward(*direction, *velocity);
+            auto& cameraControl{ this->getRegistry().get<::xrn::engine::component::Control>(this->getCameraId()) };
+            m_playerNumber == 1 ? cameraControl.stopMovingForward(*direction, *velocity) : cameraControl.stopMovingBackward(*direction, *velocity);
             return;
 
         // look
