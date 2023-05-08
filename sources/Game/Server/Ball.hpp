@@ -3,6 +3,7 @@
 #include <xrn/Engine/Components.hpp>
 #include <Game/MessageType.hpp>
 #include <Game/Server/Player.hpp>
+#include <xrn/Engine/System/UpdatePosition.hpp>
 
 namespace game::server {
 
@@ -167,7 +168,10 @@ public:
 
 private:
 
+    ::xrn::engine::system::UpdatePosition m_updatePosition;
+
     ::xrn::engine::component::Position m_position;
+    ::xrn::engine::component::Direction m_direction;
     ::xrn::engine::component::Velocity m_velocity;
 
     ::glm::vec3 m_rotationEffect{ 0.0f };

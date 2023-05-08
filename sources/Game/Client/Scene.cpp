@@ -49,9 +49,9 @@ void ::game::client::Scene::loadScene()
         auto entity{ this->getCameraId() };
         this->getRegistry().emplace<::xrn::engine::component::Control>(entity);
         this->getRegistry().emplace<::xrn::engine::component::Position>(entity, ::glm::vec3{ 0.0f, 0.0f, -(::game::Map::mapSize.z + 30.0f) });
-        this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
-        this->getRegistry().emplace<::xrn::engine::component::Direction>(entity);
-        this->getRegistry().emplace<::xrn::engine::component::Velocity>(entity);
+        // this->getRegistry().emplace<::xrn::engine::component::Rotation>(entity, ::glm::vec3{ 90.0f, 0.0f, 0.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Direction>(entity, ::glm::vec3{ 0.0f, .0f, 1.0f });
+        this->getRegistry().emplace<::xrn::engine::component::Velocity>(entity).setMaximumSpeed(1000.f);
     }
 
     ::game::Map::loadObjects(
@@ -358,7 +358,7 @@ void ::game::client::Scene::onReceive(
         // move to the other side because player is player2
         // camera
         this->getRegistry().get<::xrn::engine::component::Position>(this->getCameraId()).setZ(::game::Map::mapSize.z + 30.0f);
-        this->getRegistry().get<::xrn::engine::component::Rotation>(this->getCameraId()).addX(180);
+        this->getRegistry().get<::xrn::engine::component::Direction>(this->getCameraId()).setZ(-1.0f);
         // player
         this->getRegistry().get<::xrn::engine::component::Position>(this->getPlayerId()).setZ(::game::Map::mapSize.z);
         this->getRegistry().get<::xrn::engine::component::Rotation>(this->getPlayerId()).addX(180);
