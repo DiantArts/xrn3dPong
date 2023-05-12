@@ -159,7 +159,7 @@ auto ::game::server::Ball::updateBallRotation(
 
         // .z is always 0 becacuse the player cannot move on z axis
         m_rotationEffect.x = player.burstSpeed.x * .5f;
-        m_rotationEffect.y = player.burstSpeed.y * .5f;
+        m_rotationEffect.y = player.burstSpeed.y * -.5f;
 
         m_position.set(ball.x, ball.y, beginHitbox.z);
         return player.id;

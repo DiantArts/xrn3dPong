@@ -14,7 +14,7 @@
 
 #define ENABLE_BOT_CHEAT
 // #define ENABLE_KEY_PRESSED
-// #define ENABLE_SOUND
+#define ENABLE_SOUND
 // #define ENABLE_MUSIC_FOR_ALL_CLIENTS
 
 
